@@ -9,6 +9,8 @@ import { AuthProvider } from './providers/auth.provider';
 import { LoadingProvider } from './providers/loading.provider';
 import { store } from './redux-ts';
 import { router } from './routes';
+import { ThemeProvider } from '@mui/material';
+import { generalTheme } from './theme';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -17,13 +19,15 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <AuthProvider>
-        <LoadingProvider>
-          <RouterProvider router={router} />
-          <ToastContainer
-            pauseOnFocusLoss={false}
-            hideProgressBar
-          />
-        </LoadingProvider>
+        <ThemeProvider theme={generalTheme}>
+          <LoadingProvider>
+            <RouterProvider router={router} />
+            <ToastContainer
+              pauseOnFocusLoss={false}
+              hideProgressBar
+            />
+          </LoadingProvider>
+        </ThemeProvider>
       </AuthProvider>
     </Provider>
 

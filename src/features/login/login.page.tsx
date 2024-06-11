@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
-import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { toast } from 'react-toastify';
@@ -9,12 +8,9 @@ import { AuthContext } from '../../providers/auth.provider';
 import { useNavigate } from 'react-router-dom';
 import { Button, TextField, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 import logo from '../../assets/logo.png';
-
-const theme = createTheme({
-  
-});
+import TopBar from 'src/components/top-bar/top-bar.index';
 
 export default function Login() {
 
@@ -71,58 +67,58 @@ export default function Login() {
     return true;
   }
 
-  return (
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, cursor: 'pointer' }} src={logo} />
+  return (<>
+    <TopBar />
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Avatar sx={{ m: 1, cursor: 'pointer' }} src={logo} />
 
-          <Typography component="h1" variant="h5">
-            Acesso
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="login"
-              label="Login"
-              name="login"
-              autoFocus
-              value={email}
-              onChange={async (e: any) => await setEmail(e.target.value)}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Senha"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
-            {/* <FormControlLabel
+        <Typography component="h1" variant="h5">
+          Acesso
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="login"
+            label="Login"
+            name="login"
+            autoFocus
+            value={email}
+            onChange={async (e: any) => await setEmail(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Senha"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+          />
+          {/* <FormControlLabel
               control={<Checkbox name="remember" value="remember" color="primary" defaultChecked />}
               label="Recordar mi correo"
             /> */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Acessar
-            </Button>
-          </Box>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Acessar
+          </Button>
         </Box>
-      </Container>
-  );
+      </Box>
+    </Container>
+  </>);
 }

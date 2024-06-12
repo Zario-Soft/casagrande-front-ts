@@ -2,8 +2,9 @@ import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
 
 export interface DoLoginRequest {
-    username: string,
-    password: string,
+    usuario: string,
+    senha: string,
+    rawSenha: string,
 }
 
 export class LoginService {
@@ -14,7 +15,7 @@ export class LoginService {
     }
 
     public async doLogin(data: DoLoginRequest): Promise<AxiosResponse<any, any>> {
-        return this.request.post(`auth/login`, data);
+        return this.request.post(`login`, data);
     }
 }
 

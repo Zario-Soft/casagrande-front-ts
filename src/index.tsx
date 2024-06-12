@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import 'react-toastify/dist/ReactToastify.css';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
@@ -25,6 +26,7 @@ root.render(
             <ToastContainer
               pauseOnFocusLoss={false}
               hideProgressBar
+              theme="colored"
             />
           </LoadingProvider>
         </ThemeProvider>

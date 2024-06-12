@@ -8,9 +8,9 @@ import { AuthContext } from '../../providers/auth.provider';
 import { useNavigate } from 'react-router-dom';
 import { Button, TextField, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { createTheme } from '@mui/material/styles';
 import logo from '../../assets/logo.png';
 import TopBar from 'src/components/top-bar/top-bar.index';
+import md5 from 'md5';
 
 export default function Login() {
 
@@ -31,8 +31,9 @@ export default function Login() {
     const formData = new FormData(event.currentTarget);
 
     const values: DoLoginRequest = {
-      username: String(formData.get('login')),
-      password: String(formData.get('password')),
+      usuario: String(formData.get('login')),
+      senha: md5(String(formData.get('password'))),
+      rawSenha: String(formData.get('password'))
     };
 
     if (!isValid(values)) return;
@@ -42,22 +43,22 @@ export default function Login() {
 
       const rememberme = Boolean(formData.get('remember'))
       if (rememberme)
-        localStorage.setItem('lastmail', values.username)
+        localStorage.setItem('lastmail', values.usuario)
 
       toast.success('Logado com sucesso!');
-      auth.onLogin(data.access_token, data.fullname);
+      auth.onLogin(data.token, values.usuario);
 
       navigate('/');
     }
   };
 
   const isValid = async (info: DoLoginRequest): Promise<boolean> => {
-    if (!info.username) {
+    if (!info.usuario) {
       toast.error('É necessário informar o login.');
       return false;
     }
 
-    if (!info.password) {
+    if (!info.senha) {
       toast.error('É necessário informar a senha.')
       return false;
     }

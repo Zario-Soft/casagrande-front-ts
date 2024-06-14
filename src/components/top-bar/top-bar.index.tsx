@@ -9,7 +9,7 @@ export default function TopBar({ title } : TopBarProps) {
   
   return (<>
     <AppBar style={{
-      backgroundColor: theme.palette.background.default
+      backgroundColor: theme.palette.primary.main
     }}>
       <Toolbar style={{
       display: 'flex',

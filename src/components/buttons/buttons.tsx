@@ -1,17 +1,18 @@
 import styled from "@emotion/styled";
 import { Button } from "@mui/material";
+import { generalTheme } from "src/theme";
 
-export const WarningButton = styled(Button)(({ theme }) => ({
-    backgroundColor: '#E3735E',
-    color: 'white'
+export const WarningButton = styled(Button)(({ disabled }) => ({
+    backgroundColor: disabled ? 'gray' : '#000',
+    color: 'white',
 }));
 
-export const GreenButton = styled(Button)(({ theme }) => ({
+export const GreenButton = styled(Button)(({ }) => ({
     backgroundColor: '#BFE3B4',
     color: 'black',
 }));
 
-export const NormalButton = styled(Button)(({ theme }) => ({
-    backgroundColor: '#6488ea',
+export const NormalButton = styled(Button)(({ disabled }) => ({
+    backgroundColor: disabled ? 'gray' : generalTheme.palette.primary.main,
     color: 'white',
 }));

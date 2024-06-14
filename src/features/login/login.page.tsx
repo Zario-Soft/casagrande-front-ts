@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import logo from '../../assets/logo.png';
 import TopBar from 'src/components/top-bar/top-bar.index';
 import md5 from 'md5';
+import { pageRoutes } from 'src/routes';
 
 export default function Login() {
 
@@ -48,7 +49,7 @@ export default function Login() {
       toast.success('Logado com sucesso!');
       auth.onLogin(data.token, values.usuario);
 
-      navigate('/');
+      navigate(pageRoutes.CLIENTES);
     }
   };
 

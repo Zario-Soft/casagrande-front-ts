@@ -75,7 +75,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
     const dispatch: AppDispatch = useAppDispatch();
     const open: boolean = useAppSelector(getSidebarStatus);
-    
+
     const { children } = props;
 
     const navigate = useNavigate();
@@ -106,26 +106,60 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
                 <Divider />
                 <List>
                     <SideBarItem
-                        icon={<SchoolIcon />}
-                        open={open}
-                        path={pageRoutes.ALUNOS}
-                        text={'Alunos'}
-                        divider
-                    />
-
-                    <SideBarItem
-                        icon={<FitnessCenterIcon />}
-                        open={open}
-                        path={pageRoutes.DESAFIOS}
-                        text={'Desafios'}
-                        divider
-                    />
-
-                    <SideBarItem
                         icon={<EditNoteIcon />}
                         open={open}
                         path={'/'}
-                        text={'Controle'}
+                        text={'Inicial'}
+                        divider
+                    />
+                    <SideBarItem
+                        icon={<SchoolIcon />}
+                        open={open}
+                        path={pageRoutes.CLIENTES}
+                        text={'Clientes'}
+                        divider
+                    />
+
+                    <SideBarItem
+                        icon={<SchoolIcon />}
+                        open={open}
+                        path={pageRoutes.PRODUTOS}
+                        text={'Produtos'}
+                        divider
+                    />
+                    <SideBarItem
+                        icon={<SchoolIcon />}
+                        open={open}
+                        path={pageRoutes.ORCAMENTOS}
+                        text={'Orçamentos'}
+                        divider
+                    />
+                    <SideBarItem
+                        icon={<SchoolIcon />}
+                        open={open}
+                        path={pageRoutes.VENDAS}
+                        text={'Vendas'}
+                        divider
+                    />
+                    <SideBarItem
+                        icon={<SchoolIcon />}
+                        open={open}
+                        path={pageRoutes.CALENDARIO}
+                        text={'Calendário'}
+                        divider
+                    />
+                    <SideBarItem
+                        icon={<SchoolIcon />}
+                        open={open}
+                        path={pageRoutes.PRODUCAO}
+                        text={'Produção'}
+                        divider
+                    />
+                    <SideBarItem
+                        icon={<SchoolIcon />}
+                        open={open}
+                        path={pageRoutes.CONFIGURACOES}
+                        text={'Configurações'}
                         divider
                     />
                 </List>

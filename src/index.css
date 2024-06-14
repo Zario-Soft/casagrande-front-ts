@@ -12,3 +12,76 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+  justify-content: center;
+}
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  margin: 20px;
+  justify-content: center;
+  width: -webkit-fill-available;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.inner-flex-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%
+}
+
+.txt-box-small {
+  width: 20%;
+}
+
+.txt-box-medium {
+  width: 48%;
+}
+
+.txt-box-large {
+  width: 70%;
+}
+
+.form-control {
+  min-width: 150px;
+}
+
+.general-input,
+.txt-box,
+.txt-box-small,
+.txt-box-large,
+.inner-flex-container {
+  margin-bottom: 15px !important;
+}
+
+
+@media (max-width: 800px) {
+  .flex-container {
+      flex-direction: column;
+      gap: 10px;
+  }
+
+  .inner-flex-container {
+      flex-direction: column;
+      justify-content: center;
+  }
+
+  .general-input,
+  .txt-box-small,
+  .txt-box-medium,
+  .txt-box-large {
+      width: 100%;
+  }
+}

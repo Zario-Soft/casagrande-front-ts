@@ -1,5 +1,6 @@
 import './index.css';
 import { NormalButton, WarningButton, GreenButton } from '../buttons';
+import { useTheme } from '@emotion/react';
 
 interface ButtonsLineProps {
     newEnabled?:boolean,
@@ -13,8 +14,9 @@ interface ButtonsLineProps {
 }
 
 export default function ButtonsLine(props: ButtonsLineProps){
+    const theme = useTheme();
     return <div className='buttons-container'>
-            <NormalButton onClick={props.onNewClick} disabled={!!props.newEnabled}>Novo</NormalButton>
+            <NormalButton theme={theme} onClick={props.onNewClick} disabled={!!props.newEnabled}>Novo</NormalButton>
             <NormalButton onClick={props.onEditClick} disabled={!!props.editEnabled}>Editar</NormalButton>
 
             {props.reportVisible && <GreenButton onClick={props.onReportClick}>Relatório</GreenButton>}

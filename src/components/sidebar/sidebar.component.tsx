@@ -10,9 +10,14 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import { Avatar } from '@mui/material';
-import EditNoteIcon from '@mui/icons-material/EditNote';
-import SchoolIcon from '@mui/icons-material/School';
-import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
+import ExtensionIcon from '@mui/icons-material/Extension';
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import RedeemIcon from '@mui/icons-material/Redeem';
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import AccessibilityIcon from '@mui/icons-material/Accessibility';
+import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from 'react-router-dom';
 import { SidebarFooter } from './sidebar-footer';
 
@@ -31,7 +36,7 @@ const openedMixin = (theme: Theme): CSSObject => ({
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
     }),
-    overflowX: 'hidden',
+    overflowX: 'hidden'
 });
 
 const closedMixin = (theme: Theme): CSSObject => ({
@@ -106,14 +111,14 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
                 <Divider />
                 <List>
                     <SideBarItem
-                        icon={<EditNoteIcon />}
+                        icon={<HomeIcon />}
                         open={open}
                         path={'/'}
                         text={'Inicial'}
                         divider
                     />
                     <SideBarItem
-                        icon={<SchoolIcon />}
+                        icon={<AccessibilityIcon />}
                         open={open}
                         path={pageRoutes.CLIENTES}
                         text={'Clientes'}
@@ -121,42 +126,42 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
                     />
 
                     <SideBarItem
-                        icon={<SchoolIcon />}
+                        icon={<RedeemIcon />}
                         open={open}
                         path={pageRoutes.PRODUTOS}
                         text={'Produtos'}
                         divider
                     />
                     <SideBarItem
-                        icon={<SchoolIcon />}
+                        icon={<AddShoppingCartIcon />}
                         open={open}
                         path={pageRoutes.ORCAMENTOS}
                         text={'Orçamentos'}
                         divider
                     />
                     <SideBarItem
-                        icon={<SchoolIcon />}
+                        icon={<MonetizationOnIcon />}
                         open={open}
                         path={pageRoutes.VENDAS}
                         text={'Vendas'}
                         divider
                     />
                     <SideBarItem
-                        icon={<SchoolIcon />}
+                        icon={<DateRangeIcon />}
                         open={open}
                         path={pageRoutes.CALENDARIO}
                         text={'Calendário'}
                         divider
                     />
                     <SideBarItem
-                        icon={<SchoolIcon />}
+                        icon={<PrecisionManufacturingIcon />}
                         open={open}
                         path={pageRoutes.PRODUCAO}
                         text={'Produção'}
                         divider
                     />
                     <SideBarItem
-                        icon={<SchoolIcon />}
+                        icon={<ExtensionIcon />}
                         open={open}
                         path={pageRoutes.CONFIGURACOES}
                         text={'Configurações'}

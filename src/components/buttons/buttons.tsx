@@ -7,7 +7,7 @@ export const WarningButton = styled(Button)(({ disabled }) => ({
     color: 'white',
 }));
 
-export const GreenButton = styled(Button)(({ }) => ({
+export const GreenButton = styled(Button)(({ theme }) => ({
     backgroundColor: '#BFE3B4',
     color: 'black',
 }));

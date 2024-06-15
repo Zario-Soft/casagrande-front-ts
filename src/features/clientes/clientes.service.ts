@@ -27,9 +27,9 @@ export class ClientesService {
     //     return await this.request.post(this.BASE_URL, request);
     // }
 
-    // public async delete(id: number): Promise<void> {
-    //     await this.request.delete(`${this.BASE_URL}/${id}`);
-    // }
+    public async delete(id: number): Promise<void> {
+        await this.request.delete(`${this.BASE_URL}/${id}`);
+    }
 }
 
 

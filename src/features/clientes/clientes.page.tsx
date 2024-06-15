@@ -8,6 +8,7 @@ import { LoadingContext } from "src/providers/loading.provider";
 import ClientesService from "./clientes.service";
 import { ClienteResponse } from "./clientes.contracts";
 import { Paging } from "../common/base-contracts";
+import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70, hide: true },
@@ -51,8 +52,8 @@ export default function Clientes() {
         }
     }
 
-    const refresh = async (filter: Paging) => {
-        await getAll(filter);
+    const refresh = async (paramFilter?: Paging) => {
+        await getAll(paramFilter ?? filter);
         await setSelected(undefined);
     }
 
@@ -80,13 +81,23 @@ export default function Clientes() {
         await refresh(newFilter);
     }
 
+    const onConfirmExclusion = async () => {
+        if (!selected) return;
+
+        await clientesService.delete(selected.id);
+
+        await refresh();
+
+        toast.success("Registro excluído com sucesso");
+    }
+
     return <>
         <div className="page-container">
             <SideBar>
                 <div className="page-content">
                     <ScreenHeader
                         title="Clientes"
-                        onUpdateClick={() => refresh(filter)}
+                        onUpdateClick={refresh}
                     />
                     {data && <>
                         <ZGrid
@@ -110,5 +121,10 @@ export default function Clientes() {
                 </div>
             </SideBar>
         </div>
+        {confirmationDialogOpen && <ConfirmationDialog
+            title="Excluir cliente"
+            onConfirm={onConfirmExclusion}
+            onClose={() => setConfirmationDialogOpen(false)}
+        />}
     </>
 }

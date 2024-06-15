@@ -26,9 +26,7 @@ function TextMaskCustom(props: any) {
     return <>
         <MaskedInput
             {...other}
-            ref={(ref) => {
-                inputRef(ref ? ref.inputElement : null);
-            }}
+            
             mask={props.mask}
             placeholderChar={'\u2000'}
             showMask

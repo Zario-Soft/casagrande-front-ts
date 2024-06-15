@@ -152,8 +152,13 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                         />
 
                         <div>
-                            {/* <FormControl>
-                                <InputLabel htmlFor="formatted-text-mask-input">CPF/CNPJ</InputLabel>
+                            <FormControl>
+                                <InputLabel
+                                    htmlFor="formatted-text-mask-input"
+                                    shrink
+                                >
+                                    CPF/CNPJ
+                                </InputLabel>
                                 {current.pessoafisica && <Input
                                     value={current.cpfcnpj}
                                     onChange={(e) => setCurrent({ ...current, cpfcnpj: e.target.value })}
@@ -168,7 +173,7 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                                     id="cpfcnpj-input"
                                     inputComponent={CNPJMaskCustom}
                                 />}
-                            </FormControl> */}
+                            </FormControl>
                         </div>
                     </div>
                     <div className='inner-flex-container'>
@@ -204,8 +209,8 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                             onChange={(e) => setCurrent({ ...current, telefone: e.target.value })}
                         />
 
-                        {/* <FormControl>
-                            <InputLabel htmlFor="formatted-text-mask-input">Celular</InputLabel>
+                        <FormControl>
+                            <InputLabel htmlFor="formatted-text-mask-input" shrink>Celular</InputLabel>
                             <Input
                                 value={current.celular}
                                 onChange={(e) => setCurrent({ ...current, celular: e.target.value })}
@@ -214,12 +219,12 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                                 inputComponent={CelMaskCustom}
                                 onBlur={fillState}
                             />
-                        </FormControl> */}
+                        </FormControl>
                     </div>
 
                     <div className='inner-flex-container'>
-                        {/* <FormControl>
-                            <InputLabel htmlFor="formatted-text-mask-input">CEP</InputLabel>
+                        <FormControl>
+                            <InputLabel htmlFor="formatted-text-mask-input" shrink>CEP</InputLabel>
                             <Input
                                 className='txt-box'
                                 value={current.cep}
@@ -229,7 +234,7 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                                 inputComponent={CEPMaskCustom}
                                 onBlur={preencheCEP}
                             />
-                        </FormControl> */}
+                        </FormControl>
                         {isLoadingCEP && <CircularProgress
                             variant="indeterminate"
                             disableShrink
@@ -302,7 +307,7 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                         <FormControl variant="outlined" sx={{
                             minWidth: 120
                         }}>
-                            <InputLabel>
+                            <InputLabel shrink>
                                 Estado
                             </InputLabel>
                             <Select

@@ -9,6 +9,7 @@ import ClientesService from "./clientes.service";
 import { ClienteResponse } from "./clientes.contracts";
 import { Paging } from "../common/base-contracts";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
+import UpsertModalClient from "./clientes-modal.page";
 
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70, hide: true },
@@ -39,11 +40,9 @@ export default function Clientes() {
         try {
             await setIsLoading(true);
 
-            const { data } = await clientesService.getAll(filter);
+            const data = await clientesService.getAll(filter);
+            await setData(data);
 
-            if (data) {
-                await setData(data);
-            }
         } catch {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
         }
@@ -97,7 +96,7 @@ export default function Clientes() {
                 <div className="page-content">
                     <ScreenHeader
                         title="Clientes"
-                        onUpdateClick={refresh}
+                        onUpdateClick={() => refresh()}
                     />
                     {data && <>
                         <ZGrid
@@ -125,6 +124,17 @@ export default function Clientes() {
             title="Excluir cliente"
             onConfirm={onConfirmExclusion}
             onClose={() => setConfirmationDialogOpen(false)}
+        />}
+        {upsertDialogOpen && <UpsertModalClient
+            cliente={selected}
+            onClose={async (message: string | undefined) => {
+                if (message) {
+                    await toast.success(message);
+                }
+
+                await setUpsertDialogOpen(false);
+                await refresh();
+            }}
         />}
     </>
 }

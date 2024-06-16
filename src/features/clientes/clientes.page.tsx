@@ -6,7 +6,7 @@ import { SideBar } from "src/components/sidebar";
 import ZGrid, { ZGridColDef } from "src/components/z-grid";
 import { LoadingContext } from "src/providers/loading.provider";
 import ClientesService from "./clientes.service";
-import { ClienteResponse } from "./clientes.contracts";
+import { ClienteDTO } from "./clientes.contracts";
 import { Paging } from "../common/base-contracts";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import UpsertModalClient from "./clientes-modal.page";
@@ -24,8 +24,8 @@ export default function Clientes() {
     const clientesService = new ClientesService();
     const { setIsLoading } = useContext(LoadingContext);
     const [filter, setFilter] = useState(new Paging());
-    const [data, setData] = useState<ClienteResponse[]>([]);
-    const [selected, setSelected] = useState<ClienteResponse>();
+    const [data, setData] = useState<ClienteDTO[]>([]);
+    const [selected, setSelected] = useState<ClienteDTO>();
 
     const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
@@ -69,7 +69,8 @@ export default function Clientes() {
     }
 
     const onRowDoubleClick = async (e: any) => {
-        await setSelected(e as ClienteResponse);
+        const localCurrent = data.find(c => c.id === (e as ClienteDTO).id);
+        await setSelected(localCurrent);
         await setUpsertDialogOpen(true);
     }
 
@@ -130,10 +131,10 @@ export default function Clientes() {
             onClose={async (message: string | undefined) => {
                 if (message) {
                     await toast.success(message);
+                    await refresh();
                 }
 
-                await setUpsertDialogOpen(false);
-                await refresh();
+                await setUpsertDialogOpen(false);                
             }}
         />}
     </>

@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
 import { Paging } from '../common/base-contracts';
-import { ClienteEndereco, ClienteResponse } from './clientes.contracts';
+import { ClienteEndereco, ClienteResponse, ClienteDTO } from './clientes.contracts';
 
 export class ClientesService {
     private readonly request: HttpClient;
@@ -11,28 +11,31 @@ export class ClientesService {
         this.request = new HttpClient();
     }
 
-    public async getAll(filter: Paging): Promise<ClienteResponse[]> {
-        const result = await this.request.get(`${this.BASE_URL}${filter.stringify()}`);;
+    public async getAll(filter: Paging): Promise<ClienteDTO[]> {
+        const { data } = await this.request.get(`${this.BASE_URL}${filter.stringify()}`);
 
-        if (result.data) {
-            let localCurrent = result.data as ClienteResponse[];
+        if (data) {
+            let localCurrent = data as ClienteResponse[];
 
-            localCurrent = localCurrent
+            const result = localCurrent
                 .slice()
                 .sort((a: ClienteResponse, b: ClienteResponse) => a.id > b.id ? -1 : 1)
                 .map(c => {
-                    let localEndereco = this.trySplitEndereco(c.endereco);
+                    let endereco = this.trySplitEndereco(c.endereco);
 
-                    let result = {
+                    let result: ClienteDTO = {
                         ...c,
-                        ...localEndereco
+                        isvip: c.isvip === 1,
+                        isparceiro: c.isparceiro === 1,
+                        pessoafisica: c.pessoafisica === 1,
+                        percparceiro: c.percparceiro,
+                        ...endereco
                     }
 
                     return result;
                 });
 
-            return localCurrent;
-
+            return result;
         }
 
         return [];
@@ -42,12 +45,12 @@ export class ClientesService {
         return await this.request.get(`util/getstatebyddd/${ddd}`);
     }
 
-    public async new(cliente: ClienteResponse): Promise<any> {
+    public async new(cliente: ClienteDTO): Promise<any> {
         cliente.endereco = this.concatEndereco(cliente);
         await this.request.post(`${this.BASE_URL}`, cliente);
     }
 
-    public async edit(cliente: ClienteResponse): Promise<any> {
+    public async edit(cliente: ClienteDTO): Promise<any> {
         cliente.endereco = this.concatEndereco(cliente);
         await this.request.put(`${this.BASE_URL}/${cliente.id}`, cliente);
     }
@@ -69,7 +72,7 @@ export class ClientesService {
         return undefined;
     }
 
-    private concatEndereco(cliente: ClienteResponse): string {
+    private concatEndereco(cliente: ClienteDTO): string {
         const endereco = [cliente.endereco,
         cliente.bairro,
         cliente.cidade,
@@ -82,14 +85,6 @@ export class ClientesService {
 
     // public async getById(id: number): Promise<AxiosResponse<StudentsResponseItem>> {
     //     return await this.request.get(`${this.BASE_URL}/${id}`);
-    // }
-
-    // public async edit(request : StudentsRequest): Promise<void> {
-    //     await this.request.put(`${this.BASE_URL}/${request.id}`, request);
-    // }
-
-    // public async new(request : StudentsRequest): Promise<any> {
-    //     return await this.request.post(this.BASE_URL, request);
     // }
 
     public async delete(id: number): Promise<void> {

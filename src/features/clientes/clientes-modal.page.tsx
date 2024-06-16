@@ -1,14 +1,14 @@
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Checkbox, CircularProgress, FormControl, FormControlLabel, Input, InputLabel, Select } from "@mui/material";
 import { NormalButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
-import { ClienteResponse } from "./clientes.contracts"
+import { ClienteDTO } from "./clientes.contracts"
 import { useState } from "react";
 import { toast } from "react-toastify";
 import ClientesService from "./clientes.service";
 import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCustom } from "src/components/masks";
 
 export interface UpsertModalClientProps {
-    cliente?: ClienteResponse,
+    cliente?: ClienteDTO,
     onClose: (message?: string) => void
 }
 
@@ -16,9 +16,8 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
     const isNew = !props.cliente || !props.cliente?.id;
     const clientesService = new ClientesService();
 
-    const [current, setCurrent] = useState(props.cliente ?? {} as ClienteResponse);
+    const [current, setCurrent] = useState(props.cliente ?? {} as ClienteDTO);
     const [isLoadingCEP, setIsLoadingCEP] = useState(false);
-    const [percParceiroVisible, setPercParceiroVisible] = useState(false);
 
     const preencheCEP = async (e: any) => {
         const cep = e.target.value.replace("-", "");
@@ -41,14 +40,6 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                         estado: r.uf
                     })
             })
-    }
-
-    const onPercParceiroChange = async (e: any) => {
-        await setPercParceiroVisible(e.target.checked);
-        await setCurrent({ ...current, isparceiro: e.target.checked as boolean })
-
-        if (!e.target.checked)
-            await setCurrent({ ...current, percparceiro: undefined })
     }
 
     const onSave = async () => {
@@ -180,34 +171,38 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                         <FormControlLabel
                             control={
                                 <Checkbox
-                                    checked={percParceiroVisible}
-                                    onChange={onPercParceiroChange}
+                                    checked={current?.isparceiro ?? false}
+                                    onChange={(e) => setCurrent({ ...current, isparceiro: e.target.checked })}
                                     name="cpjCNPJ"
                                     color="primary"
                                 />
                             }
                             label="Parceiro?"
                             style={{ marginLeft: -20 }}
+
                         />
                         <TextField
                             id="percParceria"
                             label="%"
                             variant="outlined"
                             type="number"
-                            disabled={!percParceiroVisible}
-                            value={current.percparceiro}
-                            onChange={(e) => setCurrent({ ...current, percparceiro: e.target.value })}
+                            disabled={!current.isparceiro}
+                            value={current.percparceiro}                            
+                            onChange={(e) => setCurrent({ ...current, percparceiro: current.isparceiro ? parseInt(e.target.value) : undefined })}
+                            InputLabelProps={{ shrink: true }}
                         />
 
-                        <TextField
-                            className='txt-box txt-box-medium'
-                            id="email-cliente"
-                            label="Telefone"
-                            variant="outlined"
-                            type={'tel'}
-                            value={current.telefone}
-                            onChange={(e) => setCurrent({ ...current, telefone: e.target.value })}
-                        />
+                        <FormControl>
+                            <InputLabel htmlFor="formatted-text-mask-input" shrink>Telefone</InputLabel>
+                            <Input
+                                value={current.telefone}
+                                onChange={(e) => setCurrent({ ...current, telefone: e.target.value })}
+                                name="telefone"
+                                id="telefone-input"
+                                inputComponent={TelMaskCustom}
+                                onBlur={fillState}
+                            />
+                        </FormControl>
 
                         <FormControl>
                             <InputLabel htmlFor="formatted-text-mask-input" shrink>Celular</InputLabel>

@@ -1,6 +1,5 @@
 import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { Paging } from '../common/base-contracts';
 import { ClienteEndereco, ProdutoDTO, ProdutoResponse } from './produtos.contracts';
 
 export class ProdutosService {
@@ -11,29 +10,15 @@ export class ProdutosService {
         this.request = new HttpClient();
     }
 
-    public async getAll(filter: Paging): Promise<ProdutoDTO[]> {
-        const { data } = await this.request.get(`${this.BASE_URL}${filter.stringify()}`);
+    public async getAll(): Promise<ProdutoDTO[]> {
+        const { data } = await this.request.get(`${this.BASE_URL}`);
 
         if (data) {
-            let localCurrent = data as ProdutoResponse[];
-
-            const result = localCurrent
+            const result = data
                 .slice()
-                .sort((a: ProdutoResponse, b: ProdutoResponse) => a.id > b.id ? -1 : 1)
-                .map(c => {
-                    let endereco = this.trySplitEndereco(c.endereco);
-
-                    let result: ProdutoDTO = {
-                        ...c,
-                        isvip: c.isvip === 1,
-                        isparceiro: c.isparceiro === 1,
-                        pessoafisica: c.pessoafisica === 1,
-                        percparceiro: c.percparceiro,
-                        ...endereco
-                    }
-
-                    return result;
-                });
+                .sort((a: ProdutoDTO, b: ProdutoDTO) => a.id > b.id ? -1 : 1); 
+                
+                
 
             return result;
         }

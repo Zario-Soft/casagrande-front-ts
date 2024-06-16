@@ -7,21 +7,24 @@ import ZGrid, { ZGridColDef } from "src/components/z-grid";
 import { LoadingContext } from "src/providers/loading.provider";
 import { ProdutosService } from "./produtos.service";
 import { ProdutoDTO } from "./produtos.contracts";
-import { Paging } from "../common/base-contracts";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import UpsertModalClient from "./produtos-modal.page";
 
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
     { field: 'descricao', headerName: 'Descrição', width: 300 },
-    { field: 'valorunitario', headerName: 'Valor Unitário', width: 200, valueFormatter: (params: { value: string }) => parseFloat(params.value).toFixed(2) },
-    { field: 'isactive', headerName: 'Ativo?', width: 150, valueFormatter: (params: { value: boolean }) => params.value ? "Sim" : "Não" }
+    {
+        field: 'valorunitario', headerName: 'Valor Unitário', width: 200, valueFormatter: (value: string) => {
+            console.log(value);
+            return parseFloat(value).toFixed(2)
+        }
+    },
+    { field: 'isactive', headerName: 'Ativo?', width: 150, valueFormatter: (value: boolean) => value ? "Sim" : "Não" }
 ];
 
 export default function Produtos() {
     const produtosService = new ProdutosService();
     const { setIsLoading } = useContext(LoadingContext);
-    const [filter, setFilter] = useState(new Paging());
     const [data, setData] = useState<ProdutoDTO[]>([]);
     const [selected, setSelected] = useState<ProdutoDTO>();
 
@@ -30,15 +33,15 @@ export default function Produtos() {
     const [shouldClearGridSelection, setShouldClearGridSelection] = useState(false);
 
     useEffect(() => {
-        refresh(filter);
+        refresh();
         // eslint-disable-next-line
     }, []);
 
-    const getAll = async (filter: Paging) => {
+    const getAll = async () => {
         try {
             await setIsLoading(true);
 
-            const data = await produtosService.getAll(filter);
+            const data = await produtosService.getAll();
             await setData(data);
 
         } catch {
@@ -49,8 +52,8 @@ export default function Produtos() {
         }
     }
 
-    const refresh = async (paramFilter?: Paging) => {
-        await getAll(paramFilter ?? filter);
+    const refresh = async () => {
+        await getAll();
         await setSelected(undefined);
     }
 
@@ -70,13 +73,6 @@ export default function Produtos() {
         const localCurrent = data.find(c => c.id === (e as ProdutoDTO).id);
         await setSelected(localCurrent);
         await setUpsertDialogOpen(true);
-    }
-
-    const onFilter = async (localFilter: Paging | undefined) => {
-        const newFilter = localFilter ?? new Paging();
-        await setFilter(newFilter);
-
-        await refresh(newFilter);
     }
 
     const onConfirmExclusion = async () => {
@@ -104,9 +100,6 @@ export default function Produtos() {
                             columns={columns}
                             onRowDoubleClick={async (e: any) => await onRowDoubleClick(e.row)}
                             onRowClick={async (e: any) => await setSelected(e.row)}
-                            onPagination={onFilter}
-                            onFilterModelChange={onFilter}
-                            useCustomFooter
                         />
                         <ButtonsLine
                             onNewClick={onNewClick}
@@ -132,7 +125,7 @@ export default function Produtos() {
                     await refresh();
                 }
 
-                await setUpsertDialogOpen(false);                
+                await setUpsertDialogOpen(false);
             }}
         />}
     </>

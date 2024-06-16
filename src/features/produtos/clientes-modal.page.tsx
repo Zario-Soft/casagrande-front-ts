@@ -7,12 +7,12 @@ import { toast } from "react-toastify";
 import ClientesService from "./clientes.service";
 import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCustom } from "src/components/masks";
 
-export interface UpsertModalClientProps {
+export interface UpsertModalProductProps {
     cliente?: ClienteDTO,
     onClose: (message?: string) => void
 }
 
-export default function UpsertModalClient(props: UpsertModalClientProps) {
+export default function UpsertModalProduct(props: UpsertModalProductProps) {
     const isNew = !props.cliente || !props.cliente?.id;
     const clientesService = new ClientesService();
 

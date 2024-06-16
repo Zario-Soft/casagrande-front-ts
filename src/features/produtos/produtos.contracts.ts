@@ -1,4 +1,4 @@
-export interface ClienteDTO {
+export interface ProdutoDTO {
     id: number,
     nome: string,
     responsavel: string,
@@ -20,7 +20,7 @@ export interface ClienteDTO {
     observacao: string,
 }
 
-export interface ClienteResponse {
+export interface ProdutoResponse {
     id: number,
     nome: string,
     responsavel: string,

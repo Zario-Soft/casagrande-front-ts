@@ -1,22 +1,22 @@
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Checkbox, CircularProgress, FormControl, FormControlLabel, Input, InputLabel, Select } from "@mui/material";
 import { NormalButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
-import { ClienteDTO } from "./clientes.contracts"
 import { useState } from "react";
 import { toast } from "react-toastify";
-import ClientesService from "./clientes.service";
+import ProdutosService from "./produtos.service";
 import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCustom } from "src/components/masks";
+import { ProdutoDTO } from "./produtos.contracts";
 
 export interface UpsertModalProductProps {
-    cliente?: ClienteDTO,
+    produto?: ProdutoDTO,
     onClose: (message?: string) => void
 }
 
 export default function UpsertModalProduct(props: UpsertModalProductProps) {
-    const isNew = !props.cliente || !props.cliente?.id;
-    const clientesService = new ClientesService();
+    const isNew = !props.produto || !props.produto?.id;
+    const clientesService = new ProdutosService();
 
-    const [current, setCurrent] = useState(props.cliente ?? {} as ClienteDTO);
+    const [current, setCurrent] = useState(props.produto ?? {} as ProdutoDTO);
     const [isLoadingCEP, setIsLoadingCEP] = useState(false);
 
     const preencheCEP = async (e: any) => {

@@ -5,27 +5,25 @@ import ScreenHeader from "src/components/screen-header";
 import { SideBar } from "src/components/sidebar";
 import ZGrid, { ZGridColDef } from "src/components/z-grid";
 import { LoadingContext } from "src/providers/loading.provider";
-import ClientesService from "./clientes.service";
-import { ClienteDTO } from "./clientes.contracts";
+import { ProdutosService } from "./produtos.service";
+import { ProdutoDTO } from "./produtos.contracts";
 import { Paging } from "../common/base-contracts";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
-import UpsertModalClient from "./clientes-modal.page";
+import UpsertModalClient from "./produtos-modal.page";
 
 const columns: ZGridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 70, hide: true },
-    { field: 'nome', headerName: 'Nome', width: 300 },
-    { field: 'responsavel', headerName: 'Responsável', width: 250 },
-    { field: 'telefone', headerName: 'Telefone', width: 160 },
-    { field: 'celular', headerName: 'Celular', width: 160 },
-    { field: 'observacao', headerName: 'Observação', width: 350 },
+    { field: 'id', headerName: 'ID', width: 70 },
+    { field: 'descricao', headerName: 'Descrição', width: 300 },
+    { field: 'valorunitario', headerName: 'Valor Unitário', width: 200, valueFormatter: (params: { value: string }) => parseFloat(params.value).toFixed(2) },
+    { field: 'isactive', headerName: 'Ativo?', width: 150, valueFormatter: (params: { value: boolean }) => params.value ? "Sim" : "Não" }
 ];
 
-export default function Clientes() {
-    const clientesService = new ClientesService();
+export default function Produtos() {
+    const produtosService = new ProdutosService();
     const { setIsLoading } = useContext(LoadingContext);
     const [filter, setFilter] = useState(new Paging());
-    const [data, setData] = useState<ClienteDTO[]>([]);
-    const [selected, setSelected] = useState<ClienteDTO>();
+    const [data, setData] = useState<ProdutoDTO[]>([]);
+    const [selected, setSelected] = useState<ProdutoDTO>();
 
     const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
@@ -40,7 +38,7 @@ export default function Clientes() {
         try {
             await setIsLoading(true);
 
-            const data = await clientesService.getAll(filter);
+            const data = await produtosService.getAll(filter);
             await setData(data);
 
         } catch {
@@ -69,7 +67,7 @@ export default function Clientes() {
     }
 
     const onRowDoubleClick = async (e: any) => {
-        const localCurrent = data.find(c => c.id === (e as ClienteDTO).id);
+        const localCurrent = data.find(c => c.id === (e as ProdutoDTO).id);
         await setSelected(localCurrent);
         await setUpsertDialogOpen(true);
     }
@@ -84,7 +82,7 @@ export default function Clientes() {
     const onConfirmExclusion = async () => {
         if (!selected) return;
 
-        await clientesService.delete(selected.id);
+        await produtosService.delete(selected.id);
 
         await refresh();
 
@@ -96,7 +94,7 @@ export default function Clientes() {
             <SideBar>
                 <div className="page-content">
                     <ScreenHeader
-                        title="Clientes"
+                        title="Produtos"
                         onUpdateClick={() => refresh()}
                     />
                     {data && <>
@@ -127,7 +125,7 @@ export default function Clientes() {
             onClose={() => setConfirmationDialogOpen(false)}
         />}
         {upsertDialogOpen && <UpsertModalClient
-            cliente={selected}
+            produto={selected}
             onClose={async (message: string | undefined) => {
                 if (message) {
                     await toast.success(message);

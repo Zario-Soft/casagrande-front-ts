@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { ClienteEndereco, ProdutoDTO, ProdutoResponse } from './produtos.contracts';
+import { ProdutoDTO, ProdutoRequest } from './produtos.contracts';
 
 export class ProdutosService {
     private readonly request: HttpClient;
@@ -30,42 +30,21 @@ export class ProdutosService {
         return await this.request.get(`util/getstatebyddd/${ddd}`);
     }
 
-    public async new(cliente: ProdutoDTO): Promise<any> {
-        cliente.endereco = this.concatEndereco(cliente);
-        await this.request.post(`${this.BASE_URL}`, cliente);
-    }
-
-    public async edit(cliente: ProdutoDTO): Promise<any> {
-        cliente.endereco = this.concatEndereco(cliente);
-        await this.request.put(`${this.BASE_URL}/${cliente.id}`, cliente);
-    }
-
-    public trySplitEndereco(rawEndereco: string): ClienteEndereco | undefined {
-        if (rawEndereco && rawEndereco.includes("|")) {
-            const splitted = rawEndereco.split("|");
-
-            return {
-                endereco: splitted[0],
-                bairro: splitted[1],
-                cidade: splitted[2],
-                numero: splitted[3],
-                complemento: splitted[4],
-                estado: splitted[5]
-            }
+    public async new(produto: ProdutoDTO): Promise<any> {
+        const request: ProdutoRequest = {
+            ...produto,
+            valorunitario: parseFloat(produto.valorunitario),
         }
-
-        return undefined;
+        
+        await this.request.post(`${this.BASE_URL}`, request);
     }
 
-    private concatEndereco(cliente: ProdutoDTO): string {
-        const endereco = [cliente.endereco,
-        cliente.bairro,
-        cliente.cidade,
-        cliente.numero,
-        cliente.complemento,
-        cliente.estado].join("|");
-
-        return endereco;
+    public async edit(produto: ProdutoDTO): Promise<any> {
+        const request: ProdutoRequest = {
+            ...produto,
+            valorunitario: parseFloat(produto.valorunitario),
+        }
+        await this.request.put(`${this.BASE_URL}/${produto.id}`, request);
     }
 
     // public async getById(id: number): Promise<AxiosResponse<StudentsResponseItem>> {

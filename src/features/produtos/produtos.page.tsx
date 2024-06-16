@@ -14,10 +14,10 @@ const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
     { field: 'descricao', headerName: 'Descrição', width: 300 },
     {
-        field: 'valorunitario', headerName: 'Valor Unitário', width: 200, valueFormatter: (value: string) => {
-            console.log(value);
-            return parseFloat(value).toFixed(2)
-        }
+        field: 'valorunitario', 
+        headerName: 'Valor Unitário', 
+        width: 200, 
+        valueFormatter: (value: string) => parseFloat(value).toFixed(2)
     },
     { field: 'isactive', headerName: 'Ativo?', width: 150, valueFormatter: (value: boolean) => value ? "Sim" : "Não" }
 ];

@@ -3,11 +3,11 @@ import { NormalButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import ProdutosService from "./produtos.service";
-import { ProdutoDTO } from "./produtos.contracts";
+import ProdutosService from "./orcamentos.service";
+import { OrcamentoDTO } from "./orcamentos.contracts";
 
 export interface UpsertModalProductProps {
-    produto?: ProdutoDTO,
+    produto?: OrcamentoDTO,
     onClose: (message?: string) => void
 }
 
@@ -15,7 +15,7 @@ export default function UpsertModalProduct(props: UpsertModalProductProps) {
     const isNew = !props.produto || !props.produto?.id;
     const produtosService = new ProdutosService();
 
-    const [current, setCurrent] = useState(props.produto ?? {} as ProdutoDTO);
+    const [current, setCurrent] = useState(props.produto ?? {} as OrcamentoDTO);
 
     const onSave = async () => {
         try {
@@ -41,8 +41,8 @@ export default function UpsertModalProduct(props: UpsertModalProductProps) {
     }
 
     const isSavingValid = async (): Promise<boolean> => {
-        if (!current.descricao || current.descricao === '') {
-            await toast.error('Preencha a descrição do produto');
+        if (!current.clienteid) {
+            await toast.error('Preencha o cliente');
             return false;
         }
 

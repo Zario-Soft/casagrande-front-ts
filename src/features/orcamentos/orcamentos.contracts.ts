@@ -1,12 +1,51 @@
+import { Paging, PagingFilter } from "../common/base-contracts";
+
+export class OrcamentoPaging extends Paging {
+    constructor(
+        public page: number = 0,
+        public filter?: PagingFilter,
+    ) {
+        super(page, filter);
+    }
+
+
+    mountColumnFilter(): string {
+        const filter = this.filter!;
+        let filterString = '';
+
+        if (filter.column === 'id') {
+            filterString = `${filter.column}+identical=${filter.value}`;
+        }
+        else if (filter.column === 'statusDescricao') {
+            const value = StatusOrcamento.indexOf(filter.value);
+            filterString = `${filter.column}+identical=${value}`
+        }
+        else {
+            filterString = `${filter.column}+${filter.comparer}=${filter.value}`;
+        }
+
+        return filterString;
+    }
+}
+
 export interface OrcamentoDTO {
     id: number,
     clienteid: number,
     status: number,
-    frete: number,
+    frete?: number,
     valortotal: number,
     observacao: string,
     dataorcamento?: string,
     dataenvioteste?: string,
+    allOrcamentosProdutos?: OrcamentoProdutoDTO[]
+}
+
+export interface OrcamentoProdutoDTO {
+    id: number,
+    orcamentoid: number,
+    quantidade: number,
+    produtovalor: number,
+    excluido: number,
 }
 
 export interface OrcamentoGetAllResponse {

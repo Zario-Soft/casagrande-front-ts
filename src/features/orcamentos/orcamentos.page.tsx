@@ -6,12 +6,11 @@ import { SideBar } from "src/components/sidebar";
 import ZGrid, { ZGridColDef } from "src/components/z-grid";
 import { LoadingContext } from "src/providers/loading.provider";
 import { OrcamentosService } from "./orcamentos.service";
-import { OrcamentoDTO, StatusOrcamento } from "./orcamentos.contracts";
+import { OrcamentoDTO, OrcamentoPaging, StatusOrcamento } from "./orcamentos.contracts";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import UpsertModalClient from "./orcamentos-modal.page";
 import moment from "moment";
 import { Box, FormControl, Select } from "@mui/material";
-import { Paging } from "../common/base-contracts";
 import { GridFilterItem, GridColDef } from "@mui/x-data-grid";
 
 function StatusInputValue(props: any) {
@@ -64,12 +63,9 @@ const columns: ZGridColDef[] = [
         width: 240,
         filterOperators: [
             {
-                label: 'É',
+                label: '=',
                 value: 'Aprovado',
                 getApplyFilterFn: (filterItem: GridFilterItem, column: GridColDef<any, any, any>) => {
-                    console.log(filterItem);
-                    console.log(column);
-
                     return (value: string) => {
                         return !filterItem.value || value.toUpperCase() === filterItem.value.toUpperCase();
                     };
@@ -101,7 +97,7 @@ export default function Orcamentos() {
     const { setIsLoading } = useContext(LoadingContext);
     const [data, setData] = useState<OrcamentoDTO[]>([]);
     const [selected, setSelected] = useState<OrcamentoDTO>();
-    const [filter, setFilter] = useState(new Paging());
+    const [filter, setFilter] = useState(new OrcamentoPaging());
 
     const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
@@ -112,7 +108,7 @@ export default function Orcamentos() {
         // eslint-disable-next-line
     }, []);
 
-    const getAll = async (filter: Paging) => {
+    const getAll = async (filter: OrcamentoPaging) => {
         try {
             await setIsLoading(true);
 
@@ -127,7 +123,7 @@ export default function Orcamentos() {
         }
     }
 
-    const refresh = async (paramFilter?: Paging) => {
+    const refresh = async (paramFilter?: OrcamentoPaging) => {
         await getAll(paramFilter ?? filter);
         await setSelected(undefined);
     }
@@ -150,8 +146,8 @@ export default function Orcamentos() {
         await setUpsertDialogOpen(true);
     }
 
-    const onFilter = async (localFilter: Paging | undefined) => {
-        const newFilter = localFilter ?? new Paging();
+    const onFilter = async (localFilter: OrcamentoPaging | undefined) => {
+        const newFilter = localFilter ?? new OrcamentoPaging();
         await setFilter(newFilter);
 
         await refresh(newFilter);

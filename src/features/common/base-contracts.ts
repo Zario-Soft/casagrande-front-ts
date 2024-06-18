@@ -13,20 +13,26 @@ export class Paging {
     stringify(): string {
         let result = `?page=${this.page}`;
         if (this.filter) {
-            const filter = this.filter;
-            let filterString = '';
-
-            if (filter.column === 'id') {
-                filterString = `${filter.column}+identical=${filter.value}`;
-            }
-            else {
-                filterString = `${filter.column}+${filter.comparer}=${filter.value}`;
-            }
+            let filterString = this.mountColumnFilter();
 
             result += `&filter=${encodeURIComponent(filterString)}`;
         }
 
         return result;
+    }
+
+    mountColumnFilter(): string {
+        const filter = this.filter!;
+        let filterString = '';
+
+        if (filter.column === 'id') {
+            filterString = `${filter.column}+identical=${filter.value}`;
+        }
+        else {
+            filterString = `${filter.column}+${filter.comparer}=${filter.value}`;
+        }
+
+        return filterString;
     }
 }
 

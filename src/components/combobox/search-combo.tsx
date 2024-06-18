@@ -1,4 +1,4 @@
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, SxProps, TextField, Theme } from "@mui/material";
 import { useMemo, useState } from "react";
 
 interface MuiComboboxProps<T> {
@@ -10,9 +10,10 @@ interface MuiComboboxProps<T> {
     style?: React.CSSProperties,
     getOptionLabel?: (option: T) => string
     onAfter?: (options?: T[]) => Promise<T | undefined>,
+    sx?: SxProps<Theme>
 }
 
-export default function SearchCombobox<T extends {}>(props: MuiComboboxProps<T>) {
+export default function SearchCombobox<T extends { id: number }>(props: MuiComboboxProps<T>) {
     const empty: T = {} as T;
     const [value, setValue] = useState<T>(empty);
 
@@ -21,10 +22,10 @@ export default function SearchCombobox<T extends {}>(props: MuiComboboxProps<T>)
     useMemo(() => {
         if (onAfter && options) {
             onAfter(options)
-                    .then(async result => {
-                        if (result)
-                            await setValue(result);
-                    });
+                .then(async result => {
+                    if (result)
+                        await setValue(result);
+                });
         }
         // eslint-disable-next-line
     }, [options]);
@@ -39,6 +40,7 @@ export default function SearchCombobox<T extends {}>(props: MuiComboboxProps<T>)
 
     return <>
         {<Autocomplete
+            getOptionKey={(c) => c.id}
             key={props.id}
             style={props.style}
             getOptionLabel={props.getOptionLabel}
@@ -49,7 +51,7 @@ export default function SearchCombobox<T extends {}>(props: MuiComboboxProps<T>)
             id={props.id}
             value={value}
             options={props.options}
-            sx={{ width: 300 }}
+            sx={props.sx}
             renderInput={(params) => <TextField {...params} label={props.label} />}
         />}
     </>

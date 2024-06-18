@@ -11,8 +11,10 @@ export class ClientesService {
         this.request = new HttpClient();
     }
 
-    public async getAll(filter: Paging): Promise<ClienteDTO[]> {
-        const { data } = await this.request.get(`${this.BASE_URL}${filter.stringify()}`);
+    public async getAll(filter?: Paging): Promise<ClienteDTO[]> {
+        const { data } = filter
+        ? await this.request.get(`${this.BASE_URL}${filter.stringify()}`)
+        : await this.request.get(`${this.BASE_URL}`);
 
         if (data) {
             let localCurrent = data as ClienteResponse[];

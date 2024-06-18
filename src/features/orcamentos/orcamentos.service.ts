@@ -1,7 +1,6 @@
 import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { OrcamentoDTO, OrcamentoRequest, OrcamentoGetAllResponse, StatusOrcamento } from './orcamentos.contracts';
-import { Paging } from '../common/base-contracts';
+import { OrcamentoDTO, OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging } from './orcamentos.contracts';
 
 export class OrcamentosService {
     private readonly request: HttpClient;
@@ -11,7 +10,7 @@ export class OrcamentosService {
         this.request = new HttpClient();
     }
 
-    public async getAll(filter: Paging): Promise<OrcamentoDTO[]> {
+    public async getAll(filter: OrcamentoPaging): Promise<OrcamentoDTO[]> {
         const { data } = await this.request.get(`${this.BASE_URL}${filter.stringify()}`);
 
         if (data && data.length) {

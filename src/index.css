@@ -81,7 +81,8 @@ code {
   .general-input,
   .txt-box-small,
   .txt-box-medium,
-  .txt-box-large {
+  .txt-box-large 
+  {
       width: 100%;
   }
 }

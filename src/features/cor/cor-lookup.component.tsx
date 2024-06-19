@@ -1,0 +1,93 @@
+import SearchCombobox from "src/components/combobox/search-combo";
+import { CorDTO } from "./clientes.contracts";
+import { useEffect, useState } from "react";
+import ClientesService from "./clientes.service";
+import { toast } from "react-toastify";
+import { SxProps, Theme } from "@mui/material";
+import UpsertModalClient from "./clientes-modal.page";
+import { CorDTO } from "./cor.contracts";
+
+export interface CorLookupProps {
+    onChange?: (client?: CorDTO) => void,
+    sx?: SxProps<Theme>,
+    selectedId?:number,
+}
+
+export default function CorLookup(props: CorLookupProps) {
+    const clientesService = new ClientesService();
+
+    const [selected, setSelected] = useState<CorDTO>();
+    const [modalSelected, setModalSelected] = useState<CorDTO>();
+    const [data, setData] = useState<CorDTO[]>([]);
+
+    const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
+
+    useEffect(() => { getAll() },
+        // eslint-disable-next-line
+        []);
+
+    const getAll = async () => {
+        try {
+            const data = await clientesService.getAll();
+            await setData(data);
+
+            if (data && props.selectedId) {
+                const localSelected = data.find(f => f.id === props.selectedId);
+
+                if (localSelected)
+                    await setSelected(localSelected);
+            }
+
+        } catch {
+            toast.error('Não foi possivel carregar os dados. Verifique a internet.');
+        }
+    }
+
+    const onAfter = async (items?: CorDTO[]): Promise<CorDTO | undefined> => {
+        const st = items?.find(f => f.id === selected?.id);
+
+        await setSelected(st);
+
+        return st;
+    }
+
+    const onChange = async (s: CorDTO) => {
+        await setSelected(s);
+        if (props.onChange)
+            props.onChange(s);
+    }
+
+    const onAddClick = async (_?: CorDTO) => {
+        await setModalSelected(undefined);
+        await setUpsertDialogOpen(true);
+    }
+
+    const onShowClick = async (s?: CorDTO) => {
+        await setModalSelected(s);
+        await setUpsertDialogOpen(true);
+    }
+
+    return <><SearchCombobox<CorDTO>
+        value={selected}
+        id="cliente-search-modal"
+        label="Cliente"
+        onChange={onChange}
+        onAddClick={onAddClick}
+        onShowClick={onShowClick}
+        options={data}
+        getOptionLabel={(o: CorDTO) => o.nome ?? ''}
+        onAfter={onAfter}
+        sx={props.sx}
+    />
+        {upsertDialogOpen && <UpsertModalClient
+            cliente={modalSelected}
+            onClose={async (message: string | undefined) => {
+                if (message) {
+                    await toast.success(message);
+                }
+
+                await setUpsertDialogOpen(false);
+            }}
+        />}
+    </>
+}

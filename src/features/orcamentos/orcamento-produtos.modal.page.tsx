@@ -33,7 +33,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             PaperComponent={PaperComponent}
         >
             <DialogTitle id="draggable-dialog-title" style={{ cursor: 'move' }}>
-                {isNew ? 'Novo Orçamento' : `Editando Orçamento '${props.current!.id}'`}
+                {isNew ? 'Novo Produto ao Orçamento' : `Editando Produto '${props.current!.id}' do Orçamento`}
             </DialogTitle>
             <DialogContent>
                 <div className='flex-container' style={{

@@ -8,6 +8,8 @@ import { OrcamentoDTO, OrcamentoProdutoGrid, OrcamentoProdutoResponse, StatusOrc
 import ClientesLookup from "../clientes/clientes-lookup.component";
 import { Remove, Add, Edit } from "@mui/icons-material";
 import ZGrid, { ZGridColDef } from "src/components/z-grid";
+import UpsertModalOrcamentoProdutos from "./orcamento-produtos.modal.page";
+import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 50, hide: true },
@@ -124,6 +126,16 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             return 0;
 
         return vlTotal + (isNaN(somaProdutos) ? 0 : somaProdutos);
+    }
+
+    const onConfirmExclusion = async () => {
+        // if (!selected) return;
+
+        // await orcamentosService.delete(selected.id);
+
+        // await refresh();
+
+        toast.success("Registro excluído com sucesso");
     }
 
     const addProduct = async () => {
@@ -313,5 +325,16 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                 </WarningButton>
             </DialogActions>
         </Dialog>
+
+        {showModalOrcamentoProduto && <UpsertModalOrcamentoProdutos
+            onClose={(message?: string) => setShowModalOrcamentoProduto(false)}
+            current={currentEditingOrcamentoProduto}
+        />}
+
+        {deleteModalVisible && <ConfirmationDialog
+            title="Excluir produto"
+            onConfirm={onConfirmExclusion}
+            onClose={() => setDeleteModalVisible(false)}
+        />}
     </>
 }

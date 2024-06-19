@@ -33,19 +33,42 @@ export interface OrcamentoDTO {
     clienteid: number,
     status: number,
     frete?: number,
-    valortotal: number,
+    valortotal: string,
     observacao: string,
     dataorcamento?: string,
-    dataenvioteste?: string,
-    allOrcamentosProdutos?: OrcamentoProdutoDTO[]
+    dataenvioteste?: string
+}
+
+export interface OrcamentoProdutoResponse {
+    produtovalor: number,
+    cornome: string,
+    generodescricao: string,
+    produtodescricao: string,
+    orcamentoproduto: OrcamentoProdutoDTO
 }
 
 export interface OrcamentoProdutoDTO {
     id: number,
     orcamentoid: number,
+    produtoid: number,
+    corid: number,
     quantidade: number,
-    produtovalor: number,
     excluido: number,
+    genero: number,
+    fotoinicial: string,
+    fotoinicial2: string,
+    fotoreal: string,
+    fotoreal2: string,
+    observacaotecnica1: string,
+    observacaotecnica2: string,
+}
+
+export interface OrcamentoProdutoGrid
+    extends OrcamentoProdutoDTO {
+    produtovalor: number,
+    cornome: string,
+    generodescricao: string,
+    produtodescricao: string,
 }
 
 export interface OrcamentoGetAllResponse {

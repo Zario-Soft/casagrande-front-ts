@@ -1,6 +1,5 @@
-import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { OrcamentoDTO, OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging } from './orcamentos.contracts';
+import { OrcamentoDTO, OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse } from './orcamentos.contracts';
 
 export class OrcamentosService {
     private readonly request: HttpClient;
@@ -38,8 +37,12 @@ export class OrcamentosService {
         return [];
     }
 
-    public async getStateByDDD(ddd: string): Promise<AxiosResponse<string>> {
-        return await this.request.get(`util/getstatebyddd/${ddd}`);
+
+
+    public async getAllOrcamentoProdutos(orcamentoId: number): Promise<OrcamentoProdutoResponse[]> {
+        const { data } = await this.request.get(`${this.BASE_URL}/${orcamentoId}/produto`);
+
+        return data.produtos as OrcamentoProdutoResponse[];
     }
 
     public async new(orcamento: OrcamentoDTO): Promise<any> {
@@ -47,7 +50,7 @@ export class OrcamentosService {
         //     ...orcamento,
         //     valorunitario: parseFloat(orcamento.valorunitario),
         // }
-        
+
         await this.request.post(`${this.BASE_URL}`, orcamento);
     }
 

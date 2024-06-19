@@ -4,17 +4,22 @@ import { useEffect, useState } from "react";
 import ClientesService from "./clientes.service";
 import { toast } from "react-toastify";
 import { SxProps, Theme } from "@mui/material";
+import UpsertModalClient from "./clientes-modal.page";
 
 export interface ClientesLookupProps {
     onChange?: (client?: ClienteDTO) => void,
-    sx?: SxProps<Theme>
+    sx?: SxProps<Theme>,
+    selectedId?:number,
 }
 
 export default function ClientesLookup(props: ClientesLookupProps) {
     const clientesService = new ClientesService();
 
     const [selected, setSelected] = useState<ClienteDTO>();
+    const [modalSelected, setModalSelected] = useState<ClienteDTO>();
     const [data, setData] = useState<ClienteDTO[]>([]);
+
+    const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
 
     useEffect(() => { getAll() },
         // eslint-disable-next-line
@@ -24,6 +29,13 @@ export default function ClientesLookup(props: ClientesLookupProps) {
         try {
             const data = await clientesService.getAll();
             await setData(data);
+
+            if (data && props.selectedId) {
+                const localSelected = data.find(f => f.id === props.selectedId);
+
+                if (localSelected)
+                    await setSelected(localSelected);
+            }
 
         } catch {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
@@ -44,14 +56,37 @@ export default function ClientesLookup(props: ClientesLookupProps) {
             props.onChange(s);
     }
 
-    return <SearchCombobox<ClienteDTO>
+    const onAddClick = async (_?: ClienteDTO) => {
+        await setModalSelected(undefined);
+        await setUpsertDialogOpen(true);
+    }
+
+    const onShowClick = async (s?: ClienteDTO) => {
+        await setModalSelected(s);
+        await setUpsertDialogOpen(true);
+    }
+
+    return <><SearchCombobox<ClienteDTO>
         value={selected}
         id="cliente-search-modal"
         label="Cliente"
         onChange={onChange}
+        onAddClick={onAddClick}
+        onShowClick={onShowClick}
         options={data}
         getOptionLabel={(o: ClienteDTO) => o.nome ?? ''}
         onAfter={onAfter}
         sx={props.sx}
     />
+        {upsertDialogOpen && <UpsertModalClient
+            cliente={modalSelected}
+            onClose={async (message: string | undefined) => {
+                if (message) {
+                    await toast.success(message);
+                }
+
+                await setUpsertDialogOpen(false);
+            }}
+        />}
+    </>
 }

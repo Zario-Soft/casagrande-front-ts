@@ -1,4 +1,5 @@
-import { Autocomplete, SxProps, TextField, Theme } from "@mui/material";
+import { Add, Visibility } from "@mui/icons-material";
+import { Autocomplete, IconButton, SxProps, TextField, Theme } from "@mui/material";
 import { useMemo, useState } from "react";
 
 interface MuiComboboxProps<T> {
@@ -7,6 +8,8 @@ interface MuiComboboxProps<T> {
     options: T[],
     value?: T,
     onChange: (e: T) => void,
+    onAddClick?: (e?: T) => void,
+    onShowClick?: (e?: T) => void,
     style?: React.CSSProperties,
     getOptionLabel?: (option: T) => string
     onAfter?: (options?: T[]) => Promise<T | undefined>,
@@ -38,8 +41,12 @@ export default function SearchCombobox<T extends { id: number }>(props: MuiCombo
         await props.onChange(value);
     }
 
-    return <>
-        {<Autocomplete
+    return <div style={{
+        display: 'flex',
+        width: '100%'
+    }}>
+        <Autocomplete
+            className="txt-box"
             getOptionKey={(c) => c.id}
             key={props.id}
             style={props.style}
@@ -53,6 +60,14 @@ export default function SearchCombobox<T extends { id: number }>(props: MuiCombo
             options={props.options}
             sx={props.sx}
             renderInput={(params) => <TextField {...params} label={props.label} />}
-        />}
-    </>
+        />
+        {props.onAddClick && <IconButton color="primary" aria-label="Adicionar" component="span" onClick={() => props.onAddClick !== undefined && props.onAddClick(value)}
+            style={{ marginTop: -5 }}>
+            <Add />
+        </IconButton>}
+        {props.onShowClick && <IconButton color="primary" aria-label="Visualizar" component="span" onClick={() => props.onShowClick !== undefined && props.onShowClick(value)}
+            style={{ marginTop: -5 }}>
+            <Visibility />
+        </IconButton>}
+    </div>
 }

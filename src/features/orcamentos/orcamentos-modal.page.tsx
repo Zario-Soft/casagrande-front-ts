@@ -1,29 +1,72 @@
-import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Checkbox, FormControlLabel, FormControl, InputLabel, Select, IconButton } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl, InputLabel, Select, IconButton } from "@mui/material";
 import { NormalButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import ProdutosService from "./orcamentos.service";
-import { OrcamentoDTO, OrcamentoProdutoDTO, StatusOrcamento } from "./orcamentos.contracts";
+import OrcamentosService from "./orcamentos.service";
+import { OrcamentoDTO, OrcamentoProdutoGrid, OrcamentoProdutoResponse, StatusOrcamento } from "./orcamentos.contracts";
 import ClientesLookup from "../clientes/clientes-lookup.component";
 import { Remove, Add, Edit } from "@mui/icons-material";
+import ZGrid, { ZGridColDef } from "src/components/z-grid";
 
-export interface UpsertModalProductProps {
-    produto?: OrcamentoDTO,
+const columns: ZGridColDef[] = [
+    { field: 'id', headerName: 'ID', width: 50, hide: true },
+    { field: 'produtodescricao', headerName: 'Produto', width: 290 },
+    { field: 'quantidade', headerName: 'Quantidade', width: 150 },
+    { field: 'cornome', headerName: 'Cor', width: 150 },
+    { field: 'generodescricao', headerName: 'Gênero', width: 150 }
+]
+
+export interface UpsertModalProps {
+    orcamento?: OrcamentoDTO,
     onClose: (message?: string) => void
 }
 
-export default function UpsertModalProduct(props: UpsertModalProductProps) {
-    const isNew = !props.produto || !props.produto?.id;
-    const produtosService = new ProdutosService();
+export default function UpsertModalOrcamento(props: UpsertModalProps) {
+    const isNew = !props.orcamento || !props.orcamento?.id;
+    const orcamentosService = new OrcamentosService();
 
-    const [current, setCurrent] = useState(props.produto ?? {} as OrcamentoDTO);
-    const [currentOrcamentoProduto, setCurrentOrcamentoProduto] = useState<OrcamentoProdutoDTO>();
-    const [currentEditingOrcamentoProduto, setCurrentEditingOrcamentoProduto] = useState<OrcamentoProdutoDTO>();
-    const [allOrcamentosProdutos, setAllOrcamentosProdutos] = useState<OrcamentoProdutoDTO[]>([]);
+    const [current, setCurrent] = useState(props.orcamento ?? {} as OrcamentoDTO);
+    const [currentOrcamentoProduto, setCurrentOrcamentoProduto] = useState<OrcamentoProdutoResponse>();
+    const [currentEditingOrcamentoProduto, setCurrentEditingOrcamentoProduto] = useState<OrcamentoProdutoGrid>();
+    const [allOrcamentosProdutos, setAllOrcamentosProdutos] = useState<OrcamentoProdutoGrid[] | undefined>();
 
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [showModalOrcamentoProduto, setShowModalOrcamentoProduto] = useState(false);
+
+    useEffect(() => {
+        if (props.orcamento) {
+            getAllOrcamentosProdutos(props.orcamento);
+        }
+        // eslint-disable-next-line
+    }, [props.orcamento]);
+
+    const getAllOrcamentosProdutos = async (orcamento: OrcamentoDTO) => {
+        try {
+            const data = await orcamentosService.getAllOrcamentoProdutos(orcamento.id);
+            if (data && data.length) {
+                const localOrcamentoProdutos = data.map(p => {
+                    return {
+                        cornome: p.cornome,
+                        generodescricao: p.generodescricao,
+                        produtodescricao: p.produtodescricao,
+                        produtovalor: p.produtovalor,
+                        ...p.orcamentoproduto
+                    }
+                });
+
+                await setAllOrcamentosProdutos(localOrcamentoProdutos);
+
+                await handleFrete({
+                    target: {
+                        value: orcamento.frete
+                    }
+                }, localOrcamentoProdutos)
+            }
+        } catch (e) {
+            toast.error(`Não foi possivel carregar os produtos do orçamento: ${e}`);
+        }
+    }
 
     const onSave = async () => {
         try {
@@ -31,12 +74,12 @@ export default function UpsertModalProduct(props: UpsertModalProductProps) {
 
             if (isNew) {
 
-                await produtosService.new(current);
+                await orcamentosService.new(current);
 
                 await props.onClose("Registro criado com sucesso");
             }
             else {
-                await produtosService.edit(current);
+                await orcamentosService.edit(current);
 
                 await props.onClose("Registro alterado com sucesso");
             }
@@ -57,19 +100,23 @@ export default function UpsertModalProduct(props: UpsertModalProductProps) {
         return true;
     }
 
-    const handleFrete = async (e: any) => {
-        let vlTotal = calculateTotalValue({ ...current, frete: e.target.value });
+    const handleFrete = async (e: any, orcProds?: OrcamentoProdutoGrid[]) => {
+        const localFrete = isNaN(e.target.value) ? 0 : e.target.value;
 
-        await setCurrent({ ...current, frete: e.target.value, valortotal: vlTotal });
+        const localCurrent = { ...current, frete: parseFloat(localFrete) };
+        let vlTotal = calculateTotalValue(localCurrent, orcProds);
+
+        await setCurrent({ ...localCurrent, valortotal: vlTotal.toFixed(2) });
     }
 
-    const calculateTotalValue = (obj?: OrcamentoDTO): number => {
+    const calculateTotalValue = (obj: OrcamentoDTO, orcProds?: OrcamentoProdutoGrid[]): number => {
         let vlTotal = obj?.frete ?? current?.frete ?? 0;
-        let orcamentoProdutos = obj && obj.allOrcamentosProdutos ? obj.allOrcamentosProdutos : allOrcamentosProdutos;
+        orcProds ??= allOrcamentosProdutos;
 
-        let somaProdutos = orcamentoProdutos && orcamentoProdutos.filter(f => f.excluido === 0).length
-            ? orcamentoProdutos
-                .filter(f => f.excluido === 0).map(m => m.quantidade * m.produtovalor)
+        let somaProdutos = orcProds && orcProds.filter(f => f.excluido === 0).length
+            ? orcProds
+                .filter(f => f.excluido === 0)
+                .map(m => m.quantidade * m.produtovalor)
                 .reduce((a, b) => a + b)
             : 0;
 
@@ -79,17 +126,17 @@ export default function UpsertModalProduct(props: UpsertModalProductProps) {
         return vlTotal + (isNaN(somaProdutos) ? 0 : somaProdutos);
     }
 
-    async function addProduct() {
+    const addProduct = async () => {
         //clear client
         await setCurrentOrcamentoProduto(undefined);
 
         await setCurrentEditingOrcamentoProduto(undefined);
-        await setCurrentEditingOrcamentoProduto({} as OrcamentoProdutoDTO);
+        await setCurrentEditingOrcamentoProduto({} as OrcamentoProdutoGrid);
 
         await setShowModalOrcamentoProduto(true);
     }
 
-    async function editProduct(e: any) {
+    const editProduct = async (e: any) => {
         await setCurrentEditingOrcamentoProduto(undefined);
         await setCurrentEditingOrcamentoProduto(e.row ?? currentOrcamentoProduto);
 
@@ -109,11 +156,11 @@ export default function UpsertModalProduct(props: UpsertModalProductProps) {
             </DialogTitle>
             <DialogContent>
                 <div className='flex-container' style={{
-
+                    display: 'flex',
                 }}>
                     <ClientesLookup
                         sx={{
-                            width: '70%',
+                            minWidth: '94%',
                             marginBottom: 5
                         }}
                         onChange={async (c) => {
@@ -121,29 +168,37 @@ export default function UpsertModalProduct(props: UpsertModalProductProps) {
                             console.log(local)
                             await setCurrent(local);
                         }}
+                        selectedId={current?.clienteid}
                     />
-                    <TextField
-                        id="dataorcamento"
-                        label="Data"
-                        variant="outlined"
-                        type="date"
-                        value={current.dataorcamento}
-                        onChange={(e) => setCurrent({ ...current, dataorcamento: e.target.value })}
+                    <div style={{
+                        display: 'flex',
+                        width: '-webkit-fill-available',
+                        justifyContent: 'flex-end',
+                        marginBottom: 10
+                    }}>
+                        <TextField
+                            id="dataorcamento"
+                            label="Data"
+                            variant="outlined"
+                            type="date"
+                            value={current.dataorcamento}
+                            onChange={(e) => setCurrent({ ...current, dataorcamento: e.target.value })}
 
-                        InputLabelProps={{ shrink: true }}
-                        style={{ marginRight: '8px' }}
-                    />
+                            InputLabelProps={{ shrink: true }}
+                            style={{ marginRight: '8px', marginBottom: 5 }}
+                        />
 
-                    <TextField
-                        id="dataenvioteste"
-                        label="Data de envio do teste"
-                        variant="outlined"
-                        type="date"
-                        value={current.dataenvioteste}
-                        onChange={(e) => setCurrent({ ...current, dataenvioteste: e.target.value })}
-
-                        InputLabelProps={{ shrink: true }}
-                    />
+                        <TextField
+                            id="dataenvioteste"
+                            label="Data de envio do teste"
+                            variant="outlined"
+                            type="date"
+                            value={current.dataenvioteste}
+                            onChange={(e) => setCurrent({ ...current, dataenvioteste: e.target.value })}
+                            style={{ marginBottom: 5 }}
+                            InputLabelProps={{ shrink: true }}
+                        />
+                    </div>
                     <div className='inner-flex-container'>
                         <TextField
                             className='txt-box txt-box-large'
@@ -162,10 +217,10 @@ export default function UpsertModalProduct(props: UpsertModalProductProps) {
                             helperText={!current.observacao ? 'Campo obrigatório' : ''} />
                     </div>
                     <div className='inner-flex-container'
-                    style={{
-                        display: 'flex'
-
-                    }}>
+                        style={{
+                            display: 'flex',
+                            gap: '20px'
+                        }}>
                         <FormControl variant="outlined" sx={{ minWidth: 350 }}>
                             <InputLabel
                                 htmlFor="status-orcamento-id"
@@ -213,29 +268,40 @@ export default function UpsertModalProduct(props: UpsertModalProductProps) {
                             value={current.valortotal} />
                     </div>
 
-                    <div className={'grid-buttons'}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}>
                         <InputLabel
                             htmlFor="produto-search"
-                            style={{ marginTop: 12, marginBottom: 12 }}
+                            sx={{
+                                mr: 2
+                            }}
                         >Produtos</InputLabel>
 
                         <IconButton color="primary" aria-label="Remover produto" component="span" disabled={!currentOrcamentoProduto}
-                            onClick={() => setDeleteModalVisible(true)}
-                            style={{ marginLeft: 70, marginTop: -62 }}>
+                            onClick={() => setDeleteModalVisible(true)}>
                             <Remove />
                         </IconButton>
 
-                        <IconButton color="primary" aria-label="Adicionar produto" component="span" onClick={addProduct}
-                            style={{ marginLeft: 0, marginTop: -62 }}>
+                        <IconButton color="primary" aria-label="Adicionar produto" component="span" onClick={addProduct}>
                             <Add />
                         </IconButton>
 
                         <IconButton color="primary" aria-label="Editar produto" component="span" disabled={!currentOrcamentoProduto}
-                            onClick={editProduct}
-                            style={{ marginLeft: 0, marginTop: -62 }}>
+                            onClick={editProduct}>
                             <Edit />
                         </IconButton>
                     </div>
+
+                    <ZGrid
+                        rows={allOrcamentosProdutos?.filter(a => a.excluido === 0) ?? []}
+                        columns={columns}
+                        onRowDoubleClick={editProduct}
+                        onRowClick={async (e: any) => await setCurrentOrcamentoProduto(e.row)}
+                        height={250}
+                    />
+
                 </div>
             </DialogContent>
             <DialogActions>

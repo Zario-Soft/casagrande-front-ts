@@ -199,7 +199,7 @@ export default function Orcamentos() {
             onClose={() => setConfirmationDialogOpen(false)}
         />}
         {upsertDialogOpen && <UpsertModalClient
-            produto={selected}
+            orcamento={selected}
             onClose={async (message: string | undefined) => {
                 if (message) {
                     await toast.success(message);

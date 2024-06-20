@@ -56,15 +56,19 @@ export interface OrcamentoProdutoDTO {
     excluido: number,
     genero: number,
     fotoinicial: string,
+    fotoinicialbase64: string | undefined,
     fotoinicial2: string,
+    fotoinicial2base64: string | undefined,
     fotoreal: string,
+    fotorealbase64: string | undefined,
     fotoreal2: string,
+    fotoreal2base64: string | undefined,
     observacaotecnica1: string,
     observacaotecnica2: string,
 }
 
 export interface OrcamentoProdutoGrid
-    extends OrcamentoProdutoDTO {
+    extends OrcamentoProdutoDTO {    
     produtovalor: number,
     cornome: string,
     generodescricao: string,

@@ -1,20 +1,17 @@
 import SearchCombobox from "src/components/combobox/search-combo";
-import { CorDTO } from "./clientes.contracts";
 import { useEffect, useState } from "react";
-import ClientesService from "./clientes.service";
+import CorService from "./cor.service";
 import { toast } from "react-toastify";
 import { SxProps, Theme } from "@mui/material";
-import UpsertModalClient from "./clientes-modal.page";
 import { CorDTO } from "./cor.contracts";
+import UpsertModalCor from "./cor-modal.page";
+import { LookupProps } from "../common/base-contracts";
 
-export interface CorLookupProps {
-    onChange?: (client?: CorDTO) => void,
-    sx?: SxProps<Theme>,
-    selectedId?:number,
-}
+export interface CorLookupProps
+    extends LookupProps<CorDTO> { }
 
 export default function CorLookup(props: CorLookupProps) {
-    const clientesService = new ClientesService();
+    const corService = new CorService();
 
     const [selected, setSelected] = useState<CorDTO>();
     const [modalSelected, setModalSelected] = useState<CorDTO>();
@@ -28,7 +25,7 @@ export default function CorLookup(props: CorLookupProps) {
 
     const getAll = async () => {
         try {
-            const data = await clientesService.getAll();
+            const data = await corService.getAll();
             await setData(data);
 
             if (data && props.selectedId) {
@@ -67,20 +64,21 @@ export default function CorLookup(props: CorLookupProps) {
         await setUpsertDialogOpen(true);
     }
 
-    return <><SearchCombobox<CorDTO>
-        value={selected}
-        id="cliente-search-modal"
-        label="Cliente"
-        onChange={onChange}
-        onAddClick={onAddClick}
-        onShowClick={onShowClick}
-        options={data}
-        getOptionLabel={(o: CorDTO) => o.nome ?? ''}
-        onAfter={onAfter}
-        sx={props.sx}
-    />
-        {upsertDialogOpen && <UpsertModalClient
-            cliente={modalSelected}
+    return <>
+        <SearchCombobox<CorDTO>
+            value={selected}
+            id="cliente-search-modal"
+            label="Cor"
+            onChange={onChange}
+            onAddClick={onAddClick}
+            onShowClick={onShowClick}
+            options={data}
+            getOptionLabel={(o: CorDTO) => o.nome ?? ''}
+            onAfter={onAfter}
+            sx={props.sx}
+        />
+        {upsertDialogOpen && <UpsertModalCor
+            cor={modalSelected}
             onClose={async (message: string | undefined) => {
                 if (message) {
                     await toast.success(message);

@@ -1,3 +1,5 @@
+import { SxProps, Theme } from "@mui/material";
+
 export class Paging {
     constructor(
         public page: number = 0,
@@ -40,4 +42,14 @@ export interface PagingFilter {
     column: string,
     comparer: string,
     value: string
+}
+
+/* Lookup */
+export interface LookupProps<T> {
+    onChange?: (item?: T) => void,
+    /** Cover the style of the autocomplete */
+    sx?: SxProps<Theme>,
+    /** Cover the entire style of the component */
+    style?: React.CSSProperties,
+    selectedId?: number,
 }

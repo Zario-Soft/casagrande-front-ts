@@ -4,12 +4,7 @@ import { Paging } from '../common/base-contracts';
 import { CorDTO } from './cor.contracts';
 
 export class CorService {
-    new(current: CorDTO) {
-        throw new Error("Method not implemented.");
-    }
-    edit(current: CorDTO) {
-        throw new Error("Method not implemented.");
-    }
+    
     private readonly request: HttpClient;
     private readonly BASE_URL: string = 'cor';
 
@@ -22,6 +17,13 @@ export class CorService {
 
         return data;
     }   
+
+    public async new(cor: CorDTO) {
+        await this.request.post(`${this.BASE_URL}`, cor);
+    }
+    async edit(cor: CorDTO) {
+        await this.request.put(`${this.BASE_URL}/${cor.id}`, cor);
+    }
 }
 
 

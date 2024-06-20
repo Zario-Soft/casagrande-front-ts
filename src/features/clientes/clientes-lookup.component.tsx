@@ -5,12 +5,10 @@ import ClientesService from "./clientes.service";
 import { toast } from "react-toastify";
 import { SxProps, Theme } from "@mui/material";
 import UpsertModalClient from "./clientes-modal.page";
+import { LookupProps } from "../common/base-contracts";
 
-export interface ClientesLookupProps {
-    onChange?: (client?: ClienteDTO) => void,
-    sx?: SxProps<Theme>,
-    selectedId?:number,
-}
+export interface ClientesLookupProps
+    extends LookupProps<ClienteDTO> { }
 
 export default function ClientesLookup(props: ClientesLookupProps) {
     const clientesService = new ClientesService();

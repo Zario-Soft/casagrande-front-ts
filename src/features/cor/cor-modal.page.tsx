@@ -1,9 +1,8 @@
-import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Checkbox, CircularProgress, FormControl, FormControlLabel, Input, InputLabel, Select } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, TextField, DialogActions } from "@mui/material";
 import { NormalButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCustom } from "src/components/masks";
 import CorService from "./cor.service";
 import { CorDTO } from "./cor.contracts";
 
@@ -17,7 +16,6 @@ export default function UpsertModalCor(props: UpsertModalCorProps) {
     const corService = new CorService();
 
     const [current, setCurrent] = useState(props.cor ?? {} as CorDTO);
-    const [isLoadingCEP, setIsLoadingCEP] = useState(false);
 
     const onSave = async () => {
         try {
@@ -44,23 +42,11 @@ export default function UpsertModalCor(props: UpsertModalCorProps) {
 
     const isSavingValid = async (): Promise<boolean> => {
         if (!current.nome || current.nome === '') {
-            await toast.error('Preencha o nome do cliente');
+            await toast.error('Preencha o nome da cor');
             return false;
         }
 
         return true;
-    }
-
-    const fillState = async (e: any) => {
-        let s = e.target.value as String;
-        const match = s.match("([0-9]+)");
-
-        if (!!match) {
-            const { data } = await corService.getStateByDDD(match[0]);
-
-            if (data)
-                await setCurrent({ ...current, estado: data })
-        }
     }
 
     return <>
@@ -72,12 +58,12 @@ export default function UpsertModalCor(props: UpsertModalCorProps) {
             PaperComponent={PaperComponent}
         >
             <DialogTitle id="draggable-dialog-title" style={{ cursor: 'move' }}>
-                {isNew ? 'Novo Cliente' : `Editando Cliente '${current!.nome}'`}
+                {isNew ? 'Nova Cor' : `Editando Cor '${current!.nome}'`}
             </DialogTitle>
             <DialogContent>
                 <div className='flex-container'>
                     <TextField
-                        className='txt-box txt-box-medium'
+                        className='txt-box txt-box-big'
                         id="nome"
                         label="Nome"
                         variant="outlined"
@@ -86,268 +72,6 @@ export default function UpsertModalCor(props: UpsertModalCorProps) {
                         error={!current.nome}
                         helperText={!current.nome ? 'Campo obrigatório' : ''}
                     />
-
-                    <TextField
-                        className='txt-box txt-box-medium'
-                        id="resp"
-                        label="Responsável"
-                        variant="outlined"
-                        value={current.responsavel}
-                        onChange={(e) => setCurrent({ ...current, responsavel: e.target.value })}
-                    />
-
-                    <div className='inner-flex-container'>
-                        <TextField
-                            className='txt-box txt-box-medium'
-                            id="email-cliente"
-                            label="E-mail"
-                            type={'email'}
-                            variant="outlined"
-                            value={current.email}
-                            onChange={(e) => setCurrent({ ...current, email: e.target.value })}
-                        />
-
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={current.pessoafisica}
-                                    onChange={(e) => setCurrent({ ...current, pessoafisica: e.target.checked })}
-                                    name="cpjCNPJ"
-                                    color="primary"
-                                />
-                            }
-                            label="Pessoa Fisica?"
-                        />
-
-                        <div>
-                            <FormControl>
-                                <InputLabel
-                                    htmlFor="formatted-text-mask-input"
-                                    shrink
-                                >
-                                    CPF/CNPJ
-                                </InputLabel>
-                                {current.pessoafisica && <Input
-                                    value={current.cpfcnpj}
-                                    onChange={(e) => setCurrent({ ...current, cpfcnpj: e.target.value })}
-                                    name="cpfcnpj"
-                                    id="cpfcnpj-input"
-                                    inputComponent={CPFMaskCustom}
-                                />}
-                                {!current.pessoafisica && <Input
-                                    value={current.cpfcnpj}
-                                    onChange={(e) => setCurrent({ ...current, cpfcnpj: e.target.value })}
-                                    name="cpfcnpj"
-                                    id="cpfcnpj-input"
-                                    inputComponent={CNPJMaskCustom}
-                                />}
-                            </FormControl>
-                        </div>
-                    </div>
-                    <div className='inner-flex-container'>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={current?.isparceiro ?? false}
-                                    onChange={(e) => setCurrent({ ...current, isparceiro: e.target.checked })}
-                                    name="cpjCNPJ"
-                                    color="primary"
-                                />
-                            }
-                            label="Parceiro?"
-                            style={{ marginLeft: -20 }}
-
-                        />
-                        <TextField
-                            id="percParceria"
-                            label="%"
-                            variant="outlined"
-                            type="number"
-                            disabled={!current.isparceiro}
-                            value={current.percparceiro}
-                            onChange={(e) => setCurrent({ ...current, percparceiro: current.isparceiro ? parseInt(e.target.value) : undefined })}
-                            InputLabelProps={{ shrink: true }}
-                        />
-
-                        <FormControl>
-                            <InputLabel htmlFor="formatted-text-mask-input" shrink>Telefone</InputLabel>
-                            <Input
-                                value={current.telefone}
-                                onChange={(e) => setCurrent({ ...current, telefone: e.target.value })}
-                                name="telefone"
-                                id="telefone-input"
-                                inputComponent={TelMaskCustom}
-                                onBlur={fillState}
-                            />
-                        </FormControl>
-
-                        <FormControl>
-                            <InputLabel htmlFor="formatted-text-mask-input" shrink>Celular</InputLabel>
-                            <Input
-                                value={current.celular}
-                                onChange={(e) => setCurrent({ ...current, celular: e.target.value })}
-                                name="celular"
-                                id="celular-input"
-                                inputComponent={CelMaskCustom}
-                                onBlur={fillState}
-                            />
-                        </FormControl>
-                    </div>
-
-                    <div className='inner-flex-container'>
-                        <FormControl>
-                            <InputLabel htmlFor="formatted-text-mask-input" shrink>CEP</InputLabel>
-                            <Input
-                                className='txt-box'
-                                value={current.cep}
-                                onChange={(e) => setCurrent({ ...current, cep: e.target.value })}
-                                name="cep"
-                                id="cep-input"
-                                inputComponent={CEPMaskCustom}
-                                onBlur={preencheCEP}
-                            />
-                        </FormControl>
-                        {isLoadingCEP && <CircularProgress
-                            variant="indeterminate"
-                            disableShrink
-                            style={{
-                                color: '#1a90ff',
-                                animationDuration: '550ms',
-                                left: 0
-                            }}
-                            size={40}
-                            thickness={4}
-                            {...props}
-                        />}
-                    </div>
-
-                    <div className='inner-flex-container'>
-                        <TextField
-                            className='txt-box-large'
-                            id="endereco"
-                            label="Endereço"
-                            variant="outlined"
-                            value={current.endereco}
-                            onChange={(e) => setCurrent({ ...current, endereco: e.target.value })}
-                            InputLabelProps={{ shrink: true }}
-                        />
-
-                        <TextField
-                            id="enderecoNr"
-                            label="Nº"
-                            variant="outlined"
-                            type="number"
-                            value={current.numero}
-                            onChange={(e) => setCurrent({ ...current, numero: e.target.value })}
-
-                            InputLabelProps={{ shrink: true }} />
-                    </div>
-                    <div className='inner-flex-container'>
-
-                        <TextField
-                            className='txt-box-small'
-                            id="enderecoCompl"
-                            label="Complemento"
-                            variant="outlined"
-                            value={current.complemento}
-                            onChange={(e) => setCurrent({ ...current, complemento: e.target.value })}
-
-                            InputLabelProps={{ shrink: true }} />
-
-                        <TextField
-                            className='txt-box-large'
-                            id="enderecoBairro"
-                            label="Bairro"
-                            variant="outlined"
-                            value={current.bairro}
-                            onChange={(e) => setCurrent({ ...current, bairro: e.target.value })}
-
-                            InputLabelProps={{ shrink: true }} />
-                    </div>
-
-                    <div className='inner-flex-container'>
-                        <TextField
-                            className='txt-box-large'
-                            id="enderecoCidade"
-                            label="Cidade"
-                            variant="outlined"
-                            value={current.cidade}
-                            onChange={(e) => setCurrent({ ...current, cidade: e.target.value })}
-
-                            InputLabelProps={{ shrink: true }} />
-
-                        <FormControl variant="outlined" sx={{
-                            minWidth: 120
-                        }}>
-                            <InputLabel shrink>
-                                Estado
-                            </InputLabel>
-                            <Select
-                                native
-                                label="Estado"
-                                value={current.estado}
-                                onChange={async (e) => await setCurrent({ ...current, estado: e.target.value })}
-                                inputProps={{
-                                    name: 'estado',
-                                    id: 'enderecoEstado-id',
-                                    shrink: true
-                                }}
-                            >
-                                <option aria-label="None" value="" />
-                                <option value={'AC'}>AC</option>
-                                <option value={'AL'}>AL</option>
-                                <option value={'AP'}>AP</option>
-                                <option value={'AM'}>AM</option>
-                                <option value={'BA'}>BA</option>
-                                <option value={'CE'}>CE</option>
-                                <option value={'DF'}>DF</option>
-                                <option value={'ES'}>ES</option>
-                                <option value={'GO'}>GO</option>
-                                <option value={'MA'}>MA</option>
-                                <option value={'MG'}>MG</option>
-                                <option value={'MS'}>MS</option>
-                                <option value={'MT'}>MT</option>
-                                <option value={'PA'}>PA</option>
-                                <option value={'PB'}>PB</option>
-                                <option value={'PE'}>PE</option>
-                                <option value={'PI'}>PI</option>
-                                <option value={'PR'}>PR</option>
-                                <option value={'RJ'}>RJ</option>
-                                <option value={'RN'}>RN</option>
-                                <option value={'RO'}>RO</option>
-                                <option value={'RR'}>RR</option>
-                                <option value={'RS'}>RS</option>
-                                <option value={'SC'}>SC</option>
-                                <option value={'SE'}>SE</option>
-                                <option value={'SP'}>SP</option>
-                                <option value={'TO'}>TO</option>
-                            </Select>
-                        </FormControl>
-                    </div>
-                    <div className='inner-flex-container'>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={current?.isvip ?? false}
-                                    onChange={(e) => setCurrent({ ...current, isvip: e.target.checked })}
-                                    name="vip"
-                                    color="primary"
-                                />
-                            }
-                            label="VIP?"
-                        />
-                    </div>
-                    <div className='inner-flex-container'>
-                        <TextField
-                            id="observacao"
-                            label="Observações"
-                            variant="outlined"
-                            value={current.observacao}
-                            onChange={(e) => setCurrent({ ...current, observacao: e.target.value })}
-                            multiline
-                            rows={8}
-                            fullWidth />
-                    </div>
                 </div>
             </DialogContent>
             <DialogActions>

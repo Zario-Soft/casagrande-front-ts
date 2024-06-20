@@ -41,15 +41,14 @@ export default function SearchCombobox<T extends { id: number }>(props: MuiCombo
         await props.onChange(value);
     }
 
-    return <div style={{
+    return <div style={props.style ?? {
         display: 'flex',
-        width: '100%'
+        width: '-webkit-fill-available'
     }}>
         <Autocomplete
             className="txt-box"
             getOptionKey={(c) => c.id}
             key={props.id}
-            style={props.style}
             getOptionLabel={props.getOptionLabel}
             onChange={onChange}
             disablePortal

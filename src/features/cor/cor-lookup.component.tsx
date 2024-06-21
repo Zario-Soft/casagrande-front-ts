@@ -76,6 +76,7 @@ export default function CorLookup(props: CorLookupProps) {
             getOptionLabel={(o: CorDTO) => o.nome ?? ''}
             onAfter={onAfter}
             sx={props.sx}
+            style={props.style}
         />
         {upsertDialogOpen && <UpsertModalCor
             cor={modalSelected}

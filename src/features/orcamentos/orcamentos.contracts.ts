@@ -72,7 +72,7 @@ export interface OrcamentoProdutoGrid
     produtovalor: number,
     cornome: string,
     generodescricao: string,
-    produtodescricao: string,
+    produtodescricao: string,    
 }
 
 export interface OrcamentoGetAllResponse {

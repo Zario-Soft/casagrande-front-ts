@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, Button } from "@mui/material";
 import { NormalButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import OrcamentosService from "./orcamentos.service";
@@ -8,11 +8,12 @@ import CorLookup from "../cor/cor-lookup.component";
 import ProdutosLookup from "../produtos/produtos-lookup.component";
 import { useState } from "react";
 import ImageUploader from "src/components/image-uploader/image-uploader.component";
-import { NoResultsOverlayPropsOverrides } from "@mui/x-data-grid";
+import './orcamento.css';
 
 
 export interface UpsertModalOrcamentoProdutosProps {
     current?: OrcamentoProdutoGrid,
+    orcamentoobservacao?: string,
     onClose: (message?: string) => void
 }
 
@@ -31,7 +32,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         }
     }
 
-    const [dragFrom, setDragFrom] = useState<{id: string}>({} as {id: string});
+    const [dragFrom, setDragFrom] = useState<{ id: string }>({} as { id: string });
     const handleDrag = async (e: any) => {
         await setDragFrom(e);
     }
@@ -50,11 +51,11 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         await setCurrent(localCurrent);
     }
 
-    async function addImage(e: any) {
+    const addImage = async (id: string, data:any) => {
         let localCurrent = { ...current };
 
-        localCurrent[e.id as never] = undefined as never;
-        localCurrent[`${e.id}base64` as never] = e.data as never;
+        localCurrent[id as never] = undefined as never;
+        localCurrent[`${id}base64` as never] = data as never;
 
         await setCurrent(localCurrent);
     }
@@ -65,6 +66,10 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         localCurrent[`${nome}base64` as never] = undefined as never;
 
         await setCurrent(localCurrent);
+    }
+
+    const getTextFromOrcamento = async () => {
+        await setCurrent({ ...current, observacaotecnica1: props.orcamentoobservacao ?? '' });
     }
 
     return <>
@@ -81,15 +86,16 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             <DialogContent>
                 <div className='flex-container' style={{
                     display: 'flex',
+                    flexDirection: 'column'
                 }}>
                     <div style={{
                         display: 'flex',
-                        width: '95%',
+                        width: '-webkit-fill-available',
                         gap: '10px'
                     }}>
                         <ProdutosLookup
                             sx={{
-                                minWidth: '90%',
+                                minWidth: '80%',
                                 marginBottom: 5,
                             }}
                             onChange={async (c) => {
@@ -97,12 +103,16 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                                 console.log(local)
                                 await setCurrent(local);
                             }}
+
                             selectedId={current?.produtoid}
                         />
                         <CorLookup
                             sx={{
-                                minWidth: '50%',
+                                minWidth: '80%',
                                 marginBottom: 5,
+                            }}
+                            style={{
+                                width: '80%'
                             }}
                             onChange={async (c) => {
                                 const local = { ...current, corid: c?.id ?? 0 };
@@ -113,14 +123,13 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                         />
 
                     </div>
-                    <div className='inner-flex-container'>
+                    <div className="orcamento-container">
                         <TextField
                             className='txt-box'
                             id="quantidade"
                             label="Quantidade"
                             variant="outlined"
                             type="number"
-                            fullWidth
                             value={current.quantidade}
                             InputLabelProps={{ shrink: true }}
                             onChange={(e) => setCurrent({ ...current, quantidade: parseInt(e.target.value) })} />
@@ -132,7 +141,6 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                             <Select
                                 native
                                 label="Sexo"
-                                fullWidth
                                 value={current.genero}
                                 onChange={async (e) => await setCurrent({ ...current, genero: parseInt(e.target.value as unknown as string) })}
                                 inputProps={{
@@ -145,7 +153,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                             </Select>
                         </FormControl>
                     </div>
-                    <div className='inner-flex-container'>
+                    <div className="orcamento-container" style={{ gap: '33%' }}>
                         <InputLabel
                             htmlFor="cliente-search"
                             style={{ marginTop: 12 }}
@@ -155,15 +163,77 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                             style={{ marginTop: 12 }}
                         >Fotos de Produção</InputLabel>
                     </div>
-                    <div className='inner-flex-container'>
+                    <div className='orcamento-container' style={{
+                        justifyContent: 'space-between',
+                        marginBottom: '15px'
+                    }}>
                         <ImageUploader
                             id="fotoinicial"
-                            onChange={(e) => addImage(e)}
+                            onChange={addImage}
                             onClickImage={(e) => cleanImage(e)}
                             photo={current.fotoinicialbase64}
                             handleDrag={handleDrag}
                             handleDrop={handleDrop}
                         />
+                        <ImageUploader
+                            id="fotoreal"
+                            onChange={addImage}
+                            onClickImage={(e) => cleanImage(e)}
+                            photo={current.fotorealbase64}
+                            handleDrag={handleDrag}
+                            handleDrop={handleDrop}
+                        />
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-end'
+                        }}>
+                            <Button onClick={getTextFromOrcamento} color="secondary" style={{
+                                fontSize: '9px',
+                                marginBottom: '15px',
+                            }}>
+                                Puxar obs. do orçamento
+                            </Button>
+                            <TextField                            
+                                id="observacaotecnica1"
+                                label="Observação do cliente"
+                                variant="outlined"
+                                value={current.observacaotecnica1}
+                                InputLabelProps={{ shrink: true }}
+                                onChange={(e) => setCurrent({ ...current, observacaotecnica1: e.target.value })}
+                                multiline
+                                rows={10} />
+                        </div>
+                    </div>
+                    <div className='orcamento-container' style={{
+                        justifyContent: 'space-between'
+                    }}>
+                        <ImageUploader
+                            id="fotoinicial2"
+                            onChange={addImage}
+                            onClickImage={(e) => cleanImage(e)}
+                            photo={current.fotoinicial2base64}
+                            handleDrag={handleDrag}
+                            handleDrop={handleDrop}
+                        />
+                        <ImageUploader
+                            id="fotoreal2"
+                            onChange={addImage}
+                            onClickImage={(e) => cleanImage(e)}
+                            photo={current.fotoreal2base64}
+                            handleDrag={handleDrag}
+                            handleDrop={handleDrop}
+                        />
+
+                        <TextField
+                            id="observacaotecnica2"
+                            label="Observação interna"
+                            variant="outlined"
+                            value={current.observacaotecnica2}
+                            InputLabelProps={{ shrink: true }}
+                            onChange={(e) => setCurrent({ ...current, observacaotecnica2: e.target.value })}
+                            multiline
+                            rows={10} />
                     </div>
                 </div>
             </DialogContent>

@@ -90,15 +90,21 @@ export default function ImageUploader(props: ImageUploaderProps) {
             </label>
         </>}
 
-        {photo && <>
+        {photo && <div style={{
+            maxWidth: '300px',
+            maxHeight: '300px'
+        }}>
             <CardActionArea
                 onClick={onRemove}
                 onDragEnd={onDragEnd}
                 onDragStart={onDragFrom}
             >
-                <img width="100%" src={photo} alt={''} />
+                <img src={photo} alt={''} style={{
+                    width: '100%',
+                    maxHeight: '300px',
+                }}/>
             </CardActionArea>
-        </>}
+        </div>}
 
         {dialogRemoveVisible && <ConfirmationDialog
             title={'Deseja realmente apagar a imagem atual?'}

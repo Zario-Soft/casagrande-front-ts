@@ -41,9 +41,10 @@ export default function SearchCombobox<T extends { id: number }>(props: MuiCombo
         await props.onChange(value);
     }
 
-    return <div style={props.style ?? {
+    return <div style={{
         display: 'flex',
-        width: '-webkit-fill-available'
+        width: '-webkit-fill-available',
+        ...props.style,
     }}>
         <Autocomplete
             className="txt-box"

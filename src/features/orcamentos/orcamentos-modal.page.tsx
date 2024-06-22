@@ -30,8 +30,8 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
     const orcamentosService = new OrcamentosService();
 
     const [current, setCurrent] = useState(
-        props.orcamento ?? 
-        { 
+        props.orcamento ??
+        {
             valortotal: 0,
             excluido: 0,
             status: 0
@@ -92,7 +92,9 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                     frete: current!.frete ?? 0,
                     status: current!.status,
                     valortotal: current!.valortotal,
-                    dataorcamento: current!.dataorcamento ?? moment().format("yyyy-MM-DD"),
+                    dataorcamento: current!.dataorcamento
+                        ? moment(current!.dataorcamento, "DD/MM/yyyy").format("yyyy-MM-DD")
+                        : moment().format("yyyy-MM-DD"),
                     dataenvioteste: current!.dataenvioteste,
                     observacao: current!.observacao
                 },
@@ -198,7 +200,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         await setShowModalOrcamentoProduto(true);
     }
 
-    const editProduct = async (e: any) => {        
+    const editProduct = async (e: any) => {
         await setCurrentEditingOrcamentoProduto(undefined);
         await setCurrentEditingOrcamentoProduto(e.row ?? currentOrcamentoProduto);
 
@@ -223,7 +225,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             }
             //Fixing formatting
             newOrcamentoProduto.genero ??= 0;
-            newOrcamentoProduto.generodescricao = newOrcamentoProduto.genero ? 'Feminino' : 'Masculino';            
+            newOrcamentoProduto.generodescricao = newOrcamentoProduto.genero ? 'Feminino' : 'Masculino';
 
             const newAllOrcamentoProdutos = [...localOrcamentoProdutos, newOrcamentoProduto];
 
@@ -275,7 +277,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                             variant="outlined"
                             type="date"
                             value={moment(current.dataorcamento, "DD/MM/yyyy").format("yyyy-MM-DD")}
-                            onChange={(e) => setCurrent({ ...current, dataorcamento: e.target.value })}
+                            onChange={(e) => setCurrent({ ...current, dataorcamento: moment(e.target.value, "yyyy-MM-DD").format("DD/MM/yyyy") })}
 
                             InputLabelProps={{ shrink: true }}
                             style={{ marginRight: '8px', marginBottom: 5 }}

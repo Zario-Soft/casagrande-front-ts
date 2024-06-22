@@ -12,6 +12,7 @@ export class OrcamentosService {
 
     public async getAll(filter: OrcamentoPaging): Promise<OrcamentoDTO[]> {
         const { data } = await this.request.get(`${this.BASE_URL}${filter.stringify()}`);
+        console.log(data);
 
         if (data && data.length) {
             const result = data
@@ -32,7 +33,8 @@ export class OrcamentosService {
                     };
                 });
 
-            return result;
+                console.log(result);
+                return result;
         }
 
         return [];

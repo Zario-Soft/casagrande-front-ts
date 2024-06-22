@@ -8,7 +8,6 @@ export class OrcamentoPaging extends Paging {
         super(page, filter);
     }
 
-
     mountColumnFilter(): string {
         const filter = this.filter!;
         let filterString = '';
@@ -33,10 +32,15 @@ export interface OrcamentoDTO {
     clienteid: number,
     status: number,
     frete?: number,
-    valortotal: string,
+    valortotal: number,
     observacao: string,
     dataorcamento?: string,
     dataenvioteste?: string
+}
+
+export interface OrcamentoUpsertRequest {
+    orcamento: OrcamentoDTO,
+    produtos: OrcamentoProdutoDTO[]
 }
 
 export interface OrcamentoProdutoResponse {
@@ -46,6 +50,7 @@ export interface OrcamentoProdutoResponse {
     produtodescricao: string,
     orcamentoproduto: OrcamentoProdutoDTO
 }
+
 
 export interface OrcamentoProdutoDTO {
     id: number,

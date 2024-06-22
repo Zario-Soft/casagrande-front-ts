@@ -4,12 +4,13 @@ import { PaperComponent } from "src/components/dialogs";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import OrcamentosService from "./orcamentos.service";
-import { OrcamentoDTO, OrcamentoProdutoGrid, OrcamentoProdutoResponse, StatusOrcamento } from "./orcamentos.contracts";
+import { OrcamentoDTO, OrcamentoUpsertRequest, OrcamentoProdutoGrid, StatusOrcamento, OrcamentoProdutoDTO } from "./orcamentos.contracts";
 import ClientesLookup from "../clientes/clientes-lookup.component";
 import { Remove, Add, Edit } from "@mui/icons-material";
 import ZGrid, { ZGridColDef } from "src/components/z-grid";
 import UpsertModalOrcamentoProdutos from "./orcamento-produtos.modal.page";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
+import moment from "moment";
 
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 50, hide: true },
@@ -28,8 +29,14 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
     const isNew = !props.orcamento || !props.orcamento?.id;
     const orcamentosService = new OrcamentosService();
 
-    const [current, setCurrent] = useState(props.orcamento ?? {} as OrcamentoDTO);
-    const [currentOrcamentoProduto, setCurrentOrcamentoProduto] = useState<OrcamentoProdutoResponse>();
+    const [current, setCurrent] = useState(
+        props.orcamento ?? 
+        { 
+            valortotal: 0,
+            excluido: 0,
+            status: 0
+        } as unknown as OrcamentoDTO);
+    const [currentOrcamentoProduto, setCurrentOrcamentoProduto] = useState<OrcamentoProdutoGrid>();
     const [currentEditingOrcamentoProduto, setCurrentEditingOrcamentoProduto] = useState<OrcamentoProdutoGrid>();
     const [allOrcamentosProdutos, setAllOrcamentosProdutos] = useState<OrcamentoProdutoGrid[] | undefined>();
 
@@ -74,14 +81,37 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         try {
             if (!await isSavingValid()) return;
 
+            let orcamentoProdutos = [...allOrcamentosProdutos!];
+
+            orcamentoProdutos.forEach(f => { if (f.id < 0) f.id = 0; });
+
+            const request: OrcamentoUpsertRequest = {
+                orcamento: {
+                    id: current!.id,
+                    clienteid: current!.clienteid,
+                    frete: current!.frete ?? 0,
+                    status: current!.status,
+                    valortotal: current!.valortotal,
+                    dataorcamento: current!.dataorcamento ?? moment().format("yyyy-MM-DD"),
+                    dataenvioteste: current!.dataenvioteste,
+                    observacao: current!.observacao
+                },
+                produtos: orcamentoProdutos.map(op => {
+                    const mapped: OrcamentoProdutoDTO = {
+                        ...op
+                    }
+                    return mapped;
+                })
+            }
+
             if (isNew) {
 
-                await orcamentosService.new(current);
+                await orcamentosService.new(request);
 
                 await props.onClose("Registro criado com sucesso");
             }
             else {
-                await orcamentosService.edit(current);
+                await orcamentosService.edit(request);
 
                 await props.onClose("Registro alterado com sucesso");
             }
@@ -94,10 +124,13 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
     }
 
     const isSavingValid = async (): Promise<boolean> => {
-        if (!current.clienteid) {
-            await toast.error('Preencha o cliente');
+        if (!(allOrcamentosProdutos ?? []).filter(f => f.excluido === 0).length) {
+            toast.error(`É necessário informar ao menos um produto.`);
             return false;
         }
+
+        if (!current.observacao || current.observacao === '' || !current.clienteid)
+            return false;
 
         return true;
     }
@@ -108,10 +141,10 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         const localCurrent = { ...current, frete: parseFloat(localFrete) };
         let vlTotal = calculateTotalValue(localCurrent, orcProds);
 
-        await setCurrent({ ...localCurrent, valortotal: vlTotal.toFixed(2) });
+        await setCurrent({ ...localCurrent, valortotal: vlTotal });
     }
 
-    const calculateTotalValue = (obj: OrcamentoDTO, orcProds?: OrcamentoProdutoGrid[]): number => {
+    const calculateTotalValue = (obj?: OrcamentoDTO, orcProds?: OrcamentoProdutoGrid[]): number => {
         let vlTotal = obj?.frete ?? current?.frete ?? 0;
         orcProds ??= allOrcamentosProdutos;
 
@@ -129,13 +162,30 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
     }
 
     const onConfirmExclusion = async () => {
-        // if (!selected) return;
+        //open dialog and remove item from grid
+        if (!currentOrcamentoProduto)
+            return;
 
-        // await orcamentosService.delete(selected.id);
+        let localOrcamentoProdutos = allOrcamentosProdutos ?? [];
 
-        // await refresh();
+        try {
+            let index = localOrcamentoProdutos.indexOf(currentOrcamentoProduto);
+            localOrcamentoProdutos.splice(index, 1);
 
-        toast.success("Registro excluído com sucesso");
+            if (currentOrcamentoProduto.id > 0) {
+                let newCurrent = { ...currentOrcamentoProduto, excluido: 1 };
+                localOrcamentoProdutos = [...localOrcamentoProdutos, newCurrent];
+            }
+
+            await setAllOrcamentosProdutos(localOrcamentoProdutos);
+            let vlTotal = calculateTotalValue(current, localOrcamentoProdutos);
+            await setCurrent({ ...current, valortotal: vlTotal });
+
+            //Cleaning
+            await setCurrentOrcamentoProduto(undefined);
+        } catch (e) {
+            toast.error(`Não foi possivel excluir o produto. ${e}`);
+        }
     }
 
     const addProduct = async () => {
@@ -148,11 +198,42 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         await setShowModalOrcamentoProduto(true);
     }
 
-    const editProduct = async (e: any) => {
+    const editProduct = async (e: any) => {        
         await setCurrentEditingOrcamentoProduto(undefined);
         await setCurrentEditingOrcamentoProduto(e.row ?? currentOrcamentoProduto);
 
         await setShowModalOrcamentoProduto(true);
+    }
+
+    async function handleCloseModalOrcamentoProduto(newOrcamentoProduto?: OrcamentoProdutoGrid) {
+        let localOrcamentoProdutos = allOrcamentosProdutos ?? [];
+
+        if (newOrcamentoProduto) {
+            if (newOrcamentoProduto.id !== undefined && newOrcamentoProduto.id !== 0) {
+
+                let orcamentoProduto = localOrcamentoProdutos.find(f => f.id === newOrcamentoProduto.id);
+
+                let index = localOrcamentoProdutos.indexOf(orcamentoProduto!);
+                if (index >= 0)
+                    localOrcamentoProdutos.splice(index, 1);
+            }
+            else {
+                newOrcamentoProduto.id = -(localOrcamentoProdutos.length + 1); //Temp id to show on grid
+                newOrcamentoProduto.excluido = 0;
+            }
+            //Fixing formatting
+            newOrcamentoProduto.genero ??= 0;
+            newOrcamentoProduto.generodescricao = newOrcamentoProduto.genero ? 'Feminino' : 'Masculino';            
+
+            const newAllOrcamentoProdutos = [...localOrcamentoProdutos, newOrcamentoProduto];
+
+            await setAllOrcamentosProdutos(newAllOrcamentoProdutos);
+
+            let vlTotal = calculateTotalValue(current, newAllOrcamentoProdutos);
+            await setCurrent({ ...current, valortotal: vlTotal });
+        }
+
+        await setShowModalOrcamentoProduto(false);
     }
 
     return <>
@@ -193,7 +274,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                             label="Data"
                             variant="outlined"
                             type="date"
-                            value={current.dataorcamento}
+                            value={moment(current.dataorcamento, "DD/MM/yyyy").format("yyyy-MM-DD")}
                             onChange={(e) => setCurrent({ ...current, dataorcamento: e.target.value })}
 
                             InputLabelProps={{ shrink: true }}
@@ -243,7 +324,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                                 label="Status"
                                 fullWidth
                                 value={current.status}
-                                onChange={async (e) => await setCurrent({ ...current, status: e.target.value as unknown as number })}
+                                onChange={async (e: any) => await setCurrent({ ...current, status: parseInt(e.target.value) })}
                                 inputProps={{
                                     name: 'status',
                                     id: 'status-orcamento-id'
@@ -277,7 +358,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                             InputLabelProps={{
                                 shrink: true,
                             }}
-                            value={current.valortotal} />
+                            value={(current?.valortotal ?? 0).toFixed(2)} />
                     </div>
 
                     <div style={{
@@ -327,7 +408,8 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         </Dialog>
 
         {showModalOrcamentoProduto && <UpsertModalOrcamentoProdutos
-            onClose={(message?: string) => setShowModalOrcamentoProduto(false)}
+            onClose={handleCloseModalOrcamentoProduto}
+            orcamentoobservacao={current.observacao}
             current={currentEditingOrcamentoProduto}
         />}
 

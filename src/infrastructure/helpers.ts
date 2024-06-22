@@ -1,11 +1,12 @@
 import moment from "moment";
 
 export const formatDate = (value: any): string => {
-    //console.log(value);
+    console.log(value);
     const dt = moment(value, "yyyy-MM-DD");
-    //console.log(dt);
+    console.log(dt);
+    console.log(dt.isValid());
     return dt.isValid()
-        ? dt.format("DD/MM/YYYY")
+        ? dt.format("DD/MM/yyyy")
         : "--"
 }
 

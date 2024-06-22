@@ -1,7 +1,6 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, Button } from "@mui/material";
 import { NormalButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
-import OrcamentosService from "./orcamentos.service";
 import { OrcamentoProdutoGrid } from "./orcamentos.contracts";
 import { toast } from "react-toastify";
 import CorLookup from "../cor/cor-lookup.component";
@@ -14,23 +13,34 @@ import './orcamento.css';
 export interface UpsertModalOrcamentoProdutosProps {
     current?: OrcamentoProdutoGrid,
     orcamentoobservacao?: string,
-    onClose: (message?: string) => void
+    onClose: (current?: OrcamentoProdutoGrid) => void
 }
 
 export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamentoProdutosProps) {
     const isNew = !props.current || !props.current?.id;
-    const orcamentosService = new OrcamentosService();
 
-    const [current, setCurrent] = useState(props.current ?? {} as OrcamentoProdutoGrid);
+    const [current, setCurrent] = useState(props.current ?? 
+        { 
+            excluido: 0,
+            genero: 0
+        } as OrcamentoProdutoGrid);
 
     const onSave = async () => {
         try {
+            if (!formValidado()) {
+                toast.error(`Existem campos obrigatórios não preenchidos.`);
+                return;
+            }
+
+            props.onClose(current);
         } catch (error: any) {
             toast.error(error);
         }
         finally {
         }
     }
+
+    const formValidado = () => current.corid && current.produtoid && current.quantidade;
 
     const [dragFrom, setDragFrom] = useState<{ id: string }>({} as { id: string });
     const handleDrag = async (e: any) => {
@@ -51,7 +61,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         await setCurrent(localCurrent);
     }
 
-    const addImage = async (id: string, data:any) => {
+    const addImage = async (id: string, data: any) => {
         let localCurrent = { ...current };
 
         localCurrent[id as never] = undefined as never;
@@ -60,7 +70,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         await setCurrent(localCurrent);
     }
 
-    async function cleanImage(nome: string) {
+    const cleanImage = async (nome: string) => {
         let localCurrent = { ...current };
         localCurrent[nome as never] = null as never;
         localCurrent[`${nome}base64` as never] = undefined as never;
@@ -99,8 +109,12 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                                 marginBottom: 5,
                             }}
                             onChange={async (c) => {
-                                const local = { ...current, produtoid: c?.id ?? 0 };
-                                console.log(local)
+                                const local : OrcamentoProdutoGrid = { 
+                                    ...current, 
+                                    produtoid: c?.id ?? 0,
+                                    produtodescricao: c?.descricao ?? '',
+                                    produtovalor: parseFloat(c?.valorunitario ?? '0')
+                                };
                                 await setCurrent(local);
                             }}
 
@@ -115,8 +129,12 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                                 width: '80%'
                             }}
                             onChange={async (c) => {
-                                const local = { ...current, corid: c?.id ?? 0 };
-                                console.log(local)
+                                const local : OrcamentoProdutoGrid = { 
+                                    ...current, 
+                                    corid: c?.id ?? 0,
+                                    cornome: c?.nome ?? ''
+                                };
+
                                 await setCurrent(local);
                             }}
                             selectedId={current?.corid}
@@ -194,7 +212,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                             }}>
                                 Puxar obs. do orçamento
                             </Button>
-                            <TextField                            
+                            <TextField
                                 id="observacaotecnica1"
                                 label="Observação do cliente"
                                 variant="outlined"

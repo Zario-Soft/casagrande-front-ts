@@ -1,6 +1,4 @@
-import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { Paging } from '../common/base-contracts';
 import { CorDTO } from './cor.contracts';
 
 export class CorService {

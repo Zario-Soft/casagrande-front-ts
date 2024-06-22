@@ -9,7 +9,6 @@ import { OrcamentosService } from "./orcamentos.service";
 import { OrcamentoDTO, OrcamentoPaging, StatusOrcamento } from "./orcamentos.contracts";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import UpsertModalClient from "./orcamentos-modal.page";
-import moment from "moment";
 import { Box, FormControl, Select } from "@mui/material";
 import { GridFilterItem, GridColDef } from "@mui/x-data-grid";
 
@@ -55,7 +54,7 @@ const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70, hide: true },
     { field: 'clientenome', headerName: 'Cliente', width: 300 },
     { field: 'clienteResponsavel', headerName: 'Responsável', width: 200 },
-    { field: 'dataorcamento', headerName: 'Data do Orçamento', width: 180, valueFormatter: (params: string) => moment(params).format('DD/MM/yyyy') },
+    { field: 'dataorcamento', headerName: 'Data do Orçamento', width: 180 },
     { field: 'observacao', headerName: 'Observação', width: 270 },
     {
         field: 'statusDescricao',
@@ -141,6 +140,7 @@ export default function Orcamentos() {
     }
 
     const onRowDoubleClick = async (e: any) => {
+        console.log(e);
         const localCurrent = data.find(c => c.id === (e as OrcamentoDTO).id);
         await setSelected(localCurrent);
         await setUpsertDialogOpen(true);

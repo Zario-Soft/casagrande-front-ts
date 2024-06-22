@@ -3,7 +3,6 @@ import { ClienteDTO } from "./clientes.contracts";
 import { useEffect, useState } from "react";
 import ClientesService from "./clientes.service";
 import { toast } from "react-toastify";
-import { SxProps, Theme } from "@mui/material";
 import UpsertModalClient from "./clientes-modal.page";
 import { LookupProps } from "../common/base-contracts";
 

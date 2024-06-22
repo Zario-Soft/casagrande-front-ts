@@ -2,7 +2,6 @@ import SearchCombobox from "src/components/combobox/search-combo";
 import { useEffect, useState } from "react";
 import CorService from "./cor.service";
 import { toast } from "react-toastify";
-import { SxProps, Theme } from "@mui/material";
 import { CorDTO } from "./cor.contracts";
 import UpsertModalCor from "./cor-modal.page";
 import { LookupProps } from "../common/base-contracts";

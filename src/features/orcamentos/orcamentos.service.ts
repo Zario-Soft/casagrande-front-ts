@@ -1,5 +1,6 @@
+import { formatDate } from 'src/infrastructure/helpers';
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { OrcamentoDTO, OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse } from './orcamentos.contracts';
+import { OrcamentoDTO, OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest } from './orcamentos.contracts';
 
 export class OrcamentosService {
     private readonly request: HttpClient;
@@ -21,7 +22,7 @@ export class OrcamentosService {
                         clienteid: o.orcamento.clienteid,
                         clientenome: o.clientenome,
                         clienteResponsavel: o.clienteresponsavel,
-                        dataorcamento: o.orcamento.dataorcamento,
+                        dataorcamento: formatDate(o.orcamento.dataorcamento),
                         dataenvioteste: o.orcamento.dataenvioteste,
                         observacao: o.orcamento.observacao,
                         statusDescricao: StatusOrcamento[o.orcamento.status],
@@ -45,26 +46,13 @@ export class OrcamentosService {
         return data.produtos as OrcamentoProdutoResponse[];
     }
 
-    public async new(orcamento: OrcamentoDTO): Promise<any> {
-        // const request: OrcamentoRequest = {
-        //     ...orcamento,
-        //     valorunitario: parseFloat(orcamento.valorunitario),
-        // }
-
-        await this.request.post(`${this.BASE_URL}`, orcamento);
+    public async new(request: OrcamentoUpsertRequest): Promise<any> {
+        await this.request.post(`${this.BASE_URL}`, request);
     }
 
-    public async edit(orcamento: OrcamentoDTO): Promise<any> {
-        // const request: OrcamentoRequest = {
-        //     ...orcamento,
-        //     valorunitario: parseFloat(orcamento.valorunitario),
-        //}
-        await this.request.put(`${this.BASE_URL}/${orcamento.id}`, orcamento);
+    public async edit(request: OrcamentoUpsertRequest): Promise<any> {
+        await this.request.put(`${this.BASE_URL}/${request.orcamento.id}`, request);
     }
-
-    // public async getById(id: number): Promise<AxiosResponse<StudentsResponseItem>> {
-    //     return await this.request.get(`${this.BASE_URL}/${id}`);
-    // }
 
     public async delete(id: number): Promise<void> {
         await this.request.delete(`${this.BASE_URL}/${id}`);

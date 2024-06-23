@@ -83,18 +83,7 @@ export interface OrcamentoProdutoGrid
 export interface OrcamentoGetAllResponse {
     clientenome: string,
     clienteresponsavel: string,
-    orcamento: OrcamentoResponse,
-}
-
-export interface OrcamentoResponse {
-    id: number,
-    clienteid: number,
-    status: number,
-    frete: string,
-    valortotal: string,
-    observacao: string,
-    dataorcamento?: string,
-    dataenvioteste?: string,
+    orcamento: OrcamentoDTO,
 }
 
 export interface OrcamentoRequest {

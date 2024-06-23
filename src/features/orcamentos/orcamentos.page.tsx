@@ -43,7 +43,7 @@ function StatusInputValue(props: any) {
                         id: 'status-orcamento-id'
                     }}
                 >
-                    {StatusOrcamento.map((value:string, index:number) => <option value={value} key={index}>{value}</option>)}
+                    {StatusOrcamento.map((value: string, index: number) => <option value={value} key={index}>{value}</option>)}
                 </Select>
             </FormControl>
         </Box>
@@ -53,11 +53,11 @@ function StatusInputValue(props: any) {
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70, hide: true },
     { field: 'clientenome', headerName: 'Cliente', width: 300 },
-    { field: 'clienteResponsavel', headerName: 'Responsável', width: 200 },
+    { field: 'clienteresponsavel', headerName: 'Responsável', width: 200 },
     { field: 'dataorcamento', headerName: 'Data do Orçamento', width: 180 },
     { field: 'observacao', headerName: 'Observação', width: 270 },
     {
-        field: 'statusDescricao',
+        field: 'statusdescricao',
         headerName: 'Status',
         width: 240,
         filterOperators: [
@@ -73,7 +73,7 @@ const columns: ZGridColDef[] = [
                 InputComponent: StatusInputValue,
             }
         ],
-        valueFormatter: (value: string) => {
+        valueFormatter: (value: string) => {           
             switch (value) {
                 case 'Aprovado':
                     return `✅ ${value}`;
@@ -87,9 +87,25 @@ const columns: ZGridColDef[] = [
             }
         }
     },
-    { field: 'frete', headerName: 'Frete', width: 90, valueFormatter: (value: string) => parseFloat(value).toFixed(2) },
-    { field: 'valorTotal', headerName: 'Valor Total', width: 120, valueFormatter: (value: string) => parseFloat(value).toFixed(2) }
+    { 
+        field: 'frete', 
+        headerName: 'Frete',
+        width: 90, 
+        valueFormatter: (value: number) => value.toFixed(2) 
+    },
+    { 
+        field: 'valortotal', 
+        headerName: 'Valor Total',
+        width: 120,
+        valueFormatter: (value?: number) => (value ?? 0).toFixed(2) 
+    }
 ];
+
+interface OrcamentoGrid extends OrcamentoDTO {
+    clientenome: string,
+    clienteresponsavel: string,
+    statusdescricao: string,
+}
 
 export default function Orcamentos() {
     const orcamentosService = new OrcamentosService();
@@ -111,11 +127,12 @@ export default function Orcamentos() {
         try {
             await setIsLoading(true);
 
-            const data = await orcamentosService.getAll(filter);
+            const data = await orcamentosService.getAll<OrcamentoGrid>(filter);
             await setData(data);
 
-        } catch {
+        } catch (e: any) {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
+            console.error(e);
         }
         finally {
             await setIsLoading(false);

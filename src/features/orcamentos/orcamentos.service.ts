@@ -1,6 +1,6 @@
 import { formatDate } from 'src/infrastructure/helpers';
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { OrcamentoDTO, OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest } from './orcamentos.contracts';
+import { OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest } from './orcamentos.contracts';
 
 export class OrcamentosService {
     private readonly request: HttpClient;
@@ -10,8 +10,21 @@ export class OrcamentosService {
         this.request = new HttpClient();
     }
 
-    public async getAll(filter: OrcamentoPaging): Promise<OrcamentoDTO[]> {
-        const { data } = await this.request.get(`${this.BASE_URL}${filter.stringify()}`);
+    public async getAllAprovados(): Promise<OrcamentoGetAllResponse[]> {
+        const { data } = await this.request.get(`${this.BASE_URL}/aprovado`);
+
+        return this.mapToResponse(data);
+    }
+    
+    public async getAll<T>(filter?: OrcamentoPaging): Promise<T[]> {
+        const { data } = filter 
+        ? await this.request.get(`${this.BASE_URL}${filter.stringify()}`)
+        : await this.request.get(this.BASE_URL);
+
+        return this.mapToResponse<T>(data);
+    }
+
+    private mapToResponse<T>(data: any): T[] {
         console.log(data);
 
         if (data && data.length) {
@@ -22,14 +35,14 @@ export class OrcamentosService {
                         id: o.orcamento.id,
                         clienteid: o.orcamento.clienteid,
                         clientenome: o.clientenome,
-                        clienteResponsavel: o.clienteresponsavel,
+                        clienteresponsavel: o.clienteresponsavel,
                         dataorcamento: formatDate(o.orcamento.dataorcamento),
                         dataenvioteste: o.orcamento.dataenvioteste,
                         observacao: o.orcamento.observacao,
-                        statusDescricao: StatusOrcamento[o.orcamento.status],
+                        statusdescricao: StatusOrcamento[o.orcamento.status],
                         status: o.orcamento.status,
-                        frete: parseFloat(o.orcamento.frete).toFixed(2),
-                        valorTotal: parseFloat(o.orcamento.valortotal).toFixed(2),
+                        frete: o.orcamento.frete,
+                        valortotal: o.orcamento.valortotal,
                     };
                 });
 

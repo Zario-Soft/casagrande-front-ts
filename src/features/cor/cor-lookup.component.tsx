@@ -82,6 +82,7 @@ export default function CorLookup(props: CorLookupProps) {
             onClose={async (message: string | undefined) => {
                 if (message) {
                     await toast.success(message);
+                    await getAll();
                 }
 
                 await setUpsertDialogOpen(false);

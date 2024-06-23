@@ -82,6 +82,7 @@ export default function ProdutosLookup(props: ProdutosLookupProps) {
             onClose={async (message: string | undefined) => {
                 if (message) {
                     await toast.success(message);
+                    await getAll();
                 }
 
                 await setUpsertDialogOpen(false);

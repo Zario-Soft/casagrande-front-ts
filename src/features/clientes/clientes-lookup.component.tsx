@@ -80,6 +80,7 @@ export default function ClientesLookup(props: ClientesLookupProps) {
             onClose={async (message: string | undefined) => {
                 if (message) {
                     await toast.success(message);
+                    await getAll();
                 }
 
                 await setUpsertDialogOpen(false);

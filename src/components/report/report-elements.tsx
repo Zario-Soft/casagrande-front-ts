@@ -1,5 +1,5 @@
-import { Text, View, StyleSheet } from '@react-pdf/renderer';
-import { ReportContentSummary } from './report.interfaces';
+import { Text, View, StyleSheet, Image } from '@react-pdf/renderer';
+import { ReportContentImageSummary, ReportContentSummary } from './report.interfaces';
 import { useState, useEffect } from 'react';
 import { ImageDownloader } from '../image-downloader/image-downloader.component';
 
@@ -36,6 +36,11 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start'
     },
 
+    invoiceClientContainer: {
+        flexDirection: 'column',
+        justifyContent: 'flex-start'
+    },
+
     invoiceClientLineContainer: {
         flexDirection: 'row',
         marginTop: 4,
@@ -63,6 +68,13 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#b71c1c',
         fontStyle: 'bold',
+    },
+
+    picture: {
+        width: 100,
+        height: 135,
+        marginLeft: 5,
+        marginTop: 5,
     }
 });
 
@@ -78,10 +90,8 @@ export const ReportSubtitle = ({ title }: { title: string }) => (
     </View>
 );
 
-export type ReportContentSummaryProps = ReportContentSummary & {
-    break?: boolean,
-    visible?: boolean,
-}
+export type ReportContentSummaryProps = ReportContentSummary;
+export type ReportContentImageSummaryProps = ReportContentImageSummary;
 
 export function SummaryReport(props: ReportContentSummaryProps) {
     //title, items: title, value
@@ -100,37 +110,39 @@ export function SummaryReport(props: ReportContentSummaryProps) {
         </View>
     </View>
 }
-export function SummaryImageInvoice(props: ReportContentSummaryProps) {
+export function SummaryImageReport(props: ReportContentImageSummaryProps) {
     /*  title
         description
         images: []
     */
-    const [imageContent, setImageContent] = useState();
+    const [imageContent, setImageContent] = useState<string[]>([]);
     const imgHandler = new ImageDownloader();
 
     useEffect(() => {
-        loadImage();
+        console.log(props)
+        if (props.images)
+            loadImage();
         // eslint-disable-next-line
-    }, [props.image])
+    }, [])
 
     const loadImage = async () => {
 
-        const localImages = await (props.images ?? [])
+        const localImages = await props.images
             .filter(image => image !== null && image !== undefined)
-            .map(async image => image.indexOf('data:image') >= 0
-                ? image
-                : await imgHandler.downloadOnFront(image, image))
+            .map(async image => await imgHandler.downloadOnFront(image))
 
-        await setImageContent(localImages);
+        console.log(localImages)
+
+        //await setImageContent(localImages);
     }
 
-    return <View wrap break={props.break ?? false}>
+    return <View wrap break={props.breakPage ?? false}>
         <View style={styles.invoiceSummaryTitle}>
             <Text style={styles.invoiceSummaryTitleLabel}>{props.title ?? 'Dados'}</Text>
         </View>
         <View style={styles.invoiceSummaryBodyContainer}>
             {imageContent && <View style={styles.invoiceClientContainer}>
-                {imageContent.map((image, key) => {
+                {imageContent.map((image: string, key) => {
                     return <View key={key}>
                         <Image style={styles.picture} src={image} />
                     </View>

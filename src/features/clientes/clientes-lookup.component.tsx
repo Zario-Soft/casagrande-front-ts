@@ -34,8 +34,9 @@ export default function ClientesLookup(props: ClientesLookupProps) {
                     await setSelected(localSelected);
             }
 
-        } catch {
+        } catch(e:any) {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
+            console.error(e);
         }
     }
 

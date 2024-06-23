@@ -12,7 +12,7 @@ import UpsertModalOrcamentoProdutos from "./orcamento-produtos.modal.page";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import moment from "moment";
 import ReportInvoiceOrcamento from "./orcamento-invoice.report";
-import { ReportContent, ReportContentSummary } from "src/components/report/report.interfaces";
+import { ReportContent, ReportContentImageSummary, ReportContentSummary } from "src/components/report/report.interfaces";
 import ClientesService from "../clientes/clientes.service";
 
 const columns: ZGridColDef[] = [
@@ -77,8 +77,9 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                     }
                 }, localOrcamentoProdutos)
             }
-        } catch (e) {
+        } catch (e: any) {
             toast.error(`Não foi possivel carregar os produtos do orçamento: ${e}`);
+            console.log(e);
         }
     }
 
@@ -259,9 +260,8 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             ]
         }
 
-        const prodSummary: ReportContentSummary = {
+        const prodSummary: ReportContentImageSummary = {
             title: 'Dados para Produção',
-            image: true,
             description: current.observacao,
             images: (allOrcamentosProdutos ?? []).map(item => {
                 return (item.fotoinicial || item.fotoinicial2 || item.fotoinicialbase64 || item.fotoinicial2base64)

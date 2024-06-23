@@ -1,28 +1,22 @@
-import { Dropbox } from 'dropbox';
-import { DROPBOX_TOKEN, DROPBOX_PATH } from 'src/infrastructure/env';
+
+import { DropboxService } from './dropbox.service';
 
 export class ImageDownloader {
-    private readonly drop: Dropbox;
+    private readonly drop: DropboxService;
 
     constructor() {
-            this.drop = new Dropbox({ accessToken: DROPBOX_TOKEN });
+            this.drop = new DropboxService();
     }
 
-    async downloadOnFront(uniqueName?: string, name?: string): Promise<string | undefined> {
-        if (uniqueName) {
-            var photoContent = localStorage.getItem(uniqueName);
-            if (photoContent) return photoContent;
-        }
-
+    async downloadOnFront(name?: string): Promise<string | undefined> {
         if (!name || name === '') return undefined;
 
         try {
-            const path_lower = `${DROPBOX_PATH}/${name}`;
             const extension = name.split(".")[1];
 
-            const downloadedImage = await this.drop.filesDownload({ path: path_lower })
+            const downloadedImage = await this.drop.downloadFile(name)
             
-            const base64Img = await this.blobToBase64((downloadedImage.result as any).fileBlob);
+            const base64Img = await this.blobToBase64(downloadedImage.result.fileBlob);
 
             return base64Img.replace("data:application/octet-stream", `data:image/${extension}`);
         } catch { }
@@ -30,10 +24,8 @@ export class ImageDownloader {
         return undefined;
     }
 
-    downloadOnFrontMountingName(prefix: string, photoname: string) {
-        const uniqueName = `${prefix}-${photoname}`;
-
-        return this.downloadOnFront(uniqueName, photoname)
+    downloadOnFrontMountingName(photoname: string) {
+        return this.downloadOnFront(photoname)
     }
 
     private blobToBase64(blob: Blob): Promise<string> {

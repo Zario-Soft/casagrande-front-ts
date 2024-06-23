@@ -1,20 +1,26 @@
 export interface ReportContent {
-    summaries: ReportContentSummary[]
+    summaries: ReportContentBaseSummary[]
 }
 
-export interface ReportContentSummary {
+export interface ReportContentBaseSummary {
     title: string,
-    image?: boolean,
     description?: string,
-    breakPage?: boolean,    
-    visible?: boolean,    
+    breakPage?: boolean,
+    visible?: boolean,
+}
+export interface ReportContentSummary
+    extends ReportContentBaseSummary {
     items: ReportContentSummaryItem[],
-    images?: string[],
+
+}
+export interface ReportContentImageSummary
+    extends ReportContentBaseSummary {
+    images: string[],
 }
 
 export interface ReportContentSummaryItem {
     title?: string,
     value: string,
     fontSize?: number,
-    visible?:boolean,
+    visible?: boolean,
 }

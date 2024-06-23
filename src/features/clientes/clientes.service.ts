@@ -50,7 +50,7 @@ export class ClientesService {
         await this.request.put(`${this.BASE_URL}/${cliente.id}`, cliente);
     }
 
-    public trySplitEndereco(rawEndereco: string): ClienteEndereco | undefined {
+    private static trySplitEndereco(rawEndereco: string): ClienteEndereco | undefined {
         if (rawEndereco && rawEndereco.includes("|")) {
             const splitted = rawEndereco.split("|");
 
@@ -68,7 +68,8 @@ export class ClientesService {
     }
 
     private mapResponse(c: ClienteResponse): ClienteDTO {
-        let endereco = this.trySplitEndereco(c.endereco);
+       
+        let endereco = ClientesService.trySplitEndereco(c.endereco);
 
         let result: ClienteDTO = {
             ...c,

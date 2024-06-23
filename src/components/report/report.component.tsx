@@ -1,8 +1,8 @@
 import { Image, Page, Document, StyleSheet, PDFViewer } from '@react-pdf/renderer';
 
 import logo from '../../assets/logo.png';
-import { ReportSubtitle, ReportTitle, SummaryReport } from './report-elements';
-import { ReportContent, ReportContentSummary } from './report.interfaces';
+import { ReportSubtitle, ReportTitle, SummaryImageReport, SummaryReport } from './report-elements';
+import { ReportContent, ReportContentBaseSummary, ReportContentImageSummary, ReportContentSummary } from './report.interfaces';
 import { useEffect, useState } from 'react';
 
 const styles = StyleSheet.create({
@@ -50,13 +50,22 @@ export default function Report(props: ReportProps) {
                 <Image style={styles.logo} src={logo} />
                 <ReportSubtitle title="18.371.336/0001-26" />
                 <ReportTitle title={props.title ?? 'Relatório'} />
-                {content.summaries && content.summaries.map((item: ReportContentSummary, index: number) => {
-                    //return item.
-                    return <SummaryReport
+                {content.summaries && content.summaries.map((item: ReportContentBaseSummary, index: number) => {                   
+                    if ("items" in item) {
+                        return <SummaryReport
+                            key={index}
+                            title={item.title}
+                            items={(item as ReportContentSummary).items}
+                            breakPage={item.breakPage}
+                            visible={item.visible ?? true}
+                        />
+                    }
+
+                    return <SummaryImageReport
                         key={index}
                         title={item.title}
-                        items={item.items}
-                        break={item.breakPage}
+                        images={(item as ReportContentImageSummary).images}
+                        breakPage={item.breakPage}
                         visible={item.visible ?? true}
                     />
                 })

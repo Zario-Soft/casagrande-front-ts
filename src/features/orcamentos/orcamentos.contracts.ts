@@ -38,6 +38,12 @@ export interface OrcamentoDTO {
     dataenvioteste?: string
 }
 
+export interface OrcamentoGrid extends OrcamentoDTO {
+    clientenome: string,
+    clienteresponsavel: string,
+    statusdescricao: string,
+}
+
 export interface OrcamentoUpsertRequest {
     orcamento: OrcamentoDTO,
     produtos: OrcamentoProdutoDTO[]

@@ -6,7 +6,7 @@ import { SideBar } from "src/components/sidebar";
 import ZGrid, { ZGridColDef } from "src/components/z-grid";
 import { LoadingContext } from "src/providers/loading.provider";
 import { OrcamentosService } from "./orcamentos.service";
-import { OrcamentoDTO, OrcamentoPaging, StatusOrcamento } from "./orcamentos.contracts";
+import { OrcamentoDTO, OrcamentoGrid, OrcamentoPaging, StatusOrcamento } from "./orcamentos.contracts";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import UpsertModalClient from "./orcamentos-modal.page";
 import { Box, FormControl, Select } from "@mui/material";
@@ -101,17 +101,11 @@ const columns: ZGridColDef[] = [
     }
 ];
 
-interface OrcamentoGrid extends OrcamentoDTO {
-    clientenome: string,
-    clienteresponsavel: string,
-    statusdescricao: string,
-}
-
 export default function Orcamentos() {
     const orcamentosService = new OrcamentosService();
     const { setIsLoading } = useContext(LoadingContext);
-    const [data, setData] = useState<OrcamentoDTO[]>([]);
-    const [selected, setSelected] = useState<OrcamentoDTO>();
+    const [data, setData] = useState<OrcamentoGrid[]>([]);
+    const [selected, setSelected] = useState<OrcamentoGrid>();
     const [filter, setFilter] = useState(new OrcamentoPaging());
 
     const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);

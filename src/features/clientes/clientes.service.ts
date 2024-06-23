@@ -11,10 +11,16 @@ export class ClientesService {
         this.request = new HttpClient();
     }
 
+    public async getById(clienteId: number): Promise<ClienteDTO> {
+        const { data } = await this.request.get(`${this.BASE_URL}/${clienteId}`);
+
+        return this.mapResponse(data);
+    }
+
     public async getAll(filter?: Paging): Promise<ClienteDTO[]> {
         const { data } = filter
-        ? await this.request.get(`${this.BASE_URL}${filter.stringify()}`)
-        : await this.request.get(`${this.BASE_URL}`);
+            ? await this.request.get(`${this.BASE_URL}${filter.stringify()}`)
+            : await this.request.get(`${this.BASE_URL}`);
 
         if (data) {
             let localCurrent = data as ClienteResponse[];
@@ -22,20 +28,7 @@ export class ClientesService {
             const result = localCurrent
                 .slice()
                 .sort((a: ClienteResponse, b: ClienteResponse) => a.id > b.id ? -1 : 1)
-                .map(c => {
-                    let endereco = this.trySplitEndereco(c.endereco);
-
-                    let result: ClienteDTO = {
-                        ...c,
-                        isvip: c.isvip === 1,
-                        isparceiro: c.isparceiro === 1,
-                        pessoafisica: c.pessoafisica === 1,
-                        percparceiro: c.percparceiro,
-                        ...endereco
-                    }
-
-                    return result;
-                });
+                .map(this.mapResponse);
 
             return result;
         }
@@ -72,6 +65,21 @@ export class ClientesService {
         }
 
         return undefined;
+    }
+
+    private mapResponse(c: ClienteResponse): ClienteDTO {
+        let endereco = this.trySplitEndereco(c.endereco);
+
+        let result: ClienteDTO = {
+            ...c,
+            isvip: c.isvip === 1,
+            isparceiro: c.isparceiro === 1,
+            pessoafisica: c.pessoafisica === 1,
+            percparceiro: c.percparceiro,
+            ...endereco
+        }
+
+        return result;
     }
 
     private concatEndereco(cliente: ClienteDTO): string {

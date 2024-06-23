@@ -1,6 +1,6 @@
 import { formatDate } from 'src/infrastructure/helpers';
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest } from './orcamentos.contracts';
+import { OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest, OrcamentoGrid } from './orcamentos.contracts';
 
 export class OrcamentosService {
     private readonly request: HttpClient;
@@ -10,10 +10,10 @@ export class OrcamentosService {
         this.request = new HttpClient();
     }
 
-    public async getAllAprovados(): Promise<OrcamentoGetAllResponse[]> {
+    public async getAllAprovados(): Promise<OrcamentoGrid[]> {
         const { data } = await this.request.get(`${this.BASE_URL}/aprovado`);
 
-        return this.mapToResponse(data);
+        return this.mapToResponse<OrcamentoGrid>(data);
     }
     
     public async getAll<T>(filter?: OrcamentoPaging): Promise<T[]> {

@@ -9,6 +9,7 @@ export interface ReportContentSummary {
     breakPage?: boolean,    
     visible?: boolean,    
     items: ReportContentSummaryItem[],
+    images?: string[],
 }
 
 export interface ReportContentSummaryItem {

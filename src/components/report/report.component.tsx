@@ -3,6 +3,7 @@ import { Image, Page, Document, StyleSheet, PDFViewer } from '@react-pdf/rendere
 import logo from '../../assets/logo.png';
 import { ReportSubtitle, ReportTitle, SummaryReport } from './report-elements';
 import { ReportContent, ReportContentSummary } from './report.interfaces';
+import { useEffect, useState } from 'react';
 
 const styles = StyleSheet.create({
     page: {
@@ -26,23 +27,28 @@ const styles = StyleSheet.create({
 interface ReportProps {
     width?: number,
     title?: string,
-    onLoadContent: () => ReportContent,
+    onLoadContent: () => Promise<ReportContent>,
 }
 
 export default function Report(props: ReportProps) {
     const { onLoadContent } = props;
 
-    const content = onLoadContent();
+    const [content, setContent] = useState<ReportContent>();
+
+    useEffect(() => {
+        onLoadContent()
+            .then(c => setContent(c))
+    }, [onLoadContent]);
 
     const GeneralDocument = () => (
-        <Document
-            author='Diego Reis'
-            creator='Diego Reis'
+        <>{content ? <Document
+            author='Casagrande Meias'
+            creator='Casagrande Meias'
             title={props.title ?? 'Relatório'}
         >
             <Page size="A4" style={styles.page}>
                 <Image style={styles.logo} src={logo} />
-                <ReportSubtitle title="Tropa da Vê" />
+                <ReportSubtitle title="18.371.336/0001-26" />
                 <ReportTitle title={props.title ?? 'Relatório'} />
                 {content.summaries && content.summaries.map((item: ReportContentSummary, index: number) => {
                     //return item.
@@ -58,6 +64,8 @@ export default function Report(props: ReportProps) {
 
             </Page>
         </Document>
+            : <></>}
+        </>
     );
 
     return (

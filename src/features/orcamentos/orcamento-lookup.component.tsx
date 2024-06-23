@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { LookupProps } from "../common/base-contracts";
 import UpsertModalOrcamento from "./orcamentos-modal.page";
-import { OrcamentoDTO, OrcamentoGetAllResponse } from "./orcamentos.contracts";
+import { OrcamentoDTO, OrcamentoGetAllResponse, OrcamentoGrid } from "./orcamentos.contracts";
 import OrcamentosService from "./orcamentos.service";
 
 export interface OrcamentoLookupProps
@@ -19,9 +19,9 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
     const orcamentosService = new OrcamentosService();
 
     const [selected, setSelected] = useState<OrcamentoLookupItem>();
-    const [modalSelected, setModalSelected] = useState<OrcamentoDTO>();
+    const [modalSelected, setModalSelected] = useState<OrcamentoGrid>();
     const [dataMapped, setDataMapped] = useState<OrcamentoLookupItem[]>([]);
-    const [data, setData] = useState<OrcamentoDTO[]>([]);
+    const [data, setData] = useState<OrcamentoGrid[]>([]);
 
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
 
@@ -31,21 +31,22 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
 
     const getAll = async () => {
         try {
-            let data = await orcamentosService.getAllAprovados();
+            let localData = await orcamentosService.getAllAprovados();
 
-            const dataMapped = data.map((o: OrcamentoGetAllResponse) => {
+            const dataMapped = localData.map((o: OrcamentoGrid) => {
                 const item: OrcamentoLookupItem = {
-                    clienteid: o.orcamento.clienteid,
-                    id: o.orcamento.id,
-                    clientenome: o.clientenome
+                    clienteid: o.clienteid,
+                    clientenome: o.clientenome,
+                    id: o.id,
                 }
 
                 return item;
             })
 
             await setDataMapped(dataMapped);
+            await setData(localData);
 
-            if (data && props.selectedId) {
+            if (localData && props.selectedId) {
                 const localSelected = dataMapped.find(f => f.id === props.selectedId);
 
                 if (localSelected) {

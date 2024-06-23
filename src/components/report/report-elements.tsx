@@ -1,5 +1,7 @@
 import { Text, View, StyleSheet } from '@react-pdf/renderer';
 import { ReportContentSummary } from './report.interfaces';
+import { useState, useEffect } from 'react';
+import { ImageDownloader } from '../image-downloader/image-downloader.component';
 
 const styles = StyleSheet.create({
 
@@ -95,6 +97,50 @@ export function SummaryReport(props: ReportContentSummaryProps) {
                     <Text style={{ fontSize: item.fontSize ?? 12 }}>{item.value}</Text>
                 </View > : <></>
             })}
+        </View>
+    </View>
+}
+export function SummaryImageInvoice(props: ReportContentSummaryProps) {
+    /*  title
+        description
+        images: []
+    */
+    const [imageContent, setImageContent] = useState();
+    const imgHandler = new ImageDownloader();
+
+    useEffect(() => {
+        loadImage();
+        // eslint-disable-next-line
+    }, [props.image])
+
+    const loadImage = async () => {
+
+        const localImages = await (props.images ?? [])
+            .filter(image => image !== null && image !== undefined)
+            .map(async image => image.indexOf('data:image') >= 0
+                ? image
+                : await imgHandler.downloadOnFront(image, image))
+
+        await setImageContent(localImages);
+    }
+
+    return <View wrap break={props.break ?? false}>
+        <View style={styles.invoiceSummaryTitle}>
+            <Text style={styles.invoiceSummaryTitleLabel}>{props.title ?? 'Dados'}</Text>
+        </View>
+        <View style={styles.invoiceSummaryBodyContainer}>
+            {imageContent && <View style={styles.invoiceClientContainer}>
+                {imageContent.map((image, key) => {
+                    return <View key={key}>
+                        <Image style={styles.picture} src={image} />
+                    </View>
+                })}
+            </View>}
+            <View style={styles.invoiceClientContainer}>
+                <View style={styles.invoiceClientLineContainer}>
+                    <Text style={styles.label}>{props.description}</Text>
+                </View >
+            </View>
         </View>
     </View>
 }

@@ -1,16 +1,19 @@
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl, InputLabel, Select, IconButton } from "@mui/material";
-import { NormalButton, WarningButton } from "src/components/buttons";
+import { NormalButton, ReportButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import OrcamentosService from "./orcamentos.service";
-import { OrcamentoDTO, OrcamentoUpsertRequest, OrcamentoProdutoGrid, StatusOrcamento, OrcamentoProdutoDTO } from "./orcamentos.contracts";
+import { OrcamentoDTO, OrcamentoUpsertRequest, OrcamentoProdutoGrid, StatusOrcamento, OrcamentoProdutoDTO, OrcamentoGrid } from "./orcamentos.contracts";
 import ClientesLookup from "../clientes/clientes-lookup.component";
 import { Remove, Add, Edit } from "@mui/icons-material";
 import ZGrid, { ZGridColDef } from "src/components/z-grid";
 import UpsertModalOrcamentoProdutos from "./orcamento-produtos.modal.page";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import moment from "moment";
+import ReportInvoiceOrcamento from "./orcamento-invoice.report";
+import { ReportContent, ReportContentSummary } from "src/components/report/report.interfaces";
+import ClientesService from "../clientes/clientes.service";
 
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 50, hide: true },
@@ -21,13 +24,14 @@ const columns: ZGridColDef[] = [
 ]
 
 export interface UpsertModalProps {
-    orcamento?: OrcamentoDTO,
+    orcamento?: OrcamentoGrid,
     onClose: (message?: string) => void
 }
 
 export default function UpsertModalOrcamento(props: UpsertModalProps) {
     const isNew = !props.orcamento || !props.orcamento?.id;
     const orcamentosService = new OrcamentosService();
+    const clienteService = new ClientesService();
 
     const [current, setCurrent] = useState(
         props.orcamento ??
@@ -35,12 +39,13 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             valortotal: 0,
             excluido: 0,
             status: 0
-        } as unknown as OrcamentoDTO);
+        } as unknown as OrcamentoGrid);
     const [currentOrcamentoProduto, setCurrentOrcamentoProduto] = useState<OrcamentoProdutoGrid>();
     const [currentEditingOrcamentoProduto, setCurrentEditingOrcamentoProduto] = useState<OrcamentoProdutoGrid>();
     const [allOrcamentosProdutos, setAllOrcamentosProdutos] = useState<OrcamentoProdutoGrid[] | undefined>();
 
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [invoiceVisible, setInvoiceVisible] = useState(false);
     const [showModalOrcamentoProduto, setShowModalOrcamentoProduto] = useState(false);
 
     useEffect(() => {
@@ -238,6 +243,62 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         await setShowModalOrcamentoProduto(false);
     }
 
+    const shouldShowInvoiceButton = () => {
+        return (allOrcamentosProdutos && allOrcamentosProdutos.length > 0) && !isNaN(current.clienteid) && current.clienteid > 0
+    }
+
+    const mountInvoice = async (): Promise<ReportContent> => {
+
+        const cliente = await clienteService.getById(current.clienteid);
+
+        const clientSummary: ReportContentSummary = {
+            title: 'Dados do cliente',
+            items: [
+                { title: 'Nome: ', value: current.clientenome, fontSize: current.clientenome.length >= 54 ? 9 : undefined },
+                { title: 'Telefone: ', value: cliente.celular ?? cliente.telefone }
+            ]
+        }
+
+        const prodSummary: ReportContentSummary = {
+            title: 'Dados para Produção',
+            image: true,
+            description: current.observacao,
+            images: (allOrcamentosProdutos ?? []).map(item => {
+                return (item.fotoinicial || item.fotoinicial2 || item.fotoinicialbase64 || item.fotoinicial2base64)
+                    ? [item.fotoinicial ?? item.fotoinicialbase64, item.fotoinicial2 ?? item.fotoinicial2base64]
+                    : [item.fotoreal ?? item.fotorealbase64, item.fotoreal2 ?? item.fotoreal2base64]
+            })
+            .reduce((a, b) => a.concat(b))
+        }
+
+        const datesSummary: ReportContentSummary = {
+            title: 'Datas',
+            items: [
+                { title: 'Data de solicitação: ', value: moment(current.dataorcamento).format('DD/MM/yyyy') },
+                { visible: moment(current.dataenvioteste).isValid(), title: 'Data de envio do teste: ', value: moment(current.dataenvioteste).format('DD/MM/yyyy') },
+            ]
+        }
+
+        const warningSummary: ReportContentSummary = {
+            title: 'Atenção',
+            items: [
+                { value: '- A personalização das meias é bordada, o que significa que sua arte é produzida fio a fio, ponto a ponto, junto com a meia no processo de confecção. Por isso a arte pode sofrer ajustes, visando manter a nitidez e a qualidade da mesma no bordado. Aprovando esse documento o cliente está ciente de que se trata de técnica de bordado e que o resultado NÃO fica exatamente idêntico a arte digital.' },
+                { value: '- Os dados neste documento não poderão ser alterados após confirmação do mesmo para fins deste teste.' },
+                { value: '- A data para envio é uma previsão, sujeita a alterações para mais ou para menos dias.' },
+            ],
+            breakPage: true
+        }
+
+        return {
+            summaries: [
+                clientSummary,
+                prodSummary,
+                datesSummary,
+                warningSummary
+            ]
+        }
+    }
+
     return <>
         <Dialog
             open
@@ -400,6 +461,9 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                 </div>
             </DialogContent>
             <DialogActions>
+                {shouldShowInvoiceButton() && <ReportButton onClick={async () => await setInvoiceVisible(true)}>
+                    Comprovante
+                </ReportButton>}
                 <NormalButton onClick={onSave} color="primary">
                     Salvar
                 </NormalButton>
@@ -419,6 +483,12 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             title="Excluir produto"
             onConfirm={onConfirmExclusion}
             onClose={() => setDeleteModalVisible(false)}
+        />}
+
+        {invoiceVisible && <ReportInvoiceOrcamento
+            formTitle={`${current.clientenome} - Orçamento ${current.id}`}
+            onLoadContent={mountInvoice}
+            onClose={async () => await setInvoiceVisible(false)}
         />}
     </>
 }

@@ -67,6 +67,7 @@ export default function Report(props: ReportProps) {
                         images={(item as ReportContentImageSummary).images}
                         breakPage={item.breakPage}
                         visible={item.visible ?? true}
+                        description={item.description}
                     />
                 })
                 }

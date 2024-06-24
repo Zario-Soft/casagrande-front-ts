@@ -268,13 +268,17 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                     ? [item.fotoinicial ?? item.fotoinicialbase64, item.fotoinicial2 ?? item.fotoinicial2base64]
                     : [item.fotoreal ?? item.fotorealbase64, item.fotoreal2 ?? item.fotoreal2base64]
             })
-            .reduce((a, b) => a.concat(b))
+                .reduce((a, b) => a.concat(b))
         }
 
         const datesSummary: ReportContentSummary = {
             title: 'Datas',
             items: [
-                { title: 'Data de solicitação: ', value: moment(current.dataorcamento).format('DD/MM/yyyy') },
+                {
+                    visible: current.dataorcamento !== undefined,
+                    title: 'Data de solicitação: ',
+                    value: current.dataorcamento!
+                },
                 { visible: moment(current.dataenvioteste).isValid(), title: 'Data de envio do teste: ', value: moment(current.dataenvioteste).format('DD/MM/yyyy') },
             ]
         }

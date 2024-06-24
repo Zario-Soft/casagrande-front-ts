@@ -5,9 +5,10 @@ import { OrcamentoProdutoGrid } from "./orcamentos.contracts";
 import { toast } from "react-toastify";
 import CorLookup from "../cor/cor-lookup.component";
 import ProdutosLookup from "../produtos/produtos-lookup.component";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ImageUploader from "src/components/image-uploader/image-uploader.component";
 import './orcamento.css';
+import { ImageDownloader } from "src/components/image-downloader/image-downloader.component";
 
 
 export interface UpsertModalOrcamentoProdutosProps {
@@ -18,12 +19,35 @@ export interface UpsertModalOrcamentoProdutosProps {
 
 export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamentoProdutosProps) {
     const isNew = !props.current || !props.current?.id;
+    const imgHandler = new ImageDownloader();
 
-    const [current, setCurrent] = useState(props.current ?? 
-        { 
+    const [current, setCurrent] = useState(props.current ??
+        {
             excluido: 0,
             genero: 0
         } as OrcamentoProdutoGrid);
+
+    useEffect(() => {
+        loadInfo();
+        // eslint-disable-next-line
+    }, [props.current]);
+
+    const loadInfo = async () => {
+        if (!props.current) return;
+
+        let req = { ...current };
+
+
+        req['fotoinicialbase64'] = await imgHandler.downloadOnFront(current.fotoinicial);
+
+        req['fotoinicial2base64'] = await imgHandler.downloadOnFront(current.fotoinicial2);
+
+        req['fotorealbase64'] = await imgHandler.downloadOnFront(current.fotoreal);
+
+        req['fotoreal2base64'] = await imgHandler.downloadOnFront(current.fotoreal2);
+
+        await setCurrent(req);
+    }
 
     const onSave = async () => {
         try {
@@ -109,8 +133,8 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                                 marginBottom: 5,
                             }}
                             onChange={async (c) => {
-                                const local : OrcamentoProdutoGrid = { 
-                                    ...current, 
+                                const local: OrcamentoProdutoGrid = {
+                                    ...current,
                                     produtoid: c?.id ?? 0,
                                     produtodescricao: c?.descricao ?? '',
                                     produtovalor: parseFloat(c?.valorunitario ?? '0')
@@ -129,8 +153,8 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                                 width: '80%'
                             }}
                             onChange={async (c) => {
-                                const local : OrcamentoProdutoGrid = { 
-                                    ...current, 
+                                const local: OrcamentoProdutoGrid = {
+                                    ...current,
                                     corid: c?.id ?? 0,
                                     cornome: c?.nome ?? ''
                                 };

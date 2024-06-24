@@ -36,6 +36,14 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start'
     },
 
+    invoiceSummaryBodyImageContainer: {
+        flexDirection: 'row',
+        marginTop: 6,
+        borderStyle: 'solid',
+        borderWidth: '3px',
+        justifyContent: 'space-around'
+    },
+
     invoiceClientContainer: {
         flexDirection: 'column',
         justifyContent: 'flex-start'
@@ -111,36 +119,35 @@ export function SummaryReport(props: ReportContentSummaryProps) {
     </View>
 }
 export function SummaryImageReport(props: ReportContentImageSummaryProps) {
-    /*  title
-        description
-        images: []
-    */
-    const [imageContent, setImageContent] = useState<string[]>([]);
-    const imgHandler = new ImageDownloader();
+    const [imageContent, setImageContent] = useState<string[]>();    
 
     useEffect(() => {
-        console.log(props)
-        if (props.images)
-            loadImage();
-        // eslint-disable-next-line
-    }, [])
+        const imgHandler = new ImageDownloader();
+        const loadImage = async () => {
 
-    const loadImage = async () => {
+            const validImages = props.images
+                .filter(image => image !== null && image !== undefined);
 
-        const localImages = await props.images
-            .filter(image => image !== null && image !== undefined)
-            .map(async image => await imgHandler.downloadOnFront(image))
+            let localImages: string[] = [];
 
-        console.log(localImages)
+            await validImages.forEach(async img => {
+                const result = await imgHandler.downloadOnFront(img)
+                if (result) {
+                    localImages = [...localImages, result!];
+                    await setImageContent(localImages);
+                }
+            });
+        };
 
-        //await setImageContent(localImages);
-    }
+        loadImage();
+
+    }, [props])
 
     return <View wrap break={props.breakPage ?? false}>
         <View style={styles.invoiceSummaryTitle}>
             <Text style={styles.invoiceSummaryTitleLabel}>{props.title ?? 'Dados'}</Text>
         </View>
-        <View style={styles.invoiceSummaryBodyContainer}>
+        <View style={styles.invoiceSummaryBodyImageContainer}>
             {imageContent && <View style={styles.invoiceClientContainer}>
                 {imageContent.map((image: string, key) => {
                     return <View key={key}>

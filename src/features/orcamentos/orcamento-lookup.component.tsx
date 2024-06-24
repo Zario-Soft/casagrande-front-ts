@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { LookupProps } from "../common/base-contracts";
 import UpsertModalOrcamento from "./orcamentos-modal.page";
-import { OrcamentoDTO, OrcamentoGetAllResponse, OrcamentoGrid } from "./orcamentos.contracts";
+import { OrcamentoGrid } from "./orcamentos.contracts";
 import OrcamentosService from "./orcamentos.service";
 
 export interface OrcamentoLookupProps
@@ -21,7 +21,6 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
     const [selected, setSelected] = useState<OrcamentoLookupItem>();
     const [modalSelected, setModalSelected] = useState<OrcamentoGrid>();
     const [dataMapped, setDataMapped] = useState<OrcamentoLookupItem[]>([]);
-    const [data, setData] = useState<OrcamentoGrid[]>([]);
 
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
 
@@ -33,18 +32,7 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
         try {
             let localData = await orcamentosService.getAllAprovados();
 
-            const dataMapped = localData.map((o: OrcamentoGrid) => {
-                const item: OrcamentoLookupItem = {
-                    clienteid: o.clienteid,
-                    clientenome: o.clientenome,
-                    id: o.id,
-                }
-
-                return item;
-            })
-
             await setDataMapped(dataMapped);
-            await setData(localData);
 
             if (localData && props.selectedId) {
                 const localSelected = dataMapped.find(f => f.id === props.selectedId);
@@ -54,8 +42,9 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
                 }
             }
 
-        } catch {
+        } catch (e: any) {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
+            console.error(e);
         }
     }
 
@@ -79,7 +68,9 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
     }
 
     const onShowClick = async (s?: OrcamentoLookupItem) => {
-        await setModalSelected(data.find(f => f.id === s!.id));
+        const localOrcamento = await orcamentosService.getById(s!.id)
+        
+        await setModalSelected(localOrcamento);
         await setUpsertDialogOpen(true);
     }
 

@@ -1,6 +1,7 @@
 import { formatDate } from 'src/infrastructure/helpers';
 import { HttpClient } from '../../infrastructure/httpclient.component';
 import { OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest, OrcamentoGrid } from './orcamentos.contracts';
+import { OrcamentoLookupItem } from './orcamento-lookup.component';
 
 export class OrcamentosService {
     private readonly request: HttpClient;
@@ -10,16 +11,22 @@ export class OrcamentosService {
         this.request = new HttpClient();
     }
 
-    public async getAllAprovados(): Promise<OrcamentoGrid[]> {
+    public async getAllAprovados(): Promise<OrcamentoLookupItem[]> {
         const { data } = await this.request.get(`${this.BASE_URL}/aprovado`);
 
-        return this.mapToResponse<OrcamentoGrid>(data);
+        return data;
     }
-    
+
+    public async getById(orcamentoId: number): Promise<OrcamentoGrid> {
+        const { data } = await this.request.get(`${this.BASE_URL}/${orcamentoId}`);
+
+        return data;
+    }
+
     public async getAll<T>(filter?: OrcamentoPaging): Promise<T[]> {
-        const { data } = filter 
-        ? await this.request.get(`${this.BASE_URL}${filter.stringify()}`)
-        : await this.request.get(this.BASE_URL);
+        const { data } = filter
+            ? await this.request.get(`${this.BASE_URL}${filter.stringify()}`)
+            : await this.request.get(this.BASE_URL);
 
         return this.mapToResponse<T>(data);
     }
@@ -46,8 +53,8 @@ export class OrcamentosService {
                     };
                 });
 
-                console.log(result);
-                return result;
+            console.log(result);
+            return result;
         }
 
         return [];

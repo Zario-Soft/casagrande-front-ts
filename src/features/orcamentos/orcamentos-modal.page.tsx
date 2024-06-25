@@ -261,7 +261,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         }
 
         const prodSummary: ReportContentImageSummary = {
-            title: 'Dados para Produção',
+            title: 'Dados para Produção',            
             description: current.observacao,
             images: (allOrcamentosProdutos ?? []).map(item => {
                 return (item.fotoinicial || item.fotoinicial2 || item.fotoinicialbase64 || item.fotoinicial2base64)
@@ -273,6 +273,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
 
         const datesSummary: ReportContentSummary = {
             title: 'Datas',
+            breakPage: true,
             items: [
                 {
                     visible: current.dataorcamento !== undefined,

@@ -1,5 +1,5 @@
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl, InputLabel, Select } from "@mui/material";
-import { NormalButton, WarningButton } from "src/components/buttons";
+import { NormalButton, ReportButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -7,6 +7,10 @@ import { FormasPagamento, VendaDTO } from "./vendas.contracts";
 import VendasService from "./vendas.service";
 import OrcamentoLookup from "../orcamentos/orcamento-lookup.component";
 import moment from "moment";
+import ReportInvoiceVenda from "./vendas-invoice.report";
+import { ReportContent, ReportContentSummary, ReportContentImageSummary } from "src/components/report/report.interfaces";
+import ClientesService from "../clientes/clientes.service";
+import OrcamentosService from "../orcamentos/orcamentos.service";
 
 export interface UpsertModalProductProps {
     current?: VendaDTO,
@@ -15,9 +19,13 @@ export interface UpsertModalProductProps {
 
 export default function UpsertModalVendas(props: UpsertModalProductProps) {
     const isNew = !props.current || !props.current?.id;
-    const produtosService = new VendasService();
+    const vendasService = new VendasService();
+    const clienteService = new ClientesService();
+    const orcamentoService = new OrcamentosService();
 
     const [current, setCurrent] = useState(props.current ?? { meiopagamento: 0, desconto: 0 } as VendaDTO);
+
+    const [invoiceVisible, setInvoiceVisible] = useState(false);
 
     const onSave = async () => {
         try {
@@ -25,12 +33,12 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
 
             if (isNew) {
 
-                await produtosService.new(current);
+                await vendasService.new(current);
 
                 await props.onClose("Registro criado com sucesso");
             }
             else {
-                await produtosService.edit(current);
+                await vendasService.edit(current);
 
                 await props.onClose("Registro alterado com sucesso");
             }
@@ -57,6 +65,81 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
         }
 
         return true;
+    }
+
+    const mountInvoice = async (): Promise<ReportContent> => {
+
+        const orcamento = await orcamentoService.getById(current.orcamentoid);
+        const orcamentoProdutos = await orcamentoService.getAllOrcamentoProdutos(current.orcamentoid);
+        const cliente = await clienteService.getById(orcamento.clienteid);
+
+        const valorTotalPares = orcamentoProdutos
+            .map(prod => prod.produtovalor * prod.orcamentoproduto.quantidade)
+            .reduce((prev, curr) => prev += curr);
+
+        const valorTotalCompra = valorTotalPares + (orcamento.frete ?? 0) - (current.desconto ?? 0);
+
+        const sendingSummary: ReportContentSummary = {
+            title: 'Dados para envio',
+            items: [
+                { title: 'Nome Completo: ', value: cliente.nome, fontSize: cliente.nome.length >= 54 ? 9 : undefined },
+                { title: 'Telefone: ', value: cliente.celular ?? cliente.telefone },
+                { title: 'E-mail: ', value: cliente.email },
+                { title: 'CPF/CNPJ: ', value: cliente.cpfcnpj },
+                { title: 'Endereço: ', value: `${cliente.endereco}, ${cliente.numero} ${cliente.complemento ? `(${cliente.complemento})` : ''}` },
+                { title: 'Endereço (cont.): ', value: `${cliente.bairro}, ${cliente.cidade} - ${cliente.estado}` },
+                { title: 'CEP: ', value: cliente.cep },
+                { title: 'Observações: ', value: cliente.observacao }
+            ]
+        }
+
+        const prodSummary: ReportContentImageSummary = {
+            title: 'Dados para Produção',
+            description: orcamento.observacao,
+            images: orcamentoProdutos.map(item => {
+                return (!item.orcamentoproduto.fotoreal && !item.orcamentoproduto.fotoreal2)
+                    ? [item.orcamentoproduto.fotoinicial]
+                    : [item.orcamentoproduto.fotoreal, item.orcamentoproduto.fotoreal2]
+            })
+                .reduce((a, b) => a.concat(b)),
+            breakPage: orcamento.observacao.length >= 500 || orcamento.observacao.split('\n').length > 20
+        }
+
+        const paymentSummary: ReportContentSummary = {
+            title: 'Pagamentos e Prazos',
+            breakPage: true,
+            items: [
+                { title: 'Data de fechamento: ', value: moment(orcamento.dataorcamento).format('DD/MM/yyyy') },
+                { title: 'Valor dos pares: ', value: `R$${valorTotalPares.toFixed(2)}` },
+                { title: 'Valor do frete: ', value: `R$${(orcamento.frete ?? 0).toFixed(2)}` },
+                { title: 'Valor de desconto: ', value: `R$${(current.desconto ?? 0).toFixed(2)}` },
+                { title: 'Valor total da compra: ', value: `R$${valorTotalCompra.toFixed(2)}` },
+                { title: 'Valor pago até o momento: ', value: `R$${(((current.percpagamentoinicial ?? 0) / 100) * valorTotalCompra).toFixed(2)}` },
+                { title: 'Forma de pagamento: ', value: FormasPagamento[current.meiopagamento] },
+                { title: 'Previsão de envio: ', value: moment(current.datalimiteentrega).format('DD/MM/yyyy') },
+            ],
+        }
+
+        const warningSummary: ReportContentSummary = {
+            title: 'Atenção',
+            items: [
+                { value: '- Os dados contidos neste documento são de responsabilidade do cliente e não poderão ser alterados após confirmação do mesmo.' },
+                { value: '- Não aceitamos trocas nem devolução do produto aprovado pelo cliente.' },
+                { value: '- Data para envio é uma previsão, sujeita a alterações para mais ou para menos dias a depender de pagamento de parcela restante e condições de transporte.' },
+                { value: '- O pedido é enviado após confirmação do pagamento integral da compra.' },
+                { value: '- Pedidos não procurados/quitados no prazo de 90 dias após finalizados são descartados, e não há reembolso da primeira parcela paga.' },
+            ],
+            breakPage: true
+        }
+
+        return {
+            summaries: [
+                sendingSummary,
+                prodSummary,
+                paymentSummary,
+                warningSummary
+            ]
+        }
     }
 
     return <>
@@ -150,6 +233,9 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
                 </div>
             </DialogContent>
             <DialogActions>
+                <ReportButton onClick={async () => await setInvoiceVisible(true)}>
+                    Comprovante
+                </ReportButton>
                 <NormalButton onClick={onSave} color="primary">
                     Salvar
                 </NormalButton>
@@ -158,5 +244,11 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
                 </WarningButton>
             </DialogActions>
         </Dialog>
+
+        {invoiceVisible && <ReportInvoiceVenda
+            formTitle={`Venda ${current.id}`}
+            onLoadContent={mountInvoice}
+            onClose={async () => await setInvoiceVisible(false)}
+        />}
     </>
 }

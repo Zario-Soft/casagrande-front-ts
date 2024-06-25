@@ -16,10 +16,16 @@ export class VendasService {
         return data;
     }
 
-    public async getAll(filter?: Paging): Promise<VendaDTO[]> {
-        const { data } = filter
-            ? await this.request.get(`${this.BASE_URL}${filter.stringify()}`)
-            : await this.request.get(`${this.BASE_URL}`);
+    public async getAll(): Promise<VendaDTO[]> {
+        const { data } = await this.request.get(`${this.BASE_URL}`);
+
+        if (data) {
+            const result = data
+                .slice()
+                .sort((a: VendaDTO, b: VendaDTO) => a.id > b.id ? -1 : 1);
+
+            return result;
+        }
 
         return data;
     }

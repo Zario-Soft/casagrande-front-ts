@@ -5,7 +5,6 @@ import ScreenHeader from "src/components/screen-header";
 import { SideBar } from "src/components/sidebar";
 import ZGrid, { ZGridColDef } from "src/components/z-grid";
 import { LoadingContext } from "src/providers/loading.provider";
-import { Paging } from "../common/base-contracts";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import moment from 'moment';
 import VendasService from "./vendas.service";
@@ -24,7 +23,6 @@ const columns: ZGridColDef[] = [
 export default function Vendas() {
     const vendasService = new VendasService();
     const { setIsLoading } = useContext(LoadingContext);
-    const [filter, setFilter] = useState(new Paging());
     const [data, setData] = useState<VendaDTO[]>([]);
     const [selected, setSelected] = useState<VendaDTO>();
 
@@ -33,15 +31,15 @@ export default function Vendas() {
     const [shouldClearGridSelection, setShouldClearGridSelection] = useState(false);
 
     useEffect(() => {
-        refresh(filter);
+        refresh();
         // eslint-disable-next-line
     }, []);
 
-    const getAll = async (filter: Paging) => {
+    const getAll = async () => {
         try {
             await setIsLoading(true);
 
-            const data = await vendasService.getAll(filter);
+            const data = await vendasService.getAll();
             await setData(data);
 
         } catch {
@@ -52,8 +50,8 @@ export default function Vendas() {
         }
     }
 
-    const refresh = async (paramFilter?: Paging) => {
-        await getAll(paramFilter ?? filter);
+    const refresh = async () => {
+        await getAll();
         await setSelected(undefined);
     }
 
@@ -73,13 +71,6 @@ export default function Vendas() {
         const localCurrent = data.find(c => c.id === (e as VendaDTO).id);
         await setSelected(localCurrent);
         await setUpsertDialogOpen(true);
-    }
-
-    const onFilter = async (localFilter: Paging | undefined) => {
-        const newFilter = localFilter ?? new Paging();
-        await setFilter(newFilter);
-
-        await refresh(newFilter);
     }
 
     const onConfirmExclusion = async () => {
@@ -107,9 +98,6 @@ export default function Vendas() {
                             columns={columns}
                             onRowDoubleClick={async (e: any) => await onRowDoubleClick(e.row)}
                             onRowClick={async (e: any) => await setSelected(e.row)}
-                            onPagination={onFilter}
-                            onFilterModelChange={onFilter}
-                            useCustomFooter
                         />
                         <ButtonsLine
                             onNewClick={onNewClick}

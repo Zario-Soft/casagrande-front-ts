@@ -115,7 +115,8 @@ export default function Calendario() {
                     <div style={{
                         display: 'flex',
                         flexWrap: 'wrap',
-                        gap: '10px'
+                        gap: '10px',
+                        justifyContent: 'center'
 
                     }}>
                         {current && current.datas && current.datas.map((data, key) => {

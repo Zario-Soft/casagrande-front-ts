@@ -25,7 +25,7 @@ code {
   flex-direction: column;
   margin: 20px;
   justify-content: center;
-  width: -webkit-fill-available;
+  width: 90%;
 }
 
 .flex-container {

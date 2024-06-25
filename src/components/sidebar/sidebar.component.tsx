@@ -17,7 +17,7 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 import RedeemIcon from '@mui/icons-material/Redeem';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import AccessibilityIcon from '@mui/icons-material/Accessibility';
-import HomeIcon from '@mui/icons-material/Home';
+//import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from 'react-router-dom';
 import { SidebarFooter } from './sidebar-footer';
 import logo from '../../assets/logo.png'
@@ -109,13 +109,13 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
                 </DrawerHeader>
                 <Divider />
                 <List>
-                    <SideBarItem
+                    {/* <SideBarItem
                         icon={<HomeIcon />}
                         open={open}
                         path={'/'}
                         text={'Inicial'}
                         divider
-                    />
+                    /> */}
                     <SideBarItem
                         icon={<AccessibilityIcon />}
                         open={open}

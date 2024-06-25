@@ -18,7 +18,7 @@ const columns: ZGridColDef[] = [
     { field: 'percpagamentoinicial', headerName: '% Pagamento', width: 150 },
     { field: 'datalimiteentrega', headerName: 'Data limite da entrega', width: 210, valueFormatter: (params: string) => moment(params).format('DD/MM/yyyy') },
     { field: 'meiopagamentodescricao', headerName: 'Meio de Pagamento', width: 180 },
-    { field: 'desconto', headerName: 'Desconto/Taxa de teste (R$)', width: 250, valueFormatter: (params: string) => parseFloat(params).toFixed(2) },    
+    { field: 'desconto', headerName: 'Desconto/Taxa de teste (R$)', width: 250, valueFormatter: (params: string) => parseFloat(params).toFixed(2) },
 ]
 
 export default function Vendas() {
@@ -135,7 +135,7 @@ export default function Vendas() {
                     await refresh();
                 }
 
-                await setUpsertDialogOpen(false);                
+                await setUpsertDialogOpen(false);
             }}
         />}
     </>

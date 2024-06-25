@@ -10,8 +10,8 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import { Avatar } from '@mui/material';
-import ExtensionIcon from '@mui/icons-material/Extension';
-import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+//import ExtensionIcon from '@mui/icons-material/Extension';
+//import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import RedeemIcon from '@mui/icons-material/Redeem';
@@ -20,7 +20,6 @@ import AccessibilityIcon from '@mui/icons-material/Accessibility';
 import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from 'react-router-dom';
 import { SidebarFooter } from './sidebar-footer';
-
 import logo from '../../assets/logo.png'
 import { SideBarItem } from './sidebar-item';
 import { AppDispatch } from '../../redux-ts';
@@ -153,20 +152,20 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
                         text={'Calendário'}
                         divider
                     />
-                    <SideBarItem
+                    {/* <SideBarItem
                         icon={<PrecisionManufacturingIcon />}
                         open={open}
                         path={pageRoutes.PRODUCAO}
                         text={'Produção'}
                         divider
-                    />
-                    <SideBarItem
+                    /> */}
+                    {/* <SideBarItem
                         icon={<ExtensionIcon />}
                         open={open}
                         path={pageRoutes.CONFIGURACOES}
                         text={'Configurações'}
                         divider
-                    />
+                    /> */}
                 </List>
 
                 <List style={{ marginTop: `auto` }} >

@@ -3,7 +3,7 @@ import { IconButton } from "@mui/material"
 
 interface ScreenHeaderProps {
     title: string
-    onUpdateClick: () => void,
+    onUpdateClick?: () => void,
     hideUpdateButton?: boolean | undefined
 }
 
@@ -11,7 +11,10 @@ export default function ScreenHeader({ title, onUpdateClick, hideUpdateButton }:
     return <header style={{
         textAlign: 'center'
     }}>
-        <h2>{title}<IconButton color="primary" aria-label="Atualizar" component="span" onClick={onUpdateClick}>
+        <h2>{title}<IconButton color="primary" aria-label="Atualizar" component="span" onClick={() => {
+            if (onUpdateClick)
+                onUpdateClick();
+        }}>
             {!hideUpdateButton && <Cached />}
         </IconButton></h2>
     </header>

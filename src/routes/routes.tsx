@@ -6,6 +6,7 @@ import Clientes from "src/features/clientes/clientes.page";
 import Produtos from "src/features/produtos/produtos.page";
 import Orcamentos from "src/features/orcamentos/orcamentos.page";
 import Vendas from "src/features/vendas/vendas.page";
+import Calendario from "src/features/calendario/calendario.page";
 
 export enum pageRoutes {
   CALENDARIO = '/calendario',
@@ -19,6 +20,10 @@ export enum pageRoutes {
 }
 
 export const router = createBrowserRouter([
+  {
+    path: pageRoutes.CALENDARIO,
+    element: (<ProtectedRoute> <Calendario /> </ProtectedRoute>)
+  },  
   {
     path: pageRoutes.CLIENTES,
     element: (<ProtectedRoute> <Clientes /> </ProtectedRoute>)

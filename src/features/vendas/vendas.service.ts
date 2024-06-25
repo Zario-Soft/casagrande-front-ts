@@ -1,4 +1,3 @@
-import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
 import { Paging } from '../common/base-contracts';
 import { VendaDTO } from './vendas.contracts';

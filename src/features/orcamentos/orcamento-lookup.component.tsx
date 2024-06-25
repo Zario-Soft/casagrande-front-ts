@@ -3,24 +3,18 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { LookupProps } from "../common/base-contracts";
 import UpsertModalOrcamento from "./orcamentos-modal.page";
-import { OrcamentoGrid } from "./orcamentos.contracts";
+import { OrcamentoGrid, OrcamentoLookupItem } from "./orcamentos.contracts";
 import OrcamentosService from "./orcamentos.service";
 
 export interface OrcamentoLookupProps
     extends LookupProps<OrcamentoLookupItem> { }
-
-export interface OrcamentoLookupItem {
-    id: number,
-    clienteid: number,
-    clientenome: string,
-}
 
 export default function OrcamentoLookup(props: OrcamentoLookupProps) {
     const orcamentosService = new OrcamentosService();
 
     const [selected, setSelected] = useState<OrcamentoLookupItem>();
     const [modalSelected, setModalSelected] = useState<OrcamentoGrid>();
-    const [dataMapped, setDataMapped] = useState<OrcamentoLookupItem[]>([]);
+    const [data, setData] = useState<OrcamentoLookupItem[]>([]);
 
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
 
@@ -30,12 +24,11 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
 
     const getAll = async () => {
         try {
-            let localData = await orcamentosService.getAllAprovados();
+            const data = await orcamentosService.getAllAprovados();
+            await setData(data);
 
-            await setDataMapped(dataMapped);
-
-            if (localData && props.selectedId) {
-                const localSelected = dataMapped.find(f => f.id === props.selectedId);
+            if (data && props.selectedId) {
+                const localSelected = data.find(f => f.id === props.selectedId);
 
                 if (localSelected) {
                     await setSelected(localSelected);
@@ -69,7 +62,7 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
 
     const onShowClick = async (s?: OrcamentoLookupItem) => {
         const localOrcamento = await orcamentosService.getById(s!.id)
-        
+
         await setModalSelected(localOrcamento);
         await setUpsertDialogOpen(true);
     }
@@ -78,12 +71,12 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
         <SearchCombobox<OrcamentoLookupItem>
             value={selected}
             id="cliente-search-modal"
-            label="Orcamento"
+            label="Orçamento"
             onChange={onChange}
             onAddClick={onAddClick}
             onShowClick={onShowClick}
-            options={dataMapped}
-            getOptionLabel={(o: OrcamentoLookupItem) => `${o.id} (${o.clienteid} ${o.clientenome})` }
+            options={data}
+            getOptionLabel={(o: OrcamentoLookupItem) => o.clientenome ?? ''}
             onAfter={onAfter}
             sx={props.sx}
             style={props.style}

@@ -17,7 +17,7 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
     const isNew = !props.current || !props.current?.id;
     const produtosService = new VendasService();
 
-    const [current, setCurrent] = useState(props.current ?? {} as VendaDTO);
+    const [current, setCurrent] = useState(props.current ?? { meiopagamento: 0, desconto: 0 } as VendaDTO);
 
     const onSave = async () => {
         try {
@@ -67,7 +67,7 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
             aria-labelledby="draggable-dialog-title"
             PaperComponent={PaperComponent}
         >
-            <DialogTitle id="draggable-dialog-title" style={{ cursor: 'move' }}>{isNew ? `Editando Venda '${current.id}'` : "Nova Venda"}
+            <DialogTitle id="draggable-dialog-title" style={{ cursor: 'move' }}>{!isNew ? `Editando Venda '${current.id}'` : "Nova Venda"}
             </DialogTitle>
             <DialogContent>
                 <div className='flex-container'>
@@ -84,45 +84,47 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
                         selectedId={current?.orcamentoid}
                     />
 
-                    <TextField
-                        className='txt-box txt-box-medium'
-                        id="percpagamentoinicial"
-                        label="% Pagamento Inicial"
-                        variant="outlined"
-                        type="number"
-                        value={current.percpagamentoinicial}
-                        onChange={(e) => setCurrent({ ...current, percpagamentoinicial: parseFloat(e.target.value) })}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        error={!current.percpagamentoinicial || current.percpagamentoinicial < 0 || current.percpagamentoinicial > 100}
-                        helperText={!current.percpagamentoinicial ? 'Campo obrigatório' : (current.percpagamentoinicial >= 0 && current.percpagamentoinicial <= 100 ? '' : 'Porcentagem inválida')}
-                    />
+                    <div className='inner-flex-container' style={{ gap: '10px' }}>
+                        <TextField
+                            className='txt-box txt-box-small'
+                            id="percpagamentoinicial"
+                            label="% Pagamento Inicial"
+                            variant="outlined"
+                            type="number"
+                            value={current.percpagamentoinicial}
+                            onChange={(e) => setCurrent({ ...current, percpagamentoinicial: parseFloat(e.target.value) })}
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                            error={!current.percpagamentoinicial || current.percpagamentoinicial < 0 || current.percpagamentoinicial > 100}
+                            helperText={!current.percpagamentoinicial ? 'Campo obrigatório' : (current.percpagamentoinicial >= 0 && current.percpagamentoinicial <= 100 ? '' : 'Porcentagem inválida')}
+                        />
 
-                    <TextField
-                        className='txt-box txt-box-medium'
-                        id="datalimiteentrega"
-                        label="Data Limite Entrega"
-                        variant="outlined"
-                        type="date"
-                        error={!current.id && !isValidDataLimiteEntrega()}
-                        helperText={!current.datalimiteentrega ? 'Campo obrigatório' : (!current.id && !isValidDataLimiteEntrega() ? 'Insira uma data posterior à atual' : '')}
-                        value={current.datalimiteentrega}
-                        onChange={(e) => setCurrent({ ...current, datalimiteentrega: e.target.value })}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                    />
+                        <TextField
+                            className='txt-box txt-box-medium'
+                            id="datalimiteentrega"
+                            label="Data Limite Entrega"
+                            variant="outlined"
+                            type="date"
+                            error={!current.id && !isValidDataLimiteEntrega()}
+                            helperText={!current.datalimiteentrega ? 'Campo obrigatório' : (!current.id && !isValidDataLimiteEntrega() ? 'Insira uma data posterior à atual' : '')}
+                            value={current.datalimiteentrega}
+                            onChange={(e) => setCurrent({ ...current, datalimiteentrega: e.target.value })}
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                        />
 
-                    <TextField
-                        className='txt-box txt-box-medium'
-                        id="desconto"
-                        label="Desconto/Taxa de teste (R$)"
-                        variant="outlined"
-                        type="number"
-                        value={current.desconto}
-                        onChange={(e) => setCurrent({ ...current, desconto: parseFloat(e.target.value) })}
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                    />
+                        <TextField
+                            className='txt-box txt-box-medium'
+                            id="desconto"
+                            label="Desconto/Taxa de teste (R$)"
+                            variant="outlined"
+                            type="number"
+                            value={current.desconto}
+                            onChange={(e) => setCurrent({ ...current, desconto: parseFloat(e.target.value) })}
+                            fullWidth
+                            InputLabelProps={{ shrink: true }}
+                        />
+                    </div>
 
                     <div className='inner-flex-container'>
                         <FormControl variant="outlined" style={{ minWidth: 180 }}>

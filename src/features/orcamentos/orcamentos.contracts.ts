@@ -79,11 +79,11 @@ export interface OrcamentoProdutoDTO {
 }
 
 export interface OrcamentoProdutoGrid
-    extends OrcamentoProdutoDTO {    
+    extends OrcamentoProdutoDTO {
     produtovalor: number,
     cornome: string,
     generodescricao: string,
-    produtodescricao: string,    
+    produtodescricao: string,
 }
 
 export interface OrcamentoGetAllResponse {
@@ -114,3 +114,9 @@ export const StatusOrcamento =
         'Aprovado com ressalva feito',
         'Amostra',
     ]
+
+export interface OrcamentoLookupItem {
+    id: number,
+    clienteid: number,
+    clientenome: string,
+}

@@ -1,7 +1,6 @@
 import { formatDate } from 'src/infrastructure/helpers';
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest, OrcamentoGrid } from './orcamentos.contracts';
-import { OrcamentoLookupItem } from './orcamento-lookup.component';
+import { OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest, OrcamentoGrid, OrcamentoLookupItem } from './orcamentos.contracts';
 
 export class OrcamentosService {
     private readonly request: HttpClient;

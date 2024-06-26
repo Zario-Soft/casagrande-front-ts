@@ -1,6 +1,8 @@
 import { formatDate } from 'src/infrastructure/helpers';
 import { HttpClient } from '../../infrastructure/httpclient.component';
 import { OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest, OrcamentoGrid, OrcamentoLookupItem } from './orcamentos.contracts';
+import { ClienteExternalResponse } from '../clientes/clientes.contracts';
+import { trySplitEndereco } from '../clientes/clientes-common';
 
 export class OrcamentosService {
     private readonly request: HttpClient;
@@ -18,6 +20,17 @@ export class OrcamentosService {
 
     public async getById(orcamentoId: number): Promise<OrcamentoGrid> {
         const { data } = await this.request.get(`${this.BASE_URL}/${orcamentoId}`);
+
+        return data;
+    }
+
+    public async getByCode(code: string): Promise<ClienteExternalResponse> {
+        let { data } = await this.request.get(`${this.BASE_URL}-code/${code}`);
+
+        if (data) {
+            let endereco = trySplitEndereco(data.endereco);
+            data = {...data, ...endereco}
+        }
 
         return data;
     }

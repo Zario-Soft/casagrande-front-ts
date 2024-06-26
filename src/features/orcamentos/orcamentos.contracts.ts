@@ -57,7 +57,6 @@ export interface OrcamentoProdutoResponse {
     orcamentoproduto: OrcamentoProdutoDTO
 }
 
-
 export interface OrcamentoProdutoDTO {
     id: number,
     orcamentoid: number,
@@ -90,14 +89,6 @@ export interface OrcamentoGetAllResponse {
     clientenome: string,
     clienteresponsavel: string,
     orcamento: OrcamentoDTO,
-}
-
-export interface OrcamentoRequest {
-    id: number,
-    descricao: string,
-    valorunitario: number,
-    responsavel: string,
-    isactive: boolean,
 }
 
 export const StatusOrcamento =

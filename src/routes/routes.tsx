@@ -7,10 +7,12 @@ import Produtos from "src/features/produtos/produtos.page";
 import Orcamentos from "src/features/orcamentos/orcamentos.page";
 import Vendas from "src/features/vendas/vendas.page";
 import Calendario from "src/features/calendario/calendario.page";
+import ClienteExternal from "src/features/clientes/clientes-external.page";
 
 export enum pageRoutes {
   CALENDARIO = '/calendario',
   CLIENTES = '/clientes',
+  CLIENTES_EXTERNO = '/fill-data',
   CONFIGURACOES = '/configuracoes',
   LOGIN = '/login',
   ORCAMENTOS = '/orcamentos',
@@ -43,6 +45,10 @@ export const router = createBrowserRouter([
   {
     path: pageRoutes.LOGIN,
     element: <Login />,
+  },
+  {
+    path: pageRoutes.CLIENTES_EXTERNO,
+    element: <ClienteExternal />,
   },
   {
     path: '*',

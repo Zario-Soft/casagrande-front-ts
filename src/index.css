@@ -70,7 +70,7 @@ code {
 @media (max-width: 800px) {
   .flex-container {
       flex-direction: column;
-      gap: 10px;
+      gap: 20px;
   }
 
   .inner-flex-container {

@@ -1,7 +1,8 @@
 import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
 import { Paging } from '../common/base-contracts';
-import { ClienteEndereco, ClienteResponse, ClienteDTO } from './clientes.contracts';
+import { ClienteResponse, ClienteDTO } from './clientes.contracts';
+import { trySplitEndereco } from './clientes-common';
 
 export class ClientesService {
     private readonly request: HttpClient;
@@ -50,26 +51,10 @@ export class ClientesService {
         await this.request.put(`${this.BASE_URL}/${cliente.id}`, cliente);
     }
 
-    private static trySplitEndereco(rawEndereco: string): ClienteEndereco | undefined {
-        if (rawEndereco && rawEndereco.includes("|")) {
-            const splitted = rawEndereco.split("|");
-
-            return {
-                endereco: splitted[0],
-                bairro: splitted[1],
-                cidade: splitted[2],
-                numero: splitted[3],
-                complemento: splitted[4],
-                estado: splitted[5]
-            }
-        }
-
-        return undefined;
-    }
 
     private mapResponse(c: ClienteResponse): ClienteDTO {
        
-        let endereco = ClientesService.trySplitEndereco(c.endereco);
+        let endereco = trySplitEndereco(c.endereco);
 
         let result: ClienteDTO = {
             ...c,

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import ClientesService from "./clientes.service";
 import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCustom } from "src/components/masks";
+import { fillState } from "./clientes-common";
 
 export interface UpsertModalClientProps {
     cliente?: ClienteDTO,
@@ -72,18 +73,6 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
         }
 
         return true;
-    }
-
-    const fillState = async (e: any) => {
-        let s = e.target.value as String;
-        const match = s.match("([0-9]+)");
-
-        if (!!match) {
-            const { data } = await clientesService.getStateByDDD(match[0]);
-
-            if (data)
-                await setCurrent({ ...current, estado: data })
-        }
     }
 
     return <>

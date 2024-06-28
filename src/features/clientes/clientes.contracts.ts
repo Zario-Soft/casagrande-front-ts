@@ -57,6 +57,22 @@ export interface ClienteExternalResponse {
     bairro?: string,
     cidade?: string,
     observacao: string,
+
+    issamedataforinvoice?:boolean,
+    clienteinvoicedata?:ClienteInvoiceData,
+}
+
+export interface ClienteInvoiceData {
+    nome?: string,
+    cpfcnpj?: string,
+    email?: string,
+    telefone?: string,
+    endereco?: string,
+    estado?: string,
+    numero?: string,
+    complemento?: string,
+    bairro?: string,
+    observacao?: string,
 }
 
 export interface ClienteEndereco {

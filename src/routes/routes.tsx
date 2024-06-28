@@ -7,7 +7,7 @@ import Produtos from "src/features/produtos/produtos.page";
 import Orcamentos from "src/features/orcamentos/orcamentos.page";
 import Vendas from "src/features/vendas/vendas.page";
 import Calendario from "src/features/calendario/calendario.page";
-import ClienteExternal from "src/features/clientes/clientes-external.page";
+import ClienteExternal from "src/features/clientes/clientes-external/clientes-external.page";
 
 export enum pageRoutes {
   CALENDARIO = '/calendario',

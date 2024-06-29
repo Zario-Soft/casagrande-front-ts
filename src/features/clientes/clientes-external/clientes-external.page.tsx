@@ -65,7 +65,7 @@ export default function ClienteExternal() {
       req.observacao += '\n\n-- Dados para Nota Fiscal --\n';
       
       if (current?.clienteinvoicedata?.nome)
-        req.observacao += `\nNome = ${current?.clienteinvoicedata?.nome}\n`;
+        req.observacao += `\nNome = ${current?.clienteinvoicedata?.nome}`;
 
       if (current?.clienteinvoicedata?.email)
         req.observacao += `\nE-mail = ${current?.clienteinvoicedata?.email}`;

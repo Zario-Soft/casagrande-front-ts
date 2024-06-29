@@ -1,7 +1,7 @@
 import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
 import { Paging } from '../common/base-contracts';
-import { ClienteResponse, ClienteDTO } from './clientes.contracts';
+import { ClienteResponse, ClienteDTO, ClienteExternalResponse } from './clientes.contracts';
 import { trySplitEndereco } from './clientes-common';
 
 export class ClientesService {
@@ -51,9 +51,19 @@ export class ClientesService {
         await this.request.put(`${this.BASE_URL}/${cliente.id}`, cliente);
     }
 
+    public async editExternal(cliente: ClienteExternalResponse): Promise<any> {
+        let req: ClienteDTO = {
+            ...cliente,
+            isvip: false,
+            pessoafisica: cliente.pessoafisica === 1,
+        }
+
+        await this.request.put(`${this.BASE_URL}-external/${cliente.id} `, req);
+    }
+
 
     private mapResponse(c: ClienteResponse): ClienteDTO {
-       
+
         let endereco = trySplitEndereco(c.endereco);
 
         let result: ClienteDTO = {
@@ -80,7 +90,7 @@ export class ClientesService {
     }
 
     // public async getById(id: number): Promise<AxiosResponse<StudentsResponseItem>> {
-    //     return await this.request.get(`${this.BASE_URL}/${id}`);
+    //     return await this.request.get(`${ this.BASE_URL } /${id}`);
     // }
 
     public async delete(id: number): Promise<void> {

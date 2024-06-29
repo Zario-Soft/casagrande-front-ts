@@ -1,16 +1,14 @@
 import { ClienteEndereco } from "./clientes.contracts";
-//import ClientesService from "./clientes.service";
+import ClientesService from "./clientes.service";
 
-//const clientesService = new ClientesService();
-
-export const fillState = async (e: any): Promise<string | undefined> => {
+export const fillState = async (e: any, clientesService: ClientesService): Promise<string | undefined> => {
     let s = e.target.value as String;
     const match = s.match("([0-9]+)");
 
     if (!!match) {
-        //const { data } = await clientesService.getStateByDDD(match[0]);
+        const { data } = await clientesService.getStateByDDD(match[0]);
 
-        return undefined;
+        return data;
     }
 
     return undefined;
@@ -33,19 +31,23 @@ export const trySplitEndereco = (rawEndereco?: string): ClienteEndereco | undefi
     return undefined;
 }
 
-export const preencheCEP = async (e: any): Promise<ClienteEndereco | undefined> => {
+export const preencheCEP = async (e: any, current: any, setCurrent: any): Promise<ClienteEndereco | undefined> => {
     const cep = e.target.value.replace("-", "");
 
     if (cep.trim() === "") return undefined;
 
     const url = `https://viacep.com.br/ws/${cep}/json/`;
 
-    const result = (await fetch(url)).json() as any;
-
-    return {
-        bairro: result.bairro,
-        cidade: result.localidade,
-        endereco: result.logradouro,
-        estado: result.uf
-    }
+    fetch(url)
+        .then(r => r.json())
+        .then(async r => {
+            await setCurrent(
+                {
+                    ...current,
+                    bairro: r.bairro,
+                    cidade: r.localidade,
+                    endereco: r.logradouro,
+                    estado: r.uf
+                })
+        })
 }

@@ -29,7 +29,7 @@ export class OrcamentosService {
 
         if (data) {
             let endereco = trySplitEndereco(data.endereco);
-            data = {...data, ...endereco}
+            data = { ...data, ...endereco }
         }
 
         return data;
@@ -86,6 +86,14 @@ export class OrcamentosService {
 
     public async edit(request: OrcamentoUpsertRequest): Promise<any> {
         await this.request.put(`${this.BASE_URL}/${request.orcamento.id}`, request);
+    }
+
+    public async editObservacao(request: { id: number, observacao: string }): Promise<any> {
+        await this.request.patch(`${this.BASE_URL}/${request.id}`, { observacao: request.observacao });
+    }
+
+    public async addCode(request: { id: number, code: string }): Promise<any> {
+        await this.request.patch(`${this.BASE_URL}-code/${request.id}`, { codigo: request.code });
     }
 
     public async delete(id: number): Promise<void> {

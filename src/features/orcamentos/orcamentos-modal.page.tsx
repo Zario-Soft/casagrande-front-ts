@@ -14,6 +14,7 @@ import moment from "moment";
 import ReportInvoiceOrcamento from "./orcamento-invoice.report";
 import { ReportContent, ReportContentImageSummary, ReportContentSummary } from "src/components/report/report.interfaces";
 import ClientesService from "../clientes/clientes.service";
+import OrcamentoCodeModal from "./orcamento-code.modal.page";
 
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 50, hide: true },
@@ -46,6 +47,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
 
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [invoiceVisible, setInvoiceVisible] = useState(false);
+    const [codeModalVisible, setCodeModalVisible] = useState(false);
     const [showModalOrcamentoProduto, setShowModalOrcamentoProduto] = useState(false);
 
     useEffect(() => {
@@ -261,7 +263,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         }
 
         const prodSummary: ReportContentImageSummary = {
-            title: 'Dados para Produção',            
+            title: 'Dados para Produção',
             description: current.observacao,
             images: (allOrcamentosProdutos ?? []).map(item => {
                 return (item.fotoinicial || item.fotoinicial2 || item.fotoinicialbase64 || item.fotoinicial2base64)
@@ -466,6 +468,9 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                 </div>
             </DialogContent>
             <DialogActions>
+                {shouldShowInvoiceButton() && <WarningButton onClick={async () => await setCodeModalVisible(true)}>
+                    Gerar link de cadastro
+                </WarningButton>}
                 {shouldShowInvoiceButton() && <ReportButton onClick={async () => await setInvoiceVisible(true)}>
                     Comprovante
                 </ReportButton>}
@@ -494,6 +499,11 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             formTitle={`${current.clientenome} - Orçamento ${current.id}`}
             onLoadContent={mountInvoice}
             onClose={async () => await setInvoiceVisible(false)}
+        />}
+
+        {codeModalVisible && <OrcamentoCodeModal
+            current={current}
+            onClose={async () => await setCodeModalVisible(false)}
         />}
     </>
 }

@@ -9,6 +9,9 @@ import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCus
 import { fillState, preencheCEP } from "../clientes-common";
 import { NormalButton } from "src/components/buttons";
 import ClienteExternalInvoiceDataPart from "./clientes-external-invoice-data.component";
+import ClienteExternalConfirmation from "./clientes-external-confirmation.modal.page";
+import ClientesService from "../clientes.service";
+import ConfirmedPage from "./cliente-external-confirmed.page";
 
 export default function ClienteExternal() {
   const [searchParams] = useSearchParams();
@@ -21,7 +24,10 @@ export default function ClienteExternal() {
 
   const [current, setCurrent] = useState<ClienteExternalResponse>();
   const orcamentoService = new OrcamentosService();
+  const clientesService = new ClientesService();
   const [isLoadingCEP, setIsLoadingCEP] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   const tryLoadInfo = async () => {
     if (!code) return;
@@ -47,9 +53,68 @@ export default function ClienteExternal() {
     // eslint-disable-next-line
   }, [])
 
+  const onConfirm = async () => {
+    await setIsLoading(true);
+    await setShowConfirmation(false);
+
+    await clientesService.editExternal(current!);
+    let req: { id: number, observacao: string } = { id: current!.orcamentoid, observacao: '' };
+
+    if (current?.issamedataforinvoice === false) {
+
+      req.observacao += '\n\n-- Dados para Nota Fiscal --\n';
+      
+      if (current?.clienteinvoicedata?.nome)
+        req.observacao += `\nNome = ${current?.clienteinvoicedata?.nome}\n`;
+
+      if (current?.clienteinvoicedata?.email)
+        req.observacao += `\nE-mail = ${current?.clienteinvoicedata?.email}`;
+
+      if (current?.clienteinvoicedata?.cpfcnpj){
+        req.observacao += '\n' + current?.clienteinvoicedata?.pessoafisica === '1' ? 'CPF' : 'CNPJ';
+        req.observacao += ` = ${current?.clienteinvoicedata?.cpfcnpj}`;
+      }
+      
+      if (current?.clienteinvoicedata?.telefone)
+        req.observacao += `\nTelefone = ${current?.clienteinvoicedata?.telefone}`;
+
+      if (current?.clienteinvoicedata?.celular)
+        req.observacao += `\nCelular = ${current?.clienteinvoicedata?.celular}`;
+      
+      if (current?.clienteinvoicedata?.cep)
+      req.observacao += `\nCEP = ${current?.clienteinvoicedata?.cep}`;
+      
+      if (current?.clienteinvoicedata?.endereco)
+        req.observacao += `\nEndereço = ${current?.clienteinvoicedata?.endereco}`;
+
+      if (current?.clienteinvoicedata?.numero)
+        req.observacao += `\nNúmero = ${current?.clienteinvoicedata?.numero}`;
+
+      if (current?.clienteinvoicedata?.complemento)
+        req.observacao += `\nComplemento = ${current?.clienteinvoicedata?.complemento}`;
+
+      if (current?.clienteinvoicedata?.bairro)
+        req.observacao += `\nBairro = ${current?.clienteinvoicedata?.bairro}`;
+
+      if (current?.clienteinvoicedata?.cidade)
+        req.observacao += `\nCidade = ${current?.clienteinvoicedata?.cidade}`;
+
+      if (current?.clienteinvoicedata?.estado)
+        req.observacao += `\nEstado = ${current?.clienteinvoicedata?.estado}`;
+
+      if (current?.clienteinvoicedata?.observacao)
+        req.observacao += `\nPonto de referência / observações = ${current?.clienteinvoicedata?.observacao}`;
+    }
+
+    await orcamentoService.editObservacao(req);
+
+    await setIsConfirmed(true);
+    await setIsLoading(false);
+  }
+
 
   return (<>
-    {current && <>
+    {current && !isConfirmed && <>
       <TopBar />
       <div style={{
         display: 'flex',
@@ -143,7 +208,7 @@ export default function ClienteExternal() {
                 id="telefone-input"
                 inputComponent={TelMaskCustom}
                 onBlur={async (e: any) => {
-                  const estado = await fillState(e);
+                  const estado = await fillState(e, clientesService);
 
                   if (estado) {
                     await setCurrent({ ...current, estado: estado })
@@ -161,7 +226,7 @@ export default function ClienteExternal() {
                 id="celular-input"
                 inputComponent={CelMaskCustom}
                 onBlur={async (e: any) => {
-                  const estado = await fillState(e);
+                  const estado = await fillState(e, clientesService);
 
                   if (estado) {
                     await setCurrent({ ...current, estado: estado })
@@ -184,11 +249,7 @@ export default function ClienteExternal() {
                 onBlur={async (e: any) => {
                   await setIsLoadingCEP(true);
 
-                  const endereco = await preencheCEP(e);
-
-                  if (endereco) {
-                    setCurrent({ ...current, ...endereco })
-                  }
+                  await preencheCEP(e, current, setCurrent);
 
                   await setIsLoadingCEP(false);
                 }}
@@ -313,7 +374,7 @@ export default function ClienteExternal() {
           <div className='inner-flex-container'>
             <TextField
               id="observacao"
-              label="Observações"
+              label="Ponto de referência / observações"
               variant="outlined"
               value={current.observacao}
               onChange={(e) => setCurrent({ ...current, observacao: e.target.value })}
@@ -335,21 +396,30 @@ export default function ClienteExternal() {
             />
           </div>
 
-          {current.issamedataforinvoice === false && <div>
-            <ClienteExternalInvoiceDataPart />
-          </div>}
+          {current.issamedataforinvoice === false && <ClienteExternalInvoiceDataPart current={current.clienteinvoicedata}
+            onChange={(d) => setCurrent({ ...current, clienteinvoicedata: d })}
+            clientesService={clientesService}
+          />}
 
           <div style={{
             display: 'flex',
             width: '-webkit-fill-available',
-            flexDirection: 'row-reverse'
+            justifyContent: 'center'
           }}>
-            <NormalButton onClick={() => { }} color="primary">
+            <NormalButton onClick={() => setShowConfirmation(true)} color="primary" sx={{ marginBottom: '10px' }}>
               Enviar Informações
             </NormalButton>
           </div>
         </div>
       </div>
+
+      {showConfirmation && <ClienteExternalConfirmation
+        current={current}
+        onClose={() => setShowConfirmation(false)}
+        onConfirm={onConfirm}
+      />}
     </>}
+
+    {isConfirmed && <ConfirmedPage />}
   </>);
 }

@@ -250,6 +250,10 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         return (allOrcamentosProdutos && allOrcamentosProdutos.length > 0) && !isNaN(current.clienteid) && current.clienteid > 0
     }
 
+    const shouldShowLinkButton = () => {
+        return !isNew;
+    }
+
     const mountInvoice = async (): Promise<ReportContent> => {
 
         const cliente = await clienteService.getById(current.clienteid);
@@ -257,7 +261,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         const clientSummary: ReportContentSummary = {
             title: 'Dados do cliente',
             items: [
-                { title: 'Nome: ', value: current.clientenome, fontSize: current.clientenome.length >= 54 ? 9 : undefined },
+                { title: 'Nome: ', value: cliente.nome, fontSize: cliente.nome.length >= 54 ? 9 : undefined },
                 { title: 'Telefone: ', value: cliente.celular ?? cliente.telefone }
             ]
         }
@@ -468,7 +472,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                 </div>
             </DialogContent>
             <DialogActions>
-                {shouldShowInvoiceButton() && <WarningButton onClick={async () => await setCodeModalVisible(true)}>
+                {shouldShowLinkButton() && <WarningButton onClick={async () => await setCodeModalVisible(true)}>
                     Gerar link de cadastro
                 </WarningButton>}
                 {shouldShowInvoiceButton() && <ReportButton onClick={async () => await setInvoiceVisible(true)}>
@@ -496,7 +500,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         />}
 
         {invoiceVisible && <ReportInvoiceOrcamento
-            formTitle={`${current.clientenome} - Orçamento ${current.id}`}
+            formTitle={current.clientenome ? `${current.clientenome} - Orçamento ${current.id}` : 'Solicitação de teste'}
             onLoadContent={mountInvoice}
             onClose={async () => await setInvoiceVisible(false)}
         />}

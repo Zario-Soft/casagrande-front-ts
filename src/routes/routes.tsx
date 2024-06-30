@@ -8,6 +8,7 @@ import Orcamentos from "src/features/orcamentos/orcamentos.page";
 import Vendas from "src/features/vendas/vendas.page";
 import Calendario from "src/features/calendario/calendario.page";
 import ClienteExternal from "src/features/clientes/clientes-external/clientes-external.page";
+import Main from "src/features/main/main.page";
 
 export enum pageRoutes {
   CALENDARIO = '/calendario',
@@ -22,6 +23,10 @@ export enum pageRoutes {
 }
 
 export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: (<ProtectedRoute> <Main /> </ProtectedRoute>)
+  },  
   {
     path: pageRoutes.CALENDARIO,
     element: (<ProtectedRoute> <Calendario /> </ProtectedRoute>)

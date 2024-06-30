@@ -7,17 +7,19 @@ import LoginService, { DoLoginRequest } from './login.service';
 import { AuthContext } from '../../providers/auth.provider';
 import { useNavigate } from 'react-router-dom';
 import { Button, TextField, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import logo from '../../assets/logo.png';
 import TopBar from 'src/components/top-bar/top-bar.index';
 import md5 from 'md5';
 import { pageRoutes } from 'src/routes';
+import { LoadingContext } from 'src/providers/loading.provider';
 
 export default function Login() {
 
   const loginService = new LoginService();
-  const auth = React.useContext(AuthContext);
+  const auth = useContext(AuthContext);
   const navigate = useNavigate();
+  const { setIsLoading } = useContext(LoadingContext);
 
   const [email, setEmail] = useState('')
 
@@ -39,6 +41,8 @@ export default function Login() {
 
     if (!isValid(values)) return;
 
+    await setIsLoading(true);
+    
     const { data } = await loginService.doLogin(values);
     if (data) {
 
@@ -48,6 +52,8 @@ export default function Login() {
 
       toast.success('Logado com sucesso!');
       auth.onLogin(data.token, values.usuario);
+
+      await setIsLoading(false);
 
       navigate(pageRoutes.CLIENTES);
     }

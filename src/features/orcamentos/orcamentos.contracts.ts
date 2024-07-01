@@ -8,16 +8,16 @@ export class OrcamentoPaging extends Paging {
         super(page, filter);
     }
 
-    mountColumnFilter(): string {
+    override mountColumnFilter(): string {
         const filter = this.filter!;
         let filterString = '';
 
         if (filter.column === 'id') {
             filterString = `${filter.column}+identical=${filter.value}`;
         }
-        else if (filter.column === 'statusDescricao') {
+        else if (filter.column === 'statusdescricao') {
             const value = StatusOrcamento.indexOf(filter.value);
-            filterString = `${filter.column}+identical=${value}`
+            filterString = `status+identical=${value}`
         }
         else {
             filterString = `${filter.column}+${filter.comparer}=${filter.value}`;

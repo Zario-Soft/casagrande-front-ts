@@ -64,7 +64,7 @@ const columns: ZGridColDef[] = [
             {
                 label: '=',
                 value: 'Aprovado',
-                getApplyFilterFn: (filterItem: GridFilterItem, column: GridColDef<any, any, any>) => {
+                getApplyFilterFn: (filterItem: GridFilterItem, _: GridColDef<any, any, any>) => {
                     return (value: string) => {
                         return !filterItem.value || value.toUpperCase() === filterItem.value.toUpperCase();
                     };
@@ -158,7 +158,8 @@ export default function Orcamentos() {
     }
 
     const onFilter = async (localFilter: OrcamentoPaging | undefined) => {
-        const newFilter = localFilter ?? new OrcamentoPaging();
+        const newFilter = new OrcamentoPaging(localFilter?.page ?? 0, localFilter?.filter);
+
         await setFilter(newFilter);
 
         await refresh(newFilter);

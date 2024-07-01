@@ -44,7 +44,7 @@ export default function Report(props: ReportProps) {
         <>{content ? <Document
             author='Casagrande Meias'
             creator='Casagrande Meias'
-            title={props.title ?? 'Relatório'}
+            title={props.title ?? 'Relatório'}            
         >
             <Page size="A4" style={styles.page}>
                 <Image style={styles.logo} src={logo} />

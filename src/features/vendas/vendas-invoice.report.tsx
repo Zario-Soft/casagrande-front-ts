@@ -6,6 +6,7 @@ import Report from "src/components/report/report.component";
 
 interface ReportControlDialogProps {
     formTitle?: string,
+    reportTitle?: string,
     onClose: () => Promise<void>,
     onLoadContent: () => Promise<ReportContent>,
 }
@@ -25,8 +26,8 @@ export default function ReportInvoiceVenda(props: ReportControlDialogProps){
                 <Grid item xs={12}>
                     {document && <Report
                     key={'report-key'}
-                    title={"Finalização do Pedido"}
-                    onLoadContent={props.onLoadContent}
+                    title={props.reportTitle ?? "Finalização do Pedido"}
+                    onLoadContent={props.onLoadContent}                    
                     />}
                 </Grid>
             </Grid>

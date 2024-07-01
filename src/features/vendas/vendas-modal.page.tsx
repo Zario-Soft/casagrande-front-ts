@@ -11,6 +11,8 @@ import ReportInvoiceVenda from "./vendas-invoice.report";
 import { ReportContent, ReportContentSummary, ReportContentImageSummary } from "src/components/report/report.interfaces";
 import ClientesService from "../clientes/clientes.service";
 import OrcamentosService from "../orcamentos/orcamentos.service";
+import { OrcamentoGrid } from "../orcamentos/orcamentos.contracts";
+import { ClienteDTO } from "../clientes/clientes.contracts";
 
 export interface UpsertModalProductProps {
     current?: VendaDTO,
@@ -24,6 +26,9 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
     const orcamentoService = new OrcamentosService();
 
     const [current, setCurrent] = useState(props.current ?? { meiopagamento: 0, desconto: 0 } as VendaDTO);
+
+    const [orcamento, setOrcamento] = useState<OrcamentoGrid>();
+    const [cliente, setCliente] = useState<ClienteDTO>();
 
     const [invoiceVisible, setInvoiceVisible] = useState(false);
 
@@ -50,6 +55,15 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
         }
     }
 
+    const showInvoice = async () => {
+        const orcamento = await orcamentoService.getById(current.orcamentoid);
+        await setOrcamento(orcamento);
+
+        const cliente = await clienteService.getById(orcamento.clienteid);
+        await setCliente(cliente);
+        await setInvoiceVisible(true);
+    }
+
     const isValidDataLimiteEntrega = () => moment(current.datalimiteentrega) >= moment(moment().format('yyyy-MM-DD'));
 
     const isSavingValid = async (): Promise<boolean> => {
@@ -69,49 +83,49 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
 
     const mountInvoice = async (): Promise<ReportContent> => {
 
-        const orcamento = await orcamentoService.getById(current.orcamentoid);
+        const localOrcamento = orcamento ?? await orcamentoService.getById(current.orcamentoid);
         const orcamentoProdutos = await orcamentoService.getAllOrcamentoProdutos(current.orcamentoid);
-        const cliente = await clienteService.getById(orcamento.clienteid);
+        const localCliente = cliente ?? await clienteService.getById(localOrcamento.clienteid);
 
         const valorTotalPares = orcamentoProdutos
             .map(prod => prod.produtovalor * prod.orcamentoproduto.quantidade)
             .reduce((prev, curr) => prev += curr);
 
-        const valorTotalCompra = valorTotalPares + (orcamento.frete ?? 0) - (current.desconto ?? 0);
+        const valorTotalCompra = valorTotalPares + (localOrcamento.frete ?? 0) - (current.desconto ?? 0);
 
         const sendingSummary: ReportContentSummary = {
             title: 'Dados para envio',
             items: [
-                { title: 'Nome Completo: ', value: cliente.nome, fontSize: cliente.nome.length >= 54 ? 9 : undefined },
-                { title: 'Telefone: ', value: cliente.celular ?? cliente.telefone },
-                { title: 'E-mail: ', value: cliente.email },
-                { title: 'CPF/CNPJ: ', value: cliente.cpfcnpj },
-                { title: 'Endereço: ', value: `${cliente.endereco}, ${cliente.numero} ${cliente.complemento ? `(${cliente.complemento})` : ''}` },
-                { title: 'Endereço (cont.): ', value: `${cliente.bairro}, ${cliente.cidade} - ${cliente.estado}` },
-                { title: 'CEP: ', value: cliente.cep },
-                { title: 'Observações: ', value: cliente.observacao }
+                { title: 'Nome Completo: ', value: localCliente.nome, fontSize: localCliente.nome.length >= 54 ? 9 : undefined },
+                { title: 'Telefone: ', value: localCliente.celular ?? localCliente.telefone },
+                { title: 'E-mail: ', value: localCliente.email },
+                { title: 'CPF/CNPJ: ', value: localCliente.cpfcnpj },
+                { title: 'Endereço: ', value: `${localCliente.endereco}, ${localCliente.numero} ${localCliente.complemento ? `(${localCliente.complemento})` : ''}` },
+                { title: 'Endereço (cont.): ', value: `${localCliente.bairro}, ${localCliente.cidade} - ${localCliente.estado}` },
+                { title: 'CEP: ', value: localCliente.cep },
+                { title: 'Observações: ', value: localCliente.observacao }
             ]
         }
 
         const prodSummary: ReportContentImageSummary = {
             title: 'Dados para Produção',
-            description: orcamento.observacao,
+            description: localOrcamento.observacao,
             images: orcamentoProdutos.map(item => {
                 return (!item.orcamentoproduto.fotoreal && !item.orcamentoproduto.fotoreal2)
                     ? [item.orcamentoproduto.fotoinicial]
                     : [item.orcamentoproduto.fotoreal, item.orcamentoproduto.fotoreal2]
             })
                 .reduce((a, b) => a.concat(b)),
-            breakPage: orcamento.observacao.length >= 500 || orcamento.observacao.split('\n').length > 20
+            breakPage: localOrcamento.observacao.length >= 500 || localOrcamento.observacao.split('\n').length > 20
         }
 
         const paymentSummary: ReportContentSummary = {
             title: 'Pagamentos e Prazos',
             breakPage: true,
             items: [
-                { title: 'Data de fechamento: ', value: moment(orcamento.dataorcamento).format('DD/MM/yyyy') },
+                { title: 'Data de fechamento: ', value: moment(localOrcamento.dataorcamento).format('DD/MM/yyyy') },
                 { title: 'Valor dos pares: ', value: `R$${valorTotalPares.toFixed(2)}` },
-                { title: 'Valor do frete: ', value: `R$${(orcamento.frete ?? 0).toFixed(2)}` },
+                { title: 'Valor do frete: ', value: `R$${(localOrcamento.frete ?? 0).toFixed(2)}` },
                 { title: 'Valor de desconto: ', value: `R$${(current.desconto ?? 0).toFixed(2)}` },
                 { title: 'Valor total da compra: ', value: `R$${valorTotalCompra.toFixed(2)}` },
                 { title: 'Valor pago até o momento: ', value: `R$${(((current.percpagamentoinicial ?? 0) / 100) * valorTotalCompra).toFixed(2)}` },
@@ -233,7 +247,7 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
                 </div>
             </DialogContent>
             <DialogActions>
-                <ReportButton onClick={async () => await setInvoiceVisible(true)}>
+                <ReportButton onClick={showInvoice}>
                     Comprovante
                 </ReportButton>
                 <NormalButton onClick={onSave} color="primary">
@@ -247,6 +261,7 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
 
         {invoiceVisible && <ReportInvoiceVenda
             formTitle={`Venda ${current.id}`}
+            reportTitle={`${cliente?.nome} - Venda ${current.id}`}
             onLoadContent={mountInvoice}
             onClose={async () => await setInvoiceVisible(false)}
         />}

@@ -56,6 +56,7 @@ export class ClientesService {
             ...cliente,
             isvip: false,
             pessoafisica: cliente.pessoafisica === 1,
+            endereco: this.concatEndereco(cliente)
         }
 
         await this.request.put(`${this.BASE_URL}-external/${cliente.id} `, req);
@@ -78,7 +79,7 @@ export class ClientesService {
         return result;
     }
 
-    private concatEndereco(cliente: ClienteDTO): string {
+    private concatEndereco(cliente: { endereco?: string, bairro?: string, cidade?: string, numero?: string, complemento?: string, estado?: string }): string {
         const endereco = [cliente.endereco,
         cliente.bairro,
         cliente.cidade,

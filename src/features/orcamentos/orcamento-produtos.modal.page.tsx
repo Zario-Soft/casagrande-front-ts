@@ -244,7 +244,10 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                                 InputLabelProps={{ shrink: true }}
                                 onChange={(e) => setCurrent({ ...current, observacaotecnica1: e.target.value })}
                                 multiline
-                                rows={10} />
+                                rows={10}
+                                sx={{
+                                    width: '300px'
+                                }} />
                         </div>
                     </div>
                     <div className='orcamento-container' style={{
@@ -275,7 +278,10 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                             InputLabelProps={{ shrink: true }}
                             onChange={(e) => setCurrent({ ...current, observacaotecnica2: e.target.value })}
                             multiline
-                            rows={10} />
+                            rows={10}
+                            sx={{
+                                width: '300px'
+                            }} />
                     </div>
                 </div>
             </DialogContent>

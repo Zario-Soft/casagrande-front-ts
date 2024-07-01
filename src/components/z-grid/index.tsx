@@ -76,7 +76,6 @@ export default function ZGrid(props: ZGridProps) {
                 getRowId={props.getRowId}
                 rows={props.rows}
                 columns={columns}
-                columnVisibilityModel={hideColumns}
                 hideFooterSelectedRowCount
                 style={{
                     maxHeight: '700px',
@@ -90,6 +89,9 @@ export default function ZGrid(props: ZGridProps) {
                             pageSize: 25,
                         },
                     },
+                    columns: {
+                        columnVisibilityModel: hideColumns
+                    }
                 }}
                 onRowDoubleClick={props.onRowDoubleClick}
                 onRowClick={props.onRowClick}

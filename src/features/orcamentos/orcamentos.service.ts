@@ -44,8 +44,6 @@ export class OrcamentosService {
     }
 
     private mapToResponse<T>(data: any): T[] {
-        console.log(data);
-
         if (data && data.length) {
             const result = data
                 .sort((a: OrcamentoGetAllResponse, b: OrcamentoGetAllResponse) => (a.orcamento.id > b.orcamento.id) ? -1 : ((b.orcamento.id > a.orcamento.id) ? 1 : 0))
@@ -64,8 +62,6 @@ export class OrcamentosService {
                         valortotal: o.orcamento.valortotal,
                     };
                 });
-
-            console.log(result);
             return result;
         }
 

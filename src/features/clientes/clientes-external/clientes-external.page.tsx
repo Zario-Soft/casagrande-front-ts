@@ -58,55 +58,6 @@ export default function ClienteExternal() {
     await setShowConfirmation(false);
 
     await clientesService.editExternal(current!);
-    let req: { id: number, observacao: string } = { id: current!.orcamentoid, observacao: '' };
-
-    if (current?.issamedataforinvoice === false) {
-
-      req.observacao += '\n\n-- Dados para Nota Fiscal --\n';
-      
-      if (current?.clienteinvoicedata?.nome)
-        req.observacao += `\nNome = ${current?.clienteinvoicedata?.nome}`;
-
-      if (current?.clienteinvoicedata?.email)
-        req.observacao += `\nE-mail = ${current?.clienteinvoicedata?.email}`;
-
-      if (current?.clienteinvoicedata?.cpfcnpj){
-        req.observacao += '\n' + current?.clienteinvoicedata?.pessoafisica === '1' ? 'CPF' : 'CNPJ';
-        req.observacao += ` = ${current?.clienteinvoicedata?.cpfcnpj}`;
-      }
-      
-      if (current?.clienteinvoicedata?.telefone)
-        req.observacao += `\nTelefone = ${current?.clienteinvoicedata?.telefone}`;
-
-      if (current?.clienteinvoicedata?.celular)
-        req.observacao += `\nCelular = ${current?.clienteinvoicedata?.celular}`;
-      
-      if (current?.clienteinvoicedata?.cep)
-      req.observacao += `\nCEP = ${current?.clienteinvoicedata?.cep}`;
-      
-      if (current?.clienteinvoicedata?.endereco)
-        req.observacao += `\nEndereço = ${current?.clienteinvoicedata?.endereco}`;
-
-      if (current?.clienteinvoicedata?.numero)
-        req.observacao += `\nNúmero = ${current?.clienteinvoicedata?.numero}`;
-
-      if (current?.clienteinvoicedata?.complemento)
-        req.observacao += `\nComplemento = ${current?.clienteinvoicedata?.complemento}`;
-
-      if (current?.clienteinvoicedata?.bairro)
-        req.observacao += `\nBairro = ${current?.clienteinvoicedata?.bairro}`;
-
-      if (current?.clienteinvoicedata?.cidade)
-        req.observacao += `\nCidade = ${current?.clienteinvoicedata?.cidade}`;
-
-      if (current?.clienteinvoicedata?.estado)
-        req.observacao += `\nEstado = ${current?.clienteinvoicedata?.estado}`;
-
-      if (current?.clienteinvoicedata?.observacao)
-        req.observacao += `\nPonto de referência / observações = ${current?.clienteinvoicedata?.observacao}`;
-    }
-
-    await orcamentoService.editObservacao(req);
 
     await setIsConfirmed(true);
     await setIsLoading(false);

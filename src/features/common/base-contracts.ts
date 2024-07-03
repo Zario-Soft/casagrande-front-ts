@@ -17,6 +17,9 @@ export class Paging {
         if (this.filter) {
             let filterString = this.mountColumnFilter();
 
+            if (filterString === '')
+                filterString = this.mountDefaultFilter();
+
             result += `&filter=${encodeURIComponent(filterString)}`;
         }
 
@@ -25,16 +28,15 @@ export class Paging {
 
     mountColumnFilter(): string {
         const filter = this.filter!;
-        let filterString = '';
 
         if (filter.column === 'id') {
-            filterString = `${filter.column}+identical=${filter.value}`;
+            return `${filter.column}+identical=${filter.value}`;
         }
-        else {
-            filterString = `${filter.column}+${filter.comparer}=${filter.value}`;
-        }
+        return '';
+    }
 
-        return filterString;
+    private mountDefaultFilter(): string {
+        return `${this.filter!.column}+${this.filter!.comparer}=${this.filter!.value}`
     }
 }
 

@@ -10,20 +10,18 @@ export class OrcamentoPaging extends Paging {
 
     override mountColumnFilter(): string {
         const filter = this.filter!;
-        let filterString = '';
 
-        if (filter.column === 'id') {
-            filterString = `${filter.column}+identical=${filter.value}`;
-        }
-        else if (filter.column === 'statusdescricao') {
+        let baseFilter = super.mountColumnFilter();
+
+        if (baseFilter !== '')
+            return baseFilter;
+        
+        if (filter.column === 'statusdescricao') {
             const value = StatusOrcamento.indexOf(filter.value);
-            filterString = `status+identical=${value}`
+            return `status+identical=${value}`
         }
-        else {
-            filterString = `${filter.column}+${filter.comparer}=${filter.value}`;
-        }
-
-        return filterString;
+        
+        return '';
     }
 }
 

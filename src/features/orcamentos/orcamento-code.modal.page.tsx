@@ -1,34 +1,17 @@
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, IconButton } from "@mui/material"
 import { WarningButton } from "src/components/buttons"
 import { PaperComponent } from "src/components/dialogs"
-import { OrcamentoGrid } from "./orcamentos.contracts"
-import { useMemo, useState } from "react"
-import OrcamentosService from "./orcamentos.service"
-import { nanoid } from "nanoid"
 import { ContentCopy } from "@mui/icons-material"
 import { toast } from "react-toastify"
 
 export interface OrcamentoCodeModalProps {
-    current?: OrcamentoGrid,
+    url: string,
+    id: number,
     onClose: () => void,
 }
 
 export default function OrcamentoCodeModal(props: OrcamentoCodeModalProps) {
-    const { current, onClose } = props;
-    const [codeUrl, setCodeUrl] = useState<string>('');
-
-
-    useMemo(() => {
-        const orcamentoService = new OrcamentosService();
-        const newCode = nanoid(5);
-
-        orcamentoService.addCode({
-            id: current!.id,
-            code: newCode
-        });
-
-        setCodeUrl(`${window.location.host}/fill-data?code=${newCode}`);
-    }, [current]);
+    const { onClose } = props;
 
     return <>
         <Dialog
@@ -39,13 +22,13 @@ export default function OrcamentoCodeModal(props: OrcamentoCodeModalProps) {
             PaperComponent={PaperComponent}
         >
             <DialogTitle id="draggable-dialog-title" style={{ cursor: 'move' }}>
-                {`Novo Link para Orçamento ${current!.id}`}
+                {`Novo Link para Orçamento ${props.id}`}
             </DialogTitle>
             <DialogContent sx={{
                 display: 'flex',
                 justifyContent: 'center'
             }}>
-                {codeUrl && <div style={{
+                {props.url && <div style={{
                     display: 'flex',
                     maxWidth: '600px',
                     marginTop: '20px'
@@ -55,13 +38,13 @@ export default function OrcamentoCodeModal(props: OrcamentoCodeModalProps) {
                         id="nome"
                         label="Nome"
                         variant="outlined"
-                        value={codeUrl}
+                        value={props.url}
                         sx={{
                             width: '600px'
                         }}
                     />
                     <IconButton color="primary" aria-label="Copiar texto" component="span" onClick={() => {
-                        navigator.clipboard.writeText(codeUrl);
+                        navigator.clipboard.writeText(props.url);
                         toast.success('Link copiado com sucesso!');
                     }}
                         style={{ marginTop: -5 }}>

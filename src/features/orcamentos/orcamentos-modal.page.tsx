@@ -15,6 +15,7 @@ import ReportInvoiceOrcamento from "./orcamento-invoice.report";
 import { ReportContent, ReportContentImageSummary, ReportContentSummary } from "src/components/report/report.interfaces";
 import ClientesService from "../clientes/clientes.service";
 import OrcamentoCodeModal from "./orcamento-code.modal.page";
+import { nanoid } from "nanoid";
 
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 50, hide: true },
@@ -49,6 +50,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
     const [invoiceVisible, setInvoiceVisible] = useState(false);
     const [codeModalVisible, setCodeModalVisible] = useState(false);
     const [showModalOrcamentoProduto, setShowModalOrcamentoProduto] = useState(false);
+    const [codeUrl, setCodeUrl] = useState<string>('');
 
     useEffect(() => {
         if (props.orcamento) {
@@ -85,6 +87,18 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         }
     }
 
+    const generateRegisterLink = async () => {
+        const newCode = nanoid(5);
+
+        orcamentosService.addCode({
+            id: current!.id,
+            code: newCode
+        });
+
+        await setCodeUrl(`${window.location.host}/fill-data?code=${newCode}`);
+        
+        await setCodeModalVisible(true);
+    }
     const onSave = async () => {
         try {
             if (!await isSavingValid()) return;
@@ -474,7 +488,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                 </div>
             </DialogContent>
             <DialogActions>
-                {shouldShowLinkButton() && <WarningButton onClick={async () => await setCodeModalVisible(true)}>
+                {shouldShowLinkButton() && <WarningButton onClick={generateRegisterLink}>
                     Gerar link de cadastro
                 </WarningButton>}
                 {shouldShowInvoiceButton() && <ReportButton onClick={async () => await setInvoiceVisible(true)}>
@@ -509,7 +523,8 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         />}
 
         {codeModalVisible && <OrcamentoCodeModal
-            current={current}
+            id={current!.id}
+            url={codeUrl}
             onClose={async () => await setCodeModalVisible(false)}
         />}
     </>

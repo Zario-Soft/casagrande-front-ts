@@ -237,7 +237,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
 
             const newAllOrcamentoProdutos = [...localOrcamentoProdutos, newOrcamentoProduto];
 
-            await setAllOrcamentosProdutos(newAllOrcamentoProdutos);
+            await setAllOrcamentosProdutos(newAllOrcamentoProdutos.sort((a, b) => a.id > b.id ? 1 : -1));
 
             let vlTotal = calculateTotalValue(current, newAllOrcamentoProdutos);
             await setCurrent({ ...current, valortotal: vlTotal });
@@ -269,11 +269,13 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         const prodSummary: ReportContentImageSummary = {
             title: 'Dados para Produção',
             description: current.observacao,
-            images: (allOrcamentosProdutos ?? []).map(item => {
-                return (item.fotoinicial || item.fotoinicial2 || item.fotoinicialbase64 || item.fotoinicial2base64)
-                    ? [item.fotoinicial ?? item.fotoinicialbase64, item.fotoinicial2 ?? item.fotoinicial2base64]
-                    : [item.fotoreal ?? item.fotorealbase64, item.fotoreal2 ?? item.fotoreal2base64]
-            })
+            images: (allOrcamentosProdutos ?? [])
+                .sort((a, b) => a.id > b.id ? 1 : -1)
+                .map(item => {
+                    return (item.fotoinicial || item.fotoinicial2 || item.fotoinicialbase64 || item.fotoinicial2base64)
+                        ? [item.fotoinicial ?? item.fotoinicialbase64, item.fotoinicial2 ?? item.fotoinicial2base64]
+                        : [item.fotoreal ?? item.fotorealbase64, item.fotoreal2 ?? item.fotoreal2base64]
+                })
                 .reduce((a, b) => a.concat(b))
         }
 
@@ -331,7 +333,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                             marginBottom: 5
                         }}
                         onChange={async (c) => {
-                            const local = { ...current, clienteid: c?.id ?? 0 };
+                            const local: OrcamentoGrid = { ...current, clienteid: c?.id ?? 0, clientenome: c?.nome };
                             console.log(local)
                             await setCurrent(local);
                         }}
@@ -500,7 +502,8 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         />}
 
         {invoiceVisible && <ReportInvoiceOrcamento
-            formTitle={current.clientenome ? `${current.clientenome} - Orçamento ${current.id}` : 'Solicitação de teste'}
+            reportTitle={current.clientenome ? `${current.clientenome} - Orçamento ${current.id}` : 'Solicitação de teste'}
+            formTitle={current.clientenome ? `Solicitação de teste - Orçamento ${current.id}` : 'Solicitação de teste'}
             onLoadContent={mountInvoice}
             onClose={async () => await setInvoiceVisible(false)}
         />}

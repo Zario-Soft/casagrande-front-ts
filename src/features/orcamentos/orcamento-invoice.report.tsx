@@ -1,16 +1,12 @@
 import { Dialog, DialogTitle, DialogContent, Grid, DialogActions, Button } from "@mui/material";
 import { ToastContainer } from "react-toastify";
 import { PaperComponent } from "src/components/dialogs";
-import { ReportContent } from "src/components/report/report.interfaces";
+import { ReportControlDialogProps } from "src/components/report/report.interfaces";
 import Report from "src/components/report/report.component";
 
-interface ReportControlDialogProps {
-    formTitle?: string,
-    onClose: () => Promise<void>,
-    onLoadContent: () => Promise<ReportContent>,
-}
-
 export default function ReportInvoiceOrcamento(props: ReportControlDialogProps){
+    console.log(props);
+    
     return <>
     <Dialog
         open
@@ -25,7 +21,8 @@ export default function ReportInvoiceOrcamento(props: ReportControlDialogProps){
                 <Grid item xs={12}>
                     {document && <Report
                     key={'report-key'}
-                    title={"Solicitação de Teste"}
+                    screenTitle={props.reportTitle}
+                    reportTitle={"Solicitação de Teste"}
                     onLoadContent={props.onLoadContent}
                     />}
                 </Grid>

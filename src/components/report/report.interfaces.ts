@@ -24,3 +24,12 @@ export interface ReportContentSummaryItem {
     fontSize?: number,
     visible?: boolean,
 }
+
+export interface ReportControlDialogProps {
+    /** Texto que mostra dentro do formulário, abaixo do CNPJ  */
+    formTitle?: string,
+    /** Texto da janela de PDF */
+    reportTitle?: string,
+    onClose: () => Promise<void>,
+    onLoadContent: () => Promise<ReportContent>,
+}

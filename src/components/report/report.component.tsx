@@ -26,7 +26,10 @@ const styles = StyleSheet.create({
 
 interface ReportProps {
     width?: number,
-    title?: string,
+    /** Texto da janela de PDF */
+    screenTitle?: string,
+    /** Texto que mostra dentro do formulário, abaixo do CNPJ  */
+    reportTitle?: string,
     onLoadContent: () => Promise<ReportContent>,
 }
 
@@ -44,12 +47,12 @@ export default function Report(props: ReportProps) {
         <>{content ? <Document
             author='Casagrande Meias'
             creator='Casagrande Meias'
-            title={props.title ?? 'Relatório'}            
+            title={props.screenTitle ?? 'Relatório'}            
         >
             <Page size="A4" style={styles.page}>
                 <Image style={styles.logo} src={logo} />
                 <ReportSubtitle title="18.371.336/0001-26" />
-                <ReportTitle title={props.title ?? 'Relatório'} />
+                <ReportTitle title={props.reportTitle ?? 'Relatório'} />
                 {content.summaries && content.summaries.map((item: ReportContentBaseSummary, index: number) => {                   
                     if ("items" in item) {
                         return <SummaryReport

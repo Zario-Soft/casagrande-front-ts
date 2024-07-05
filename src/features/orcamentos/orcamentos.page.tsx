@@ -214,8 +214,8 @@ export default function Orcamentos() {
             orcamento={selected}
             onClose={async (message: string | undefined) => {
                 if (message) {
-                    await toast.success(message);
                     await refresh();
+                    toast.success(message);
                 }
 
                 await setUpsertDialogOpen(false);

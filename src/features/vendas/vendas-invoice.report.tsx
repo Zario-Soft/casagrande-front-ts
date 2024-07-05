@@ -1,15 +1,8 @@
 import { Dialog, DialogTitle, DialogContent, Grid, DialogActions, Button } from "@mui/material";
 import { ToastContainer } from "react-toastify";
 import { PaperComponent } from "src/components/dialogs";
-import { ReportContent } from "src/components/report/report.interfaces";
+import { ReportControlDialogProps } from "src/components/report/report.interfaces";
 import Report from "src/components/report/report.component";
-
-interface ReportControlDialogProps {
-    formTitle?: string,
-    reportTitle?: string,
-    onClose: () => Promise<void>,
-    onLoadContent: () => Promise<ReportContent>,
-}
 
 export default function ReportInvoiceVenda(props: ReportControlDialogProps){
     return <>
@@ -26,7 +19,8 @@ export default function ReportInvoiceVenda(props: ReportControlDialogProps){
                 <Grid item xs={12}>
                     {document && <Report
                     key={'report-key'}
-                    title={props.reportTitle ?? "Finalização do Pedido"}
+                    screenTitle={props.reportTitle}
+                    reportTitle={"Finalização do Pedido"}
                     onLoadContent={props.onLoadContent}                    
                     />}
                 </Grid>

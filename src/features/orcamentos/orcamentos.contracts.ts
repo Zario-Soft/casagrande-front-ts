@@ -37,7 +37,7 @@ export interface OrcamentoDTO {
 }
 
 export interface OrcamentoGrid extends OrcamentoDTO {
-    clientenome: string,
+    clientenome?: string,
     clienteresponsavel: string,
     statusdescricao: string,
 }

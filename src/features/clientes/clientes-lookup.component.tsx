@@ -30,8 +30,11 @@ export default function ClientesLookup(props: ClientesLookupProps) {
             if (data && props.selectedId) {
                 const localSelected = data.find(f => f.id === props.selectedId);
 
-                if (localSelected)
+                if (localSelected) {
                     await setSelected(localSelected);
+                    if (props.onChange)
+                        props.onChange(localSelected);
+                }
             }
 
         } catch (e: any) {

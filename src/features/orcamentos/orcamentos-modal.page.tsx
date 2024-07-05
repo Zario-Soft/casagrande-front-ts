@@ -71,7 +71,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                     }
                 });
 
-                await setAllOrcamentosProdutos(localOrcamentoProdutos);
+                await setAllOrcamentosProdutos(localOrcamentoProdutos.sort((a, b) => a.id > b.id ? 1 : -1));
 
                 await handleFrete({
                     target: {
@@ -187,7 +187,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                 localOrcamentoProdutos = [...localOrcamentoProdutos, newCurrent];
             }
 
-            await setAllOrcamentosProdutos(localOrcamentoProdutos);
+            await setAllOrcamentosProdutos(localOrcamentoProdutos.sort((a, b) => a.id > b.id ? 1 : -1));
             let vlTotal = calculateTotalValue(current, localOrcamentoProdutos);
             await setCurrent({ ...current, valortotal: vlTotal });
 

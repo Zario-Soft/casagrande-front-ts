@@ -11,7 +11,7 @@ export const ProtectedRoute: React.FunctionComponent<ProtectedRouteProps> = ({ c
     const auth = useAuth();
 
     if (!auth.isAuthenticated()) {
-        return <Navigate to={pageRoutes.LOGIN} replace />
+        return <Navigate to={`${pageRoutes.LOGIN}?callback=${window.location.pathname}`} replace />
     }
 
     return <>{children}</>;

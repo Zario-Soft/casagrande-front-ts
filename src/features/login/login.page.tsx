@@ -5,7 +5,7 @@ import Container from '@mui/material/Container';
 import { toast } from 'react-toastify';
 import LoginService, { DoLoginRequest } from './login.service';
 import { AuthContext } from '../../providers/auth.provider';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, TextField, Typography } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import logo from '../../assets/logo.png';
@@ -15,7 +15,9 @@ import { pageRoutes } from 'src/routes';
 import { LoadingContext } from 'src/providers/loading.provider';
 
 export default function Login() {
-
+  const [searchParams] = useSearchParams();
+  const callbackUrl = searchParams.get("callback");
+  
   const loginService = new LoginService();
   const auth = useContext(AuthContext);
   const navigate = useNavigate();
@@ -55,7 +57,7 @@ export default function Login() {
 
       await setIsLoading(false);
 
-      navigate(pageRoutes.CLIENTES);
+      navigate(callbackUrl ?? pageRoutes.CLIENTES);
     }
   };
 

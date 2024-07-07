@@ -17,9 +17,6 @@ import UpsertModalVendas from "../vendas/vendas-modal.page";
 export default function Calendario() {
     const [searchParams] = useSearchParams();
     const firstAmount = parseInt(searchParams.get("amount") ?? '0');
-
-    console.log('firstAmount');
-    console.log(firstAmount);
     const calendarioService = new CalendarioService();
     const vendasService = new VendasService();
 

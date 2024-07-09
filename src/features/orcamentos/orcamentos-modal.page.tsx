@@ -16,6 +16,7 @@ import { ReportContent, ReportContentImageSummary, ReportContentSummary } from "
 import ClientesService from "../clientes/clientes.service";
 import OrcamentoCodeModal from "./orcamento-code.modal.page";
 import { nanoid } from "nanoid";
+import { BASE_URL } from "src/infrastructure/env";
 
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 50, hide: true },
@@ -95,10 +96,11 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             code: newCode
         });
 
-        await setCodeUrl(`${window.location.host}/fill-data?code=${newCode}`);
+        await setCodeUrl(`${BASE_URL}/fill-data?code=${newCode}`);
         
         await setCodeModalVisible(true);
     }
+
     const onSave = async () => {
         try {
             if (!await isSavingValid()) return;

@@ -61,49 +61,51 @@ export class ClientesService {
 
         if (cliente.issamedataforinvoice === false) {
 
-            req.observacao += '\n\n-- Dados para Nota Fiscal --\n';
-            
+            req.observacao = req.observacao ? '\n\n' : '';
+
+            req.observacao += '-- Dados para Nota Fiscal --\n';
+
             if (cliente.clienteinvoicedata?.nome)
-              req.observacao += `\nNome = ${cliente.clienteinvoicedata?.nome}`;
-      
+                req.observacao += `\nNome = ${cliente.clienteinvoicedata?.nome}`;
+
             if (cliente.clienteinvoicedata?.email)
-              req.observacao += `\nE-mail = ${cliente.clienteinvoicedata?.email}`;
-      
-            if (cliente.clienteinvoicedata?.cpfcnpj){
-              req.observacao += '\n' + cliente.clienteinvoicedata?.pessoafisica === '1' ? 'CPF' : 'CNPJ';
-              req.observacao += ` = ${cliente.clienteinvoicedata?.cpfcnpj}`;
+                req.observacao += `\nE-mail = ${cliente.clienteinvoicedata?.email}`;
+
+            if (cliente.clienteinvoicedata?.cpfcnpj) {
+                req.observacao += '\n' + (cliente.clienteinvoicedata?.pessoafisica === 1 ? 'CPF' : 'CNPJ');
+                req.observacao += ` = ${cliente.clienteinvoicedata?.cpfcnpj}`;
             }
-            
+
             if (cliente.clienteinvoicedata?.telefone)
-              req.observacao += `\nTelefone = ${cliente.clienteinvoicedata?.telefone}`;
-      
+                req.observacao += `\nTelefone = ${cliente.clienteinvoicedata?.telefone}`;
+
             if (cliente.clienteinvoicedata?.celular)
-              req.observacao += `\nCelular = ${cliente.clienteinvoicedata?.celular}`;
-            
+                req.observacao += `\nCelular = ${cliente.clienteinvoicedata?.celular}`;
+
             if (cliente.clienteinvoicedata?.cep)
-            req.observacao += `\nCEP = ${cliente.clienteinvoicedata?.cep}`;
-            
+                req.observacao += `\nCEP = ${cliente.clienteinvoicedata?.cep}`;
+
             if (cliente.clienteinvoicedata?.endereco)
-              req.observacao += `\nEndereço = ${cliente.clienteinvoicedata?.endereco}`;
-      
+                req.observacao += `\nEndereço = ${cliente.clienteinvoicedata?.endereco}`;
+
             if (cliente.clienteinvoicedata?.numero)
-              req.observacao += `\nNúmero = ${cliente.clienteinvoicedata?.numero}`;
-      
+                req.observacao += `\nNúmero = ${cliente.clienteinvoicedata?.numero}`;
+
             if (cliente.clienteinvoicedata?.complemento)
-              req.observacao += `\nComplemento = ${cliente.clienteinvoicedata?.complemento}`;
-      
+                req.observacao += `\nComplemento = ${cliente.clienteinvoicedata?.complemento}`;
+
             if (cliente.clienteinvoicedata?.bairro)
-              req.observacao += `\nBairro = ${cliente.clienteinvoicedata?.bairro}`;
-      
+                req.observacao += `\nBairro = ${cliente.clienteinvoicedata?.bairro}`;
+
             if (cliente.clienteinvoicedata?.cidade)
-              req.observacao += `\nCidade = ${cliente.clienteinvoicedata?.cidade}`;
-      
+                req.observacao += `\nCidade = ${cliente.clienteinvoicedata?.cidade}`;
+
             if (cliente.clienteinvoicedata?.estado)
-              req.observacao += `\nEstado = ${cliente.clienteinvoicedata?.estado}`;
-      
+                req.observacao += `\nEstado = ${cliente.clienteinvoicedata?.estado}`;
+
             if (cliente.clienteinvoicedata?.observacao)
-              req.observacao += `\nPonto de referência / observações = ${cliente.clienteinvoicedata?.observacao}`;
-          }
+                req.observacao += `\nPonto de referência / observações = ${cliente.clienteinvoicedata?.observacao}`;
+        }
 
         await this.request.put(`${this.BASE_URL}-external/${cliente.id} `, req);
     }

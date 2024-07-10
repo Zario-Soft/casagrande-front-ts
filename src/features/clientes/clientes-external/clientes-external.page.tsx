@@ -133,15 +133,15 @@ export default function ClienteExternal() {
                   CPF/CNPJ
                 </InputLabel>
                 {current.pessoafisica === 1 && <Input
-                  value={current.cpfcnpj}
-                  onChange={(e) => setCurrent({ ...current, cpfcnpj: e.target.value })}
+                  value={current.cpfcnpj.trim()}
+                  onChange={(e) => setCurrent({ ...current, cpfcnpj: e.target.value.trim() })}
                   name="cpfcnpj"
                   id="cpfcnpj-input"
                   inputComponent={CPFMaskCustom}
                 />}
                 {current.pessoafisica === 0 && <Input
-                  value={current.cpfcnpj}
-                  onChange={(e) => setCurrent({ ...current, cpfcnpj: e.target.value })}
+                  value={current.cpfcnpj.trim()}
+                  onChange={(e) => setCurrent({ ...current, cpfcnpj: e.target.value.trim() })}
                   name="cpfcnpj"
                   id="cpfcnpj-input"
                   inputComponent={CNPJMaskCustom}

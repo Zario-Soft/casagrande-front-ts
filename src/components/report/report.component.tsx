@@ -3,7 +3,6 @@ import { Image, Page, Document, StyleSheet, PDFViewer } from '@react-pdf/rendere
 import logo from '../../assets/logo.png';
 import { ReportSubtitle, ReportTitle, SummaryImageReport, SummaryReport } from './report-elements';
 import { ReportContent, ReportContentBaseSummary, ReportContentImageSummary, ReportContentSummary } from './report.interfaces';
-import { useEffect, useState } from 'react';
 
 const styles = StyleSheet.create({
     page: {
@@ -30,18 +29,11 @@ interface ReportProps {
     screenTitle?: string,
     /** Texto que mostra dentro do formulário, abaixo do CNPJ  */
     reportTitle?: string,
-    onLoadContent: () => Promise<ReportContent>,
+    content?: ReportContent,
 }
 
 export default function Report(props: ReportProps) {
-    const { onLoadContent } = props;
-
-    const [content, setContent] = useState<ReportContent>();
-
-    useEffect(() => {
-        onLoadContent()
-            .then(c => setContent(c))
-    }, [onLoadContent]);
+     const { content } = props;
 
     const GeneralDocument = () => (
         <>{content ? <Document

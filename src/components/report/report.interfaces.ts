@@ -31,5 +31,5 @@ export interface ReportControlDialogProps {
     /** Texto da janela de PDF */
     reportTitle?: string,
     onClose: () => Promise<void>,
-    onLoadContent: () => Promise<ReportContent>,
+    content?: ReportContent,
 }

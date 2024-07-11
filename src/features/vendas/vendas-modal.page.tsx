@@ -31,6 +31,7 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
     const [cliente, setCliente] = useState<ClienteDTO>();
 
     const [invoiceVisible, setInvoiceVisible] = useState(false);
+    const [invoice, setInvoice] = useState<ReportContent>();
 
     const onSave = async () => {
         try {
@@ -61,6 +62,8 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
 
         const cliente = await clienteService.getById(orcamento.clienteid);
         await setCliente(cliente);
+        
+        await setInvoice(await mountInvoice());
         await setInvoiceVisible(true);
     }
 
@@ -262,8 +265,8 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
         {invoiceVisible && <ReportInvoiceVenda
             formTitle={`Venda ${current.id}`}
             reportTitle={`${cliente?.nome} - Venda ${current.id}`}
-            onLoadContent={mountInvoice}
             onClose={async () => await setInvoiceVisible(false)}
+            content={invoice}
         />}
     </>
 }

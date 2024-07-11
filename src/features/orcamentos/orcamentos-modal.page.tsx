@@ -49,6 +49,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
 
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
     const [invoiceVisible, setInvoiceVisible] = useState(false);
+    const [invoice, setInvoice] = useState<ReportContent>();
     const [codeModalVisible, setCodeModalVisible] = useState(false);
     const [showModalOrcamentoProduto, setShowModalOrcamentoProduto] = useState(false);
     const [codeUrl, setCodeUrl] = useState<string>('');
@@ -264,6 +265,11 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
 
     const shouldShowInvoiceButton = () => {
         return (allOrcamentosProdutos && allOrcamentosProdutos.length > 0) && !isNaN(current.clienteid) && current.clienteid > 0
+    }
+
+    const showInvoiceButton = async () => {
+        await setInvoice(await mountInvoice());
+        await setInvoiceVisible(true);
     }
 
     const shouldShowLinkButton = () => {
@@ -493,7 +499,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                 {shouldShowLinkButton() && <WarningButton onClick={generateRegisterLink}>
                     Gerar link de cadastro
                 </WarningButton>}
-                {shouldShowInvoiceButton() && <ReportButton onClick={async () => await setInvoiceVisible(true)}>
+                {shouldShowInvoiceButton() && <ReportButton onClick={showInvoiceButton}>
                     Comprovante
                 </ReportButton>}
                 <NormalButton onClick={onSave} color="primary">
@@ -520,8 +526,8 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         {invoiceVisible && <ReportInvoiceOrcamento
             reportTitle={current.clientenome ? `${current.clientenome} - Orçamento ${current.id}` : 'Solicitação de teste'}
             formTitle={current.clientenome ? `Solicitação de teste - Orçamento ${current.id}` : 'Solicitação de teste'}
-            onLoadContent={mountInvoice}
             onClose={async () => await setInvoiceVisible(false)}
+            content={invoice}
         />}
 
         {codeModalVisible && <OrcamentoCodeModal

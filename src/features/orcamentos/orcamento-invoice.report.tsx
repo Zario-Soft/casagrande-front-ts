@@ -23,7 +23,7 @@ export default function ReportInvoiceOrcamento(props: ReportControlDialogProps){
                     key={'report-key'}
                     screenTitle={props.reportTitle}
                     reportTitle={"Solicitação de Teste"}
-                    onLoadContent={props.onLoadContent}
+                    content={props.content}
                     />}
                 </Grid>
             </Grid>

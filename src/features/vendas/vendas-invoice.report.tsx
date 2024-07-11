@@ -21,7 +21,7 @@ export default function ReportInvoiceVenda(props: ReportControlDialogProps){
                     key={'report-key'}
                     screenTitle={props.reportTitle}
                     reportTitle={"Finalização do Pedido"}
-                    onLoadContent={props.onLoadContent}                    
+                    content={props.content}                  
                     />}
                 </Grid>
             </Grid>

@@ -13,7 +13,7 @@ export class CorService {
     public async getAll(): Promise<CorDTO[]> {
         const { data } = await this.request.get(`${this.BASE_URL}`);
 
-        return data;
+        return (data as CorDTO[]).sort((a,b) => a.nome > b.nome ? 1 : -1);
     }   
 
     public async new(cor: CorDTO) {

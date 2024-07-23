@@ -12,7 +12,7 @@ import UpsertModalOrcamentoProdutos from "./orcamento-produtos.modal.page";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import moment from "moment";
 import ReportInvoiceOrcamento from "./orcamento-invoice.report";
-import { ReportContent, ReportContentImageSummary, ReportContentSummary } from "src/components/report/report.interfaces";
+import { ReportContent, ReportContentImageSummary, ReportContentImageSummaryItem, ReportContentSummary } from "src/components/report/report.interfaces";
 import ClientesService from "../clientes/clientes.service";
 import OrcamentoCodeModal from "./orcamento-code.modal.page";
 import { nanoid } from "nanoid";
@@ -98,7 +98,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         });
 
         await setCodeUrl(`${BASE_URL}/fill-data?code=${newCode}`);
-        
+
         await setCodeModalVisible(true);
     }
 
@@ -295,8 +295,26 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                 .sort((a, b) => a.id > b.id ? 1 : -1)
                 .map(item => {
                     return (item.fotoinicial || item.fotoinicial2 || item.fotoinicialbase64 || item.fotoinicial2base64)
-                        ? [item.fotoinicial ?? item.fotoinicialbase64, item.fotoinicial2 ?? item.fotoinicial2base64]
-                        : [item.fotoreal ?? item.fotorealbase64, item.fotoreal2 ?? item.fotoreal2base64]
+                        ? [
+                            {
+                                guid: item.fotoinicial ?? item.fotoinicialbase64,
+                                index: item.id
+                            } as ReportContentImageSummaryItem,
+                            {
+                                guid: item.fotoinicial2 ?? item.fotoinicial2base64,
+                                index: item.id
+                            } as ReportContentImageSummaryItem,
+                        ]
+                        : [
+                            {
+                                guid: item.fotoreal ?? item.fotorealbase64,
+                                index: item.id
+                            } as ReportContentImageSummaryItem,
+                            {
+                                guid: item.fotoreal2 ?? item.fotoreal2base64,
+                                index: item.id
+                            } as ReportContentImageSummaryItem,
+                        ]
                 })
                 .reduce((a, b) => a.concat(b))
         }

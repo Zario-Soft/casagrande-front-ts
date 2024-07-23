@@ -8,7 +8,7 @@ import VendasService from "./vendas.service";
 import OrcamentoLookup from "../orcamentos/orcamento-lookup.component";
 import moment from "moment";
 import ReportInvoiceVenda from "./vendas-invoice.report";
-import { ReportContent, ReportContentSummary, ReportContentImageSummary } from "src/components/report/report.interfaces";
+import { ReportContent, ReportContentSummary, ReportContentImageSummary, ReportContentImageSummaryItem } from "src/components/report/report.interfaces";
 import ClientesService from "../clientes/clientes.service";
 import OrcamentosService from "../orcamentos/orcamentos.service";
 import { OrcamentoGrid } from "../orcamentos/orcamentos.contracts";
@@ -62,7 +62,7 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
 
         const cliente = await clienteService.getById(orcamento.clienteid);
         await setCliente(cliente);
-        
+
         await setInvoice(await mountInvoice());
         await setInvoiceVisible(true);
     }
@@ -115,8 +115,19 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
             description: localOrcamento.observacao,
             images: orcamentoProdutos.map(item => {
                 return (!item.orcamentoproduto.fotoreal && !item.orcamentoproduto.fotoreal2)
-                    ? [item.orcamentoproduto.fotoinicial]
-                    : [item.orcamentoproduto.fotoreal, item.orcamentoproduto.fotoreal2]
+                    ? [{
+                        guid: item.orcamentoproduto.fotoinicial,
+                        index: item.orcamentoproduto.id
+                    } as ReportContentImageSummaryItem]
+                    : [{
+                        guid: item.orcamentoproduto.fotoreal,
+                        index: item.orcamentoproduto.id
+                    } as ReportContentImageSummaryItem,
+                    {
+                        guid: item.orcamentoproduto.fotoreal2,
+                        index: item.orcamentoproduto.id
+                    } as ReportContentImageSummaryItem
+                    ]
             })
                 .reduce((a, b) => a.concat(b)),
             breakPage: localOrcamento.observacao.length >= 500 || localOrcamento.observacao.split('\n').length > 20

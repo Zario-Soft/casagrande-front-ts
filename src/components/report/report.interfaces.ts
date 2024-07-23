@@ -15,7 +15,12 @@ export interface ReportContentSummary
 }
 export interface ReportContentImageSummary
     extends ReportContentBaseSummary {
-    images: (string | undefined)[],
+    images: (ReportContentImageSummaryItem | undefined)[],
+}
+
+export interface ReportContentImageSummaryItem {
+    guid: string,
+    index: number,
 }
 
 export interface ReportContentSummaryItem {

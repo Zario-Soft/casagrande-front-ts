@@ -118,8 +118,14 @@ export function SummaryReport(props: ReportContentSummaryProps) {
         </View>
     </View>
 }
+
+interface ImageContent {
+    content: string,
+    index: number
+}
+
 export function SummaryImageReport(props: ReportContentImageSummaryProps) {
-    const [imageContent, setImageContent] = useState<string[]>();    
+    const [imageContent, setImageContent] = useState<ImageContent[]>();
 
     useEffect(() => {
         const imgHandler = new ImageDownloader();
@@ -128,12 +134,12 @@ export function SummaryImageReport(props: ReportContentImageSummaryProps) {
             const validImages = props.images
                 .filter(image => image !== null && image !== undefined);
 
-            let localImages: string[] = [];
+            let localImages: ImageContent[] = [];
 
             await validImages.forEach(async img => {
-                const result = await imgHandler.downloadOnFront(img)
+                const result = await imgHandler.downloadOnFront(img!.guid)
                 if (result) {
-                    localImages = [...localImages, result!];
+                    localImages = [...localImages, { content: result!, index: img!.index }];
                     await setImageContent(localImages);
                 }
             });
@@ -149,7 +155,7 @@ export function SummaryImageReport(props: ReportContentImageSummaryProps) {
         </View>
         <View style={styles.invoiceSummaryBodyImageContainer}>
             {imageContent && <View style={styles.invoiceClientContainer}>
-                {imageContent.map((image: string, key) => {
+                {imageContent.sort((a, b) => a.index < b.index ? 1 : -1).map(({ content: image }: ImageContent, key) => {
                     return <View key={key}>
                         <Image style={styles.picture} src={image} />
                     </View>

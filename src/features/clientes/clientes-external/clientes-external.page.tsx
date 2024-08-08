@@ -94,7 +94,7 @@ export default function ClienteExternal() {
             InputLabelProps={{ shrink: true }}
             className='txt-box txt-box-medium'
             id="resp"
-            label="Responsável"
+            label="Responsável pelo pedido"
             variant="outlined"
             value={current.responsavel}
             onChange={(e) => setCurrent({ ...current, responsavel: e.target.value })}

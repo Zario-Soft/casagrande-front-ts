@@ -36,7 +36,7 @@ export default function ClienteExternalConfirmation(props: ClienteExternalConfir
         const calculateRows = () => {
             let localRows: RowValue[] = [
                 { name: 'Nome', value: current?.nome },
-                { name: 'Responsável', value: current?.responsavel },
+                { name: 'Responsável pelo pedido', value: current?.responsavel },
                 { name: 'E-mail', value: current?.email },
                 { name: current?.pessoafisica === 1 ? 'CPF' : 'CNPJ', value: current?.cpfcnpj },
                 { name: 'Telefone', value: current?.telefone },

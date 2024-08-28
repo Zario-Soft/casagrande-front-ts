@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Checkbox, CircularProgress, FormControl, FormControlLabel, Input, InputLabel, Select } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Checkbox, CircularProgress, FormControl, FormControlLabel, Input, InputLabel } from "@mui/material";
 import { NormalButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import { ClienteDTO } from "./clientes.contracts"
@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import ClientesService from "./clientes.service";
 import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCustom } from "src/components/masks";
 import { fillState, preencheCEP } from "./clientes-common";
+import ClientStateSelect from "./clientes-estado.component";
 
 export interface UpsertModalClientProps {
     cliente?: ClienteDTO,
@@ -294,53 +295,10 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
 
                             InputLabelProps={{ shrink: true }} />
 
-                        <FormControl variant="outlined" sx={{
-                            minWidth: 120
-                        }}>
-                            <InputLabel shrink>
-                                Estado
-                            </InputLabel>
-                            <Select
-                                native
-                                label="Estado"
-                                value={current.estado}
-                                onChange={async (e) => await setCurrent({ ...current, estado: e.target.value })}
-                                inputProps={{
-                                    name: 'estado',
-                                    id: 'enderecoEstado-id',
-                                    shrink: true
-                                }}
-                            >
-                                <option aria-label="None" value="" />
-                                <option value={'AC'}>AC</option>
-                                <option value={'AL'}>AL</option>
-                                <option value={'AP'}>AP</option>
-                                <option value={'AM'}>AM</option>
-                                <option value={'BA'}>BA</option>
-                                <option value={'CE'}>CE</option>
-                                <option value={'DF'}>DF</option>
-                                <option value={'ES'}>ES</option>
-                                <option value={'GO'}>GO</option>
-                                <option value={'MA'}>MA</option>
-                                <option value={'MG'}>MG</option>
-                                <option value={'MS'}>MS</option>
-                                <option value={'MT'}>MT</option>
-                                <option value={'PA'}>PA</option>
-                                <option value={'PB'}>PB</option>
-                                <option value={'PE'}>PE</option>
-                                <option value={'PI'}>PI</option>
-                                <option value={'PR'}>PR</option>
-                                <option value={'RJ'}>RJ</option>
-                                <option value={'RN'}>RN</option>
-                                <option value={'RO'}>RO</option>
-                                <option value={'RR'}>RR</option>
-                                <option value={'RS'}>RS</option>
-                                <option value={'SC'}>SC</option>
-                                <option value={'SE'}>SE</option>
-                                <option value={'SP'}>SP</option>
-                                <option value={'TO'}>TO</option>
-                            </Select>
-                        </FormControl>
+                        <ClientStateSelect
+                            current={current.estado}
+                            onChange={async (e) => await setCurrent({ ...current, estado: e.target.value })}
+                        />
                     </div>
                     <div className='inner-flex-container'>
                         <FormControlLabel

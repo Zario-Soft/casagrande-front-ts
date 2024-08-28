@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react"
 import { ClienteInvoiceData } from "../clientes.contracts";
-import { TextField, FormControlLabel, Checkbox, FormControl, InputLabel, Input, CircularProgress, Select } from "@mui/material";
+import { TextField, FormControlLabel, Checkbox, FormControl, InputLabel, Input, CircularProgress } from "@mui/material";
 import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCustom } from "src/components/masks";
 import { fillState, preencheCEP } from "../clientes-common";
 import ClientesService from "../clientes.service";
 import { Line } from "src/components/line/line.component";
+import ClientStateSelect from "../clientes-estado.component";
 
 export interface ClienteExternalInvoiceDataPartProps {
     current?: ClienteInvoiceData,
@@ -19,8 +20,8 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
     const [isLoadingCEP, setIsLoadingCEP] = useState(false);
 
     useEffect(() => {
-            if (props.onChange)
-                props.onChange(current);
+        if (props.onChange)
+            props.onChange(current);
     }, [current, props])
 
     return <div className='flex-container' style={{
@@ -142,7 +143,7 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
                         await setIsLoadingCEP(true);
 
                         await preencheCEP(e, current, setCurrent);
-                        
+
                         await setIsLoadingCEP(false);
                     }}
                 />
@@ -215,53 +216,10 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
 
                 InputLabelProps={{ shrink: true }} />
 
-            <FormControl variant="outlined" sx={{
-                minWidth: 120
-            }}>
-                <InputLabel shrink>
-                    Estado
-                </InputLabel>
-                <Select
-                    native
-                    label="Estado"
-                    value={current.estado}
-                    onChange={async (e) => await setCurrent({ ...current, estado: e.target.value })}
-                    inputProps={{
-                        name: 'estado',
-                        id: 'enderecoEstado-id',
-                        shrink: true
-                    }}
-                >
-                    <option aria-label="None" value="" />
-                    <option value={'AC'}>AC</option>
-                    <option value={'AL'}>AL</option>
-                    <option value={'AP'}>AP</option>
-                    <option value={'AM'}>AM</option>
-                    <option value={'BA'}>BA</option>
-                    <option value={'CE'}>CE</option>
-                    <option value={'DF'}>DF</option>
-                    <option value={'ES'}>ES</option>
-                    <option value={'GO'}>GO</option>
-                    <option value={'MA'}>MA</option>
-                    <option value={'MG'}>MG</option>
-                    <option value={'MS'}>MS</option>
-                    <option value={'MT'}>MT</option>
-                    <option value={'PA'}>PA</option>
-                    <option value={'PB'}>PB</option>
-                    <option value={'PE'}>PE</option>
-                    <option value={'PI'}>PI</option>
-                    <option value={'PR'}>PR</option>
-                    <option value={'RJ'}>RJ</option>
-                    <option value={'RN'}>RN</option>
-                    <option value={'RO'}>RO</option>
-                    <option value={'RR'}>RR</option>
-                    <option value={'RS'}>RS</option>
-                    <option value={'SC'}>SC</option>
-                    <option value={'SE'}>SE</option>
-                    <option value={'SP'}>SP</option>
-                    <option value={'TO'}>TO</option>
-                </Select>
-            </FormControl>
+            <ClientStateSelect
+                current={current.estado}
+                onChange={async (e) => await setCurrent({ ...current, estado: e.target.value })}
+            />
         </div>
         <div className='inner-flex-container'>
             <TextField

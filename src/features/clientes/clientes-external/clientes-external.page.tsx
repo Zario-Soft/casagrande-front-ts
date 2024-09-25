@@ -83,7 +83,7 @@ export default function ClienteExternal() {
             InputLabelProps={{ shrink: true }}
             className='txt-box txt-box-medium'
             id="resp"
-            label="Nome do destinatário / Nome do responsável pelo pedido"
+            label="Nome do destinatário"
             variant="outlined"
             value={current.responsavel}
             onChange={(e) => setCurrent({ ...current, responsavel: e.target.value })}
@@ -93,7 +93,7 @@ export default function ClienteExternal() {
             InputLabelProps={{ shrink: true }}
             className='txt-box txt-box-medium'
             id="nome"
-            label="Nome"
+            label="Nome do responsável pelo pedido"
             variant="outlined"
             value={current.nome}
             onChange={(e) => setCurrent({ ...current, nome: e.target.value })}

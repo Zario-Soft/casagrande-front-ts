@@ -35,8 +35,8 @@ export default function ClienteExternalConfirmation(props: ClienteExternalConfir
     useMemo(() => {
         const calculateRows = () => {
             let localRows: RowValue[] = [
-                { name: 'Nome', value: current?.nome },
-                { name: 'Nome do destinatário / Nome do responsável pelo pedido', value: current?.responsavel },
+                { name: 'Nome do destinatário', value: current?.responsavel },
+                { name: 'Nome do responsável pelo pedido', value: current?.nome },
                 { name: 'E-mail', value: current?.email },
                 { name: current?.pessoafisica === 1 ? 'CPF' : 'CNPJ', value: current?.cpfcnpj },
                 { name: 'Telefone', value: current?.telefone },

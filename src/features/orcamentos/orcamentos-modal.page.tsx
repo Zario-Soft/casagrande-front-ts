@@ -374,7 +374,6 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                         }}
                         onChange={async (c) => {
                             const local: OrcamentoGrid = { ...current, clienteid: c?.id ?? 0, clientenome: c?.nome };
-                            console.log(local)
                             await setCurrent(local);
                         }}
                         selectedId={current?.clienteid}

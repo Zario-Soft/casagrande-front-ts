@@ -1,7 +1,7 @@
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, IconButton } from "@mui/material"
 import { WarningButton } from "src/components/buttons"
 import { PaperComponent } from "src/components/dialogs"
-import { ContentCopy } from "@mui/icons-material"
+import { ContentCopy, Launch } from "@mui/icons-material"
 import { toast } from "react-toastify"
 
 export interface OrcamentoCodeModalProps {
@@ -49,6 +49,13 @@ export default function OrcamentoCodeModal(props: OrcamentoCodeModalProps) {
                     }}
                         style={{ marginTop: -5 }}>
                         <ContentCopy />
+                    </IconButton>
+
+                    <IconButton color="primary" aria-label="Abrir link" component="span" onClick={() => {
+                        window.open(props.url, '_blank');
+                    }}
+                        style={{ marginTop: -5 }}>
+                        <Launch />
                     </IconButton>
                 </div>}
             </DialogContent>

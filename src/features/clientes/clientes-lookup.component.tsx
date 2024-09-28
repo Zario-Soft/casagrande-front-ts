@@ -62,12 +62,12 @@ export default function ClientesLookup(props: ClientesLookupProps) {
         await setUpsertDialogOpen(true);
     }
 
-    const onShowClick = async (s?: ClienteDTO) => {
-        if (s !== undefined && s !== null) {
-            s = await clientesService.getById(s.id);
+    const onShowClick = async (client?: ClienteDTO) => {
+        if (client) {
+            client = await clientesService.getById(client.id);
         }
         
-        await setModalSelected(s);
+        await setModalSelected(client);
         await setUpsertDialogOpen(true);
     }
 

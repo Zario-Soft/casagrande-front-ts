@@ -59,6 +59,9 @@ export default function ClienteExternal() {
     await setShowConfirmation(false);
 
     await clientesService.editExternal(current!);
+    await orcamentoService.editObservacao({
+      id: current!.orcamentoid,
+      observacao: ''});
 
     await setIsConfirmed(true);
     await setIsLoading(false);

@@ -6,7 +6,8 @@ export default function ConfirmedPage() {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      marginTop: '40px'
+      marginTop: '40px',
+      textAlign: 'center'
     }}>
       <h3>Seus dados foram confirmados com sucesso!</h3>
       <p>Em breve você receberá mais atualizações de nossa equipe.</p>

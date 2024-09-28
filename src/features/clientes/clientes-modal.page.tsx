@@ -21,29 +21,6 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
     const [current, setCurrent] = useState(props.cliente ?? {} as ClienteDTO);
     const [isLoadingCEP, setIsLoadingCEP] = useState(false);
 
-    // const preencheCEP = async (e: any) => {
-    //     const cep = e.target.value.replace("-", "");
-
-    //     if (cep.trim() === "") return;
-
-    //     const url = `https://viacep.com.br/ws/${cep}/json/`;
-    //     await setIsLoadingCEP(true);
-
-    //     fetch(url)
-    //         .then(r => r.json())
-    //         .then(async r => {
-    //             await setIsLoadingCEP(false);
-    //             await setCurrent(
-    //                 {
-    //                     ...current,
-    //                     bairro: r.bairro,
-    //                     cidade: r.localidade,
-    //                     endereco: r.logradouro,
-    //                     estado: r.uf
-    //                 })
-    //         })
-    // }
-
     const onSave = async () => {
         try {
             if (!await isSavingValid()) return;

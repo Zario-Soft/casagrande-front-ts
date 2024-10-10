@@ -288,31 +288,33 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             ]
         }
 
+        const localOrcamentoProdutos = allOrcamentosProdutos ?? [];
+
         const prodSummary: ReportContentImageSummary = {
             title: 'Dados para Produção',
             description: current.observacao,
-            images: (allOrcamentosProdutos ?? [])
+            images: localOrcamentoProdutos
                 .sort((a, b) => a.id > b.id ? 1 : -1)
-                .map(item => {
+                .map((item, i) => {
                     return (item.fotoinicial || item.fotoinicial2 || item.fotoinicialbase64 || item.fotoinicial2base64)
                         ? [
                             {
                                 guid: item.fotoinicial ?? item.fotoinicialbase64,
-                                index: item.id
+                                index: ((i + 1) * localOrcamentoProdutos.length) + i
                             } as ReportContentImageSummaryItem,
                             {
                                 guid: item.fotoinicial2 ?? item.fotoinicial2base64,
-                                index: item.id
+                                index: ((i + 2) * localOrcamentoProdutos.length) + i
                             } as ReportContentImageSummaryItem,
                         ]
                         : [
                             {
                                 guid: item.fotoreal ?? item.fotorealbase64,
-                                index: item.id
+                                index: ((i + 1) * localOrcamentoProdutos.length) + i
                             } as ReportContentImageSummaryItem,
                             {
                                 guid: item.fotoreal2 ?? item.fotoreal2base64,
-                                index: item.id
+                                index: ((i + 2) * localOrcamentoProdutos.length) + i
                             } as ReportContentImageSummaryItem,
                         ]
                 })

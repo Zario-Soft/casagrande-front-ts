@@ -63,7 +63,7 @@ export default function ClientesLookup(props: ClientesLookupProps) {
     }
 
     const onShowClick = async (client?: ClienteDTO) => {
-        if (client) {
+        if (client && client.id) {
             client = await clientesService.getById(client.id);
         }
         

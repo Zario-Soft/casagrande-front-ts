@@ -86,8 +86,10 @@ export default function ClienteExternal() {
             id="resp"
             label="Nome do destinatário"
             variant="outlined"
-            value={current.responsavel}
-            onChange={(e) => setCurrent({ ...current, responsavel: e.target.value })}
+            value={current.nome}
+            onChange={(e) => setCurrent({ ...current, nome: e.target.value })}
+            error={!current.nome}
+            helperText={!current.nome ? 'Campo obrigatório' : ''}
           />
 
           <TextField
@@ -96,10 +98,8 @@ export default function ClienteExternal() {
             id="nome"
             label="Nome do responsável pelo pedido"
             variant="outlined"
-            value={current.nome}
-            onChange={(e) => setCurrent({ ...current, nome: e.target.value })}
-            error={!current.nome}
-            helperText={!current.nome ? 'Campo obrigatório' : ''}
+            value={current.responsavel}
+            onChange={(e) => setCurrent({ ...current, responsavel: e.target.value })}
           />
 
           <div className='inner-flex-container'>

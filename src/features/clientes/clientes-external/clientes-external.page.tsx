@@ -69,14 +69,18 @@ export default function ClienteExternal() {
   const checkShowConfirmation = async () => {
     // validate
 
-    console.log(current);
+    console.log(current)
 
-    let isValid = current?.nome && current.bairro && current?.responsavel &&
-                  current.celular && current.cep && current.cidade &&
-                  current.cpfcnpj && current.email && current.endereco &&
-                  current.estado && current.numero;
+    const isValid = current?.nome && current.bairro && current?.responsavel &&
+      current.celular && current.cep && current.cidade &&
+      current.cpfcnpj && current.email && current.endereco &&
+      current.estado && current.numero;
 
-    if (!isValid) {
+    const isSameValid = (!current?.issamedataforinvoice && current?.clienteinvoicedata?.nome && current.clienteinvoicedata.bairro && current.clienteinvoicedata.celular && current.clienteinvoicedata.cep && current.clienteinvoicedata.cidade &&
+      current.clienteinvoicedata.cpfcnpj && current.clienteinvoicedata.email && current.clienteinvoicedata.endereco &&
+      current.clienteinvoicedata.estado && current.clienteinvoicedata.numero) || (current?.issamedataforinvoice === undefined || current.issamedataforinvoice === true);
+
+    if (!isValid || !isSameValid) {
 
       toast.error("Há campos obrigatórios a serem preenchidos!");
       return;

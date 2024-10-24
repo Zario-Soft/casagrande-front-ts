@@ -13,6 +13,7 @@ import ClienteExternalConfirmation from "./clientes-external-confirmation.modal.
 import ClientesService from "../clientes.service";
 import ConfirmedPage from "./cliente-external-confirmed.page";
 import ClientStateSelect from "../clientes-estado.component";
+import { toast } from "react-toastify";
 
 export default function ClienteExternal() {
   const [searchParams] = useSearchParams();
@@ -65,6 +66,25 @@ export default function ClienteExternal() {
     await setIsLoading(false);
   }
 
+  const checkShowConfirmation = async () => {
+    // validate
+
+    console.log(current);
+
+    let isValid = current?.nome && current.bairro && current?.responsavel &&
+                  current.celular && current.cep && current.cidade &&
+                  current.cpfcnpj && current.email && current.endereco &&
+                  current.estado && current.numero;
+
+    if (!isValid) {
+
+      toast.error("Há campos obrigatórios a serem preenchidos!");
+      return;
+    }
+
+    await setShowConfirmation(true);
+  }
+
 
   return (<>
     {current && !isConfirmed && <>
@@ -100,6 +120,8 @@ export default function ClienteExternal() {
             variant="outlined"
             value={current.responsavel}
             onChange={(e) => setCurrent({ ...current, responsavel: e.target.value })}
+            error={!current.responsavel}
+            helperText={!current.responsavel ? 'Campo obrigatório' : ''}
           />
 
           <div className='inner-flex-container'>
@@ -112,6 +134,8 @@ export default function ClienteExternal() {
               variant="outlined"
               value={current.email}
               onChange={(e) => setCurrent({ ...current, email: e.target.value })}
+              error={!current.email}
+              helperText={!current.email ? 'Campo obrigatório' : ''}
             />
 
             <FormControlLabel
@@ -140,6 +164,7 @@ export default function ClienteExternal() {
                   name="cpfcnpj"
                   id="cpfcnpj-input"
                   inputComponent={CPFMaskCustom}
+                  error={!current.cpfcnpj}
                 />}
                 {current.pessoafisica === 0 && <Input
                   value={current.cpfcnpj?.trim()}
@@ -147,6 +172,7 @@ export default function ClienteExternal() {
                   name="cpfcnpj"
                   id="cpfcnpj-input"
                   inputComponent={CNPJMaskCustom}
+                  error={!current.cpfcnpj}
                 />}
               </FormControl>
             </div>
@@ -185,6 +211,7 @@ export default function ClienteExternal() {
                     await setCurrent({ ...current, estado: estado })
                   }
                 }}
+                error={!current.celular}
               />
             </FormControl>
           </div>
@@ -206,6 +233,7 @@ export default function ClienteExternal() {
 
                   await setIsLoadingCEP(false);
                 }}
+                error={!current.cep}
               />
             </FormControl>
             {isLoadingCEP && <CircularProgress
@@ -230,6 +258,8 @@ export default function ClienteExternal() {
               value={current.endereco}
               onChange={(e) => setCurrent({ ...current, endereco: e.target.value })}
               InputLabelProps={{ shrink: true }}
+              error={!current.endereco}
+              helperText={!current.endereco ? 'Campo obrigatório' : ''}
             />
 
             <TextField
@@ -239,8 +269,10 @@ export default function ClienteExternal() {
               type="number"
               value={current.numero}
               onChange={(e) => setCurrent({ ...current, numero: e.target.value })}
-
-              InputLabelProps={{ shrink: true }} />
+              InputLabelProps={{ shrink: true }}
+              error={!current.numero}
+              helperText={!current.numero ? 'Campo obrigatório' : ''}
+            />
           </div>
           <div className='inner-flex-container'>
 
@@ -251,7 +283,6 @@ export default function ClienteExternal() {
               variant="outlined"
               value={current.complemento}
               onChange={(e) => setCurrent({ ...current, complemento: e.target.value })}
-
               InputLabelProps={{ shrink: true }} />
 
             <TextField
@@ -261,8 +292,10 @@ export default function ClienteExternal() {
               variant="outlined"
               value={current.bairro}
               onChange={(e) => setCurrent({ ...current, bairro: e.target.value })}
-
-              InputLabelProps={{ shrink: true }} />
+              InputLabelProps={{ shrink: true }}
+              error={!current.bairro}
+              helperText={!current.bairro ? 'Campo obrigatório' : ''}
+            />
           </div>
 
           <div className='inner-flex-container'>
@@ -273,7 +306,8 @@ export default function ClienteExternal() {
               variant="outlined"
               value={current.cidade}
               onChange={(e) => setCurrent({ ...current, cidade: e.target.value })}
-
+              error={!current.cidade}
+              helperText={!current.cidade ? 'Campo obrigatório' : ''}
               InputLabelProps={{ shrink: true }} />
 
             <ClientStateSelect
@@ -316,7 +350,7 @@ export default function ClienteExternal() {
             width: '-webkit-fill-available',
             justifyContent: 'center'
           }}>
-            <NormalButton onClick={() => setShowConfirmation(true)} color="primary" sx={{ marginBottom: '10px' }}>
+            <NormalButton onClick={checkShowConfirmation} color="primary" sx={{ marginBottom: '10px' }}>
               Enviar Informações
             </NormalButton>
           </div>

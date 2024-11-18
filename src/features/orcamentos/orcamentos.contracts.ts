@@ -19,6 +19,10 @@ export class OrcamentoPaging extends Paging {
             const value = StatusOrcamento.indexOf(filter.value);
             return `status+identical=${value}`
         }
+
+        if (filter.column === 'clienteresponsavel') {
+            return `responsavel+contains=${filter.value}`
+        }
         
         return '';
     }

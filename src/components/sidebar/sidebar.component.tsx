@@ -14,6 +14,7 @@ import { Avatar } from '@mui/material';
 //import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import DateRangeIcon from '@mui/icons-material/DateRange';
+import ExtensionIcon from '@mui/icons-material/Extension';
 import RedeemIcon from '@mui/icons-material/Redeem';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import AccessibilityIcon from '@mui/icons-material/Accessibility';
@@ -159,13 +160,13 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
                         text={'Produção'}
                         divider
                     /> */}
-                    {/* <SideBarItem
+                    <SideBarItem
                         icon={<ExtensionIcon />}
                         open={open}
                         path={pageRoutes.CONFIGURACOES}
                         text={'Configurações'}
                         divider
-                    /> */}
+                    />
                 </List>
 
                 <List style={{ marginTop: `auto` }} >

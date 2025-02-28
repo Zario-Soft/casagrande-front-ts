@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
 import { authenticate, unauthenticate } from '../redux-ts';
 import { useAppDispatch } from '../redux-ts/hooks';
-import { parseJwt } from 'src/infrastructure/helpers';
+import { IsAuthorized } from 'src/infrastructure/helpers';
 
 interface AuthProviderProps {
     children: ReactNode
@@ -47,17 +47,7 @@ export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({ child
     const providerValues: providerValue = {
         getToken: () => localStorage.getItem('token'),
         isAuthenticated: () => localStorage.getItem('token') !== null,
-        isAuthorized: (route: string) => {
-            const token = localStorage.getItem('token');
-            if (!token) return false;
-
-            const decodedToken = parseJwt(token);
-            if (!decodedToken) return false;
-
-            const routeName = route.split('/')[1];
-
-            return (decodedToken.allowedRoutes as string[]).find(r => r === routeName) !== undefined;
-        },
+        isAuthorized: IsAuthorized,
         onLogin,
         onLogout
     }

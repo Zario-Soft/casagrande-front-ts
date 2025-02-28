@@ -23,7 +23,7 @@ import { useNavigate } from 'react-router-dom';
 import { SidebarFooter } from './sidebar-footer';
 import logo from '../../assets/logo.png'
 import { SideBarItem } from './sidebar-item';
-import { AppDispatch } from '../../redux-ts';
+import { getAllowedRoutes, AppDispatch } from '../../redux-ts';
 import { useAppDispatch, useAppSelector } from '../../redux-ts/hooks';
 import { change, getSidebarStatus } from '../../redux-ts/slices/sidebar.slice';
 import { pageRoutes } from '../../routes';
@@ -77,9 +77,37 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
+const links = {
+    [pageRoutes.CLIENTES]: {
+        icon: <AccessibilityIcon />,
+        text: 'Clientes'
+    },
+    [pageRoutes.PRODUTOS]: {
+        icon: <RedeemIcon />,
+        text: 'Produtos'
+    },
+    [pageRoutes.ORCAMENTOS]: {
+        icon: <AddShoppingCartIcon />,
+        text: 'Orçamentos'
+    },
+    [pageRoutes.VENDAS]: {
+        icon: <MonetizationOnIcon />,
+        text: 'Vendas'
+    },
+    [pageRoutes.CALENDARIO]: {
+        icon: <DateRangeIcon />,
+        text: 'Calendário'
+    },
+    [pageRoutes.CONFIGURACOES]: {
+        icon: <ExtensionIcon />,
+        text: 'Configurações'
+    }
+}
+
 export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
     const dispatch: AppDispatch = useAppDispatch();
     const open: boolean = useAppSelector(getSidebarStatus);
+    const allowedRoutes: string[] = useAppSelector(getAllowedRoutes);
 
     const { children } = props;
 
@@ -91,6 +119,13 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
 
     const handleOpen = async () => {
         dispatch(change(!open))
+    }
+
+    const mountLinks = () => {
+        return allowedRoutes.map(route => {
+            const link = links[route as keyof typeof links];
+            return <SideBarItem key={route} icon={link.icon} open={open} path={route} text={link.text} divider />
+        })
     }
 
     return (
@@ -117,42 +152,43 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
                         text={'Inicial'}
                         divider
                     /> */}
-                    <SideBarItem
+                    {mountLinks()}
+                    {/* <SideBarItem
                         icon={<AccessibilityIcon />}
                         open={open}
                         path={pageRoutes.CLIENTES}
                         text={'Clientes'}
                         divider
-                    />
+                    /> */}
 
-                    <SideBarItem
+                    {/* <SideBarItem
                         icon={<RedeemIcon />}
                         open={open}
                         path={pageRoutes.PRODUTOS}
                         text={'Produtos'}
                         divider
-                    />
-                    <SideBarItem
+                    /> */}
+                    {/* <SideBarItem
                         icon={<AddShoppingCartIcon />}
                         open={open}
                         path={pageRoutes.ORCAMENTOS}
                         text={'Orçamentos'}
                         divider
-                    />
-                    <SideBarItem
+                    /> */}
+                    {/* <SideBarItem
                         icon={<MonetizationOnIcon />}
                         open={open}
                         path={pageRoutes.VENDAS}
                         text={'Vendas'}
                         divider
-                    />
-                    <SideBarItem
+                    /> */}
+                    {/* <SideBarItem
                         icon={<DateRangeIcon />}
                         open={open}
                         path={pageRoutes.CALENDARIO}
                         text={'Calendário'}
                         divider
-                    />
+                    /> */}
                     {/* <SideBarItem
                         icon={<PrecisionManufacturingIcon />}
                         open={open}
@@ -160,13 +196,13 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
                         text={'Produção'}
                         divider
                     /> */}
-                    <SideBarItem
+                    {/* <SideBarItem
                         icon={<ExtensionIcon />}
                         open={open}
                         path={pageRoutes.CONFIGURACOES}
                         text={'Configurações'}
                         divider
-                    />
+                    /> */}
                 </List>
 
                 <List style={{ marginTop: `auto` }} >

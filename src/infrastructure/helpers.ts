@@ -21,3 +21,15 @@ export const parseJwt = (token: string) => {
 
     return JSON.parse(jsonPayload);
 }
+
+export const IsAuthorized = (route: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    const decodedToken = parseJwt(token);
+    if (!decodedToken) return false;
+
+    const routeName = route.split('/')[1];
+
+    return (decodedToken.allowedRoutes as string[]).find(r => r === routeName) !== undefined;
+}

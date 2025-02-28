@@ -134,7 +134,7 @@ export default function Clientes() {
                     await refresh();
                 }
 
-                await setUpsertDialogOpen(false);                
+                await setUpsertDialogOpen(false);
             }}
         />}
     </>

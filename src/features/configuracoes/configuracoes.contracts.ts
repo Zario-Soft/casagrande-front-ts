@@ -1,18 +1,12 @@
 export interface UsuarioDTO {
     id: number;
     login: string;
-    isadmin: boolean;
-    permissions: string[];
+    allowed_routes: string[];
     password: string;
     confirmPassword: string;
+    is_admin: boolean;
 }
 
-
-export interface UsuarioResponse {
-    id: number;
-    login: string;
+export type UsuarioResponse = Omit<UsuarioDTO, 'is_admin'> & {
     isadmin: boolean;
-    permissions: string[];
 }
-
-

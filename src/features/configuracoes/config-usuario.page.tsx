@@ -4,18 +4,14 @@ import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import ScreenHeader from "src/components/screen-header";
 import { SideBar } from "src/components/sidebar";
 import ZGrid, { ZGridColDef } from "src/components/z-grid";
-import UpsertModalClient from "../clientes/clientes-modal.page";
 import { useContext, useEffect, useState } from "react";
 import { LoadingContext } from "src/providers/loading.provider";
 import { UsuarioDTO } from "./configuracoes.contracts";
 import { ConfiguracaoService } from "./configuracoes.service";
-import UpsertModalUsuario from "./config-cliente-modal.page";
-const columns: ZGridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'login', headerName: 'Login', width: 200 },
-    { field: 'isadmin', headerName: 'É Admin?', width: 130 },
-    { field: 'permissions', headerName: '', width: 200, hide: true }
-];
+import UpsertModalUsuario from "./config-usuario-modal.page";
+import { getAllRoutes } from "src/redux-ts";
+import { useAppSelector } from "src/redux-ts/hooks";
+
 
 export default function CadastroUsuario() {
     const configuracaoService = new ConfiguracaoService();
@@ -26,6 +22,31 @@ export default function CadastroUsuario() {
     const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
     const [shouldClearGridSelection, setShouldClearGridSelection] = useState(false);
+    const all_routes_components = useAppSelector(getAllRoutes);
+
+    const columns: ZGridColDef[] = [
+        { field: 'id', headerName: 'ID', width: 70 },
+        { field: 'login', headerName: 'Login', width: 200 },
+        { field: 'is_admin', headerName: 'É Administrador?', width: 130,
+            valueFormatter: (value: boolean) => {
+                return value ? '✅ Sim' : '❌ Não';
+            }
+         },
+        {
+            field: 'allowed_routes',
+            headerName: 'Permissões',
+            width: 400,
+            valueFormatter: (params: string) => {
+                if (!params) return '';
+    
+                const routes = params.split(',');
+                const routes_components = all_routes_components
+                .filter(component => routes.includes(component.route));
+    
+                return routes_components.map(route => route.label).join(', ');
+            }
+        }
+    ];
 
     useEffect(() => {
         refresh();
@@ -37,7 +58,7 @@ export default function CadastroUsuario() {
             await setIsLoading(true);
 
             const data = await configuracaoService.getAll();
-            await setData(data);
+            await setData(data.map(d => ({ ...d, is_admin: d.isadmin })));
 
         } catch {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
@@ -52,8 +73,8 @@ export default function CadastroUsuario() {
         await setSelected(undefined);
     }
 
-    const onRowDoubleClick = async (e: any) => {
-        const localCurrent = data.find(c => c.id === (e as UsuarioDTO).id);
+    const onRowDoubleClick = async (e: UsuarioDTO) => {
+        const localCurrent = data.find(c => c.id === e.id);
         await setSelected(localCurrent);
         await setUpsertDialogOpen(true);
     }
@@ -97,8 +118,8 @@ export default function CadastroUsuario() {
                             onNewClick={onNewClick}
                             onEditClick={() => setUpsertDialogOpen(true)}
                             onExcludeClick={onExcludeClick}
-                            excludeEnabled={selected === undefined}
-                            editEnabled={selected === undefined}
+                            excludeEnabled={!!selected}
+                            editEnabled={!!selected}
                         />
                     </>}
                 </div>

@@ -17,15 +17,52 @@ export const AuthSlice = createSlice({
         authenticate: (state, action: PayloadAction<string>) => {
             state.token = action.payload
         },
-        unauthenticate: state => { 
-            state.token = '' 
+        unauthenticate: state => {
+            state.token = ''
         }
     }
 })
 
 export const { authenticate, unauthenticate } = AuthSlice.actions
 
+const all_routes = [
+    {
+        label: 'Clientes',
+        route: '/clientes'
+    },
+    {
+        label: 'Produtos',
+        route: '/produtos'
+    },
+    {
+        label: 'Vendas',
+        route: '/vendas'
+    },
+    {
+        label: 'Orçamentos',
+        route: '/orcamentos'
+    },
+    {
+        label: 'Calendário',
+        route: '/calendario'
+    },
+    {
+        label: 'Configurações',
+        route: '/configuracoes'
+    }
+]
+
 export const selectToken = (state: RootState) => state.auth.token;
-export const getAllowedRoutes = (state: RootState) => parseJwt(state.auth.token).allowedRoutes;
+export const getAllRoutes = (_: RootState) => all_routes;
+export const getAllowedRoutes = (state: RootState) => {
+    const token = parseJwt(state.auth.token);
+    if (!token) return [];
+
+    const routes = token.is_admin 
+    ?  all_routes.map(r => r.route) 
+    : token.allowed_routes.split(',');
+
+    return routes;
+}
 
 export default AuthSlice.reducer

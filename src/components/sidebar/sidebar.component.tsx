@@ -26,7 +26,6 @@ import { SideBarItem } from './sidebar-item';
 import { getAllowedRoutes, AppDispatch } from '../../redux-ts';
 import { useAppDispatch, useAppSelector } from '../../redux-ts/hooks';
 import { change, getSidebarStatus } from '../../redux-ts/slices/sidebar.slice';
-import { pageRoutes } from '../../routes';
 
 const drawerWidth = 240;
 
@@ -78,27 +77,27 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 const links = {
-    [pageRoutes.CLIENTES]: {
+    ['/clientes']: {
         icon: <AccessibilityIcon />,
         text: 'Clientes'
     },
-    [pageRoutes.PRODUTOS]: {
+    ['/produtos']: {
         icon: <RedeemIcon />,
         text: 'Produtos'
     },
-    [pageRoutes.ORCAMENTOS]: {
-        icon: <AddShoppingCartIcon />,
+    ['/orcamentos']: {
+        icon: <AddShoppingCartIcon />, 
         text: 'Orçamentos'
     },
-    [pageRoutes.VENDAS]: {
+    ['/vendas']: {
         icon: <MonetizationOnIcon />,
-        text: 'Vendas'
+        text: 'Vendas' 
     },
-    [pageRoutes.CALENDARIO]: {
+    ['/calendario']: {
         icon: <DateRangeIcon />,
         text: 'Calendário'
     },
-    [pageRoutes.CONFIGURACOES]: {
+    ['/configuracoes']: {
         icon: <ExtensionIcon />,
         text: 'Configurações'
     }
@@ -107,7 +106,7 @@ const links = {
 export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
     const dispatch: AppDispatch = useAppDispatch();
     const open: boolean = useAppSelector(getSidebarStatus);
-    const allowedRoutes: string[] = useAppSelector(getAllowedRoutes);
+    const allowed_routes: string[] = useAppSelector(getAllowedRoutes);
 
     const { children } = props;
 
@@ -122,14 +121,16 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
     }
 
     const mountLinks = () => {
-        return allowedRoutes.map(route => {
+        return allowed_routes.map(route => {
             const link = links[route as keyof typeof links];
             return <SideBarItem key={route} icon={link.icon} open={open} path={route} text={link.text} divider />
         })
     }
 
-    return (
-        <Box sx={{ display: 'flex' }}>
+    const allowedLinks = mountLinks();
+
+    return <>
+        {allowedLinks && <Box sx={{ display: 'flex' }}>
             <CssBaseline />
             <Drawer variant="permanent" open={open}>
                 <DrawerHeader>
@@ -145,62 +146,12 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
                 </DrawerHeader>
                 <Divider />
                 <List>
-                    {/* <SideBarItem
-                        icon={<HomeIcon />}
-                        open={open}
-                        path={'/'}
-                        text={'Inicial'}
-                        divider
-                    /> */}
-                    {mountLinks()}
-                    {/* <SideBarItem
-                        icon={<AccessibilityIcon />}
-                        open={open}
-                        path={pageRoutes.CLIENTES}
-                        text={'Clientes'}
-                        divider
-                    /> */}
-
-                    {/* <SideBarItem
-                        icon={<RedeemIcon />}
-                        open={open}
-                        path={pageRoutes.PRODUTOS}
-                        text={'Produtos'}
-                        divider
-                    /> */}
-                    {/* <SideBarItem
-                        icon={<AddShoppingCartIcon />}
-                        open={open}
-                        path={pageRoutes.ORCAMENTOS}
-                        text={'Orçamentos'}
-                        divider
-                    /> */}
-                    {/* <SideBarItem
-                        icon={<MonetizationOnIcon />}
-                        open={open}
-                        path={pageRoutes.VENDAS}
-                        text={'Vendas'}
-                        divider
-                    /> */}
-                    {/* <SideBarItem
-                        icon={<DateRangeIcon />}
-                        open={open}
-                        path={pageRoutes.CALENDARIO}
-                        text={'Calendário'}
-                        divider
-                    /> */}
+                    {allowedLinks}                                        
                     {/* <SideBarItem
                         icon={<PrecisionManufacturingIcon />}
                         open={open}
                         path={pageRoutes.PRODUCAO}
                         text={'Produção'}
-                        divider
-                    /> */}
-                    {/* <SideBarItem
-                        icon={<ExtensionIcon />}
-                        open={open}
-                        path={pageRoutes.CONFIGURACOES}
-                        text={'Configurações'}
                         divider
                     /> */}
                 </List>
@@ -212,6 +163,6 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
                 </List>
             </Drawer>
             {children}
-        </Box>
-    );
+        </Box>}
+    </>
 }

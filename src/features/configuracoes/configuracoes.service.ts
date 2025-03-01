@@ -1,22 +1,21 @@
-import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
 import { UsuarioDTO, UsuarioResponse } from './configuracoes.contracts';
 
 export class ConfiguracaoService {
     private readonly request: HttpClient;
-    private readonly BASE_URL: string = 'usuario';
+    private readonly BASE_URL: string = 'usuarios';
 
     constructor() {
         this.request = new HttpClient();
     }
 
-    public async getAll(): Promise<UsuarioDTO[]> {
+    public async getAll(): Promise<UsuarioResponse[]> {
         const { data } = await this.request.get(`${this.BASE_URL}`);
 
         if (data) {
             const result = data
                 .slice()
-                .sort((a: UsuarioDTO, b: UsuarioDTO) => a.id > b.id ? -1 : 1);
+                .sort((a: UsuarioResponse, b: UsuarioResponse) => a.id > b.id ? -1 : 1);
 
             return result;
         }

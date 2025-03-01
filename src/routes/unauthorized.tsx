@@ -1,9 +1,9 @@
-import { useRouteError } from "react-router-dom";
+import { Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import TopBar from "src/components/top-bar/top-bar.index";
 
 export default function Unauthorized() {
-  let error = useRouteError();
-  console.error(error);
+  const navigate = useNavigate();
 
   return (<>
     <TopBar />
@@ -15,6 +15,7 @@ export default function Unauthorized() {
 
       <h1>Ops!</h1>
       <p>Você não tem permissão para acessar esta página!</p>
+      <Button onClick={() => navigate('/login')}>Fazer login com outro usuário</Button>
     </div>
   </>);
 }

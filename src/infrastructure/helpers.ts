@@ -29,5 +29,7 @@ export const IsAuthorized = (route: string) => {
     const decodedToken = parseJwt(token);
     if (!decodedToken) return false;
 
-    return !!decodedToken.is_admin || !!(decodedToken.allowed_routes as string).split(',').find(r => r === route);
+    const allowedRoutes = [...(decodedToken.allowed_routes as string ?? '').split(','), '/'];
+
+    return !!decodedToken.is_admin || allowedRoutes.find(r => r === route) !== undefined;
 }

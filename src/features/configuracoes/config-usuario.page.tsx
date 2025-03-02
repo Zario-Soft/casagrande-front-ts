@@ -36,12 +36,11 @@ export default function CadastroUsuario() {
             field: 'allowed_routes',
             headerName: 'Permissões',
             width: 400,
-            valueFormatter: (params: string) => {
+            valueFormatter: (params: string[]) => {
                 if (!params) return '';
     
-                const routes = params.split(',');
                 const routes_components = all_routes_components
-                .filter(component => routes.includes(component.route));
+                .filter(component => params.includes(component.route));
     
                 return routes_components.map(route => route.label).join(', ');
             }
@@ -58,7 +57,7 @@ export default function CadastroUsuario() {
             await setIsLoading(true);
 
             const data = await configuracaoService.getAll();
-            await setData(data.map(d => ({ ...d, is_admin: d.isadmin })));
+            await setData(data.map(d => ({ ...d, is_admin: d.isadmin, allowed_routes: d.allowed_routes.split(',') })));
 
         } catch {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');

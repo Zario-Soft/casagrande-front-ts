@@ -18,7 +18,7 @@ import ExtensionIcon from '@mui/icons-material/Extension';
 import RedeemIcon from '@mui/icons-material/Redeem';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import AccessibilityIcon from '@mui/icons-material/Accessibility';
-//import HomeIcon from '@mui/icons-material/Home';
+import HomeIcon from '@mui/icons-material/Home';
 import { useNavigate } from 'react-router-dom';
 import { SidebarFooter } from './sidebar-footer';
 import logo from '../../assets/logo.png'
@@ -77,27 +77,31 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 const links = {
-    ['/clientes']: {
+    '/': {
+        icon: <HomeIcon />,
+        text: 'Home'
+    },
+    '/clientes': {
         icon: <AccessibilityIcon />,
         text: 'Clientes'
     },
-    ['/produtos']: {
+    '/produtos': {
         icon: <RedeemIcon />,
         text: 'Produtos'
     },
-    ['/orcamentos']: {
+    '/orcamentos': {
         icon: <AddShoppingCartIcon />, 
         text: 'Orçamentos'
     },
-    ['/vendas']: {
+    '/vendas': {
         icon: <MonetizationOnIcon />,
         text: 'Vendas' 
     },
-    ['/calendario']: {
+    '/calendario': {
         icon: <DateRangeIcon />,
         text: 'Calendário'
     },
-    ['/configuracoes']: {
+    '/configuracoes': {
         icon: <ExtensionIcon />,
         text: 'Configurações'
     }

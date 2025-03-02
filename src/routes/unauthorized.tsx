@@ -16,6 +16,7 @@ export default function Unauthorized() {
       <h1>Ops!</h1>
       <p>Você não tem permissão para acessar esta página!</p>
       <Button onClick={() => navigate('/login')}>Fazer login com outro usuário</Button>
+      <Button onClick={() => navigate('/')}>Voltar para a página inicial</Button>
     </div>
   </>);
 }

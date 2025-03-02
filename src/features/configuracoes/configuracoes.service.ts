@@ -1,5 +1,5 @@
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { UsuarioDTO, UsuarioResponse } from './configuracoes.contracts';
+import { UsuarioDTO, UsuarioRequest, UsuarioResponse } from './configuracoes.contracts';
 
 export class ConfiguracaoService {
     private readonly request: HttpClient;
@@ -24,15 +24,25 @@ export class ConfiguracaoService {
     }
 
     public async new(usuario: UsuarioDTO): Promise<any> {
-        await this.request.post(`${this.BASE_URL}`, usuario);
+        await this.request.post(`${this.BASE_URL}`, this.parse(usuario));
     }
 
     public async edit(usuario: UsuarioDTO): Promise<any> {
-        await this.request.put(`${this.BASE_URL}/${usuario.id}`, usuario);
+        await this.request.put(`${this.BASE_URL}/${usuario.id}`, this.parse(usuario));
     }
 
     public async delete(id: number): Promise<void> {
         await this.request.delete(`${this.BASE_URL}/${id}`);
+    }
+
+    private parse(usuario: UsuarioDTO): UsuarioRequest {
+        return {
+            ...usuario, 
+            allowed_routes: !usuario.is_admin ? usuario.allowed_routes.join(',') : '',
+            nome: usuario.login,
+            secret: usuario.password === '' ? undefined : usuario.password,
+            isadmin: usuario.is_admin
+        }
     }
 }
 

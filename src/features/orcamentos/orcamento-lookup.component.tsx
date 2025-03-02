@@ -5,7 +5,7 @@ import { LookupProps } from "../common/base-contracts";
 import UpsertModalOrcamento from "./orcamentos-modal.page";
 import { OrcamentoGrid, OrcamentoLookupItem } from "./orcamentos.contracts";
 import OrcamentosService from "./orcamentos.service";
-
+import { IsAuthorized } from "src/infrastructure/helpers";
 export interface OrcamentoLookupProps
     extends LookupProps<OrcamentoLookupItem> { }
 
@@ -73,8 +73,12 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
             id="cliente-search-modal"
             label="Orçamento"
             onChange={onChange}
-            onAddClick={onAddClick}
-            onShowClick={onShowClick}
+            onAddClick={
+                IsAuthorized('/orcamentos') ? onAddClick : undefined
+            }
+            onShowClick={
+                IsAuthorized('/orcamentos') ? onShowClick : undefined
+            }
             options={data}
             getOptionLabel={(o: OrcamentoLookupItem) => o.clientenome ?? ''}
             onAfter={onAfter}

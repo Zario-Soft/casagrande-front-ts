@@ -35,12 +35,12 @@ const all_routes = [
         route: '/produtos'
     },
     {
-        label: 'Vendas',
-        route: '/vendas'
-    },
-    {
         label: 'Orçamentos',
         route: '/orcamentos'
+    },
+    {
+        label: 'Vendas',
+        route: '/vendas'
     },
     {
         label: 'Calendário',
@@ -60,7 +60,7 @@ export const getAllowedRoutes = (state: RootState) => {
 
     const routes = token.is_admin 
     ?  all_routes.map(r => r.route) 
-    : token.allowed_routes.split(',');
+    : token.allowed_routes.split(',').filter((r: string) => r !== '' && r !== undefined);
 
     return routes;
 }

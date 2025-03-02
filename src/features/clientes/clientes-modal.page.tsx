@@ -114,6 +114,7 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                         onChange={(e) => setCurrent({ ...current, nome: e.target.value })}
                         error={!current.nome}
                         helperText={!current.nome ? 'Campo obrigatório' : ''}
+                        InputLabelProps={{ shrink: true }}
                     />
 
                     <TextField
@@ -123,6 +124,7 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                         variant="outlined"
                         value={current.responsavel}
                         onChange={(e) => setCurrent({ ...current, responsavel: e.target.value })}
+                        InputLabelProps={{ shrink: true }}
                     />
 
                     <div className='inner-flex-container'>

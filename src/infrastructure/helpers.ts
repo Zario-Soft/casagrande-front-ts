@@ -14,3 +14,11 @@ export const formatDateUnknown = (date: Date) => moment(date).format("yyyy-MM-DD
 
 const moneyFormater = Intl.NumberFormat("pt-br", { style: 'currency', currency: 'BRL' })
 export const formatMoney = (params: any) => moneyFormater.format(params);
+
+export const ToPascalCase = (str: string | undefined) => {
+    if (!str) return str;
+
+    return str.replace(/(\w)(\w*)/g,
+        function(_,g1,g2){return g1.toUpperCase() + g2.toLowerCase();});
+}
+

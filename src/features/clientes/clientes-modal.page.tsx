@@ -10,7 +10,7 @@ import { fillState, preencheCEP } from "./clientes-common";
 import ClientStateSelect from "./clientes-estado.component";
 import { LoadingContext } from "src/providers/loading.provider";
 import { GetInfoFromCNPJ } from "./clientes-common";
-
+import { ToPascalCase } from "src/infrastructure/helpers";  
 export interface UpsertModalClientProps {
     cliente?: ClienteDTO,
     onClose: (message?: string) => void
@@ -74,18 +74,18 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
     
           await setCurrent({
             ...current,
-            nome: data.razao_social,
+            nome: ToPascalCase(data.razao_social) ?? current.nome,
             email: data.email ?? current.email,
             telefone: data.ddd_telefone_1 ?? current.telefone,
             celular: data.celular ?? current.celular,
-            cidade: data.municipio ?? current.cidade,
-            bairro: data.bairro ?? current.bairro,
-            endereco: data.logradouro ? `${data.descricao_tipo_de_logradouro} ${data.logradouro}` : current.endereco,
+            cidade: ToPascalCase(data.municipio) ?? current.cidade,
+            bairro: ToPascalCase(data.bairro) ?? current.bairro,
+            endereco: data.logradouro ? `${ToPascalCase(data.descricao_tipo_de_logradouro)} ${ToPascalCase(data.logradouro)}` : current.endereco,
             numero: data.numero ?? current.numero,
-            complemento: data.complemento ?? current.complemento,
+            complemento: ToPascalCase(data.complemento) ?? current.complemento,
             estado: data.uf ?? current.estado,
             cep: data.cep ?? current.cep,
-            responsavel: data.qsa.length > 0 ? data.qsa[0].nome_socio : current.responsavel
+            responsavel: data.qsa.length > 0 ? ToPascalCase(data.qsa[0].nome_socio) ?? current.responsavel : current.responsavel
           });
         } finally {
           await setIsLoading(false);

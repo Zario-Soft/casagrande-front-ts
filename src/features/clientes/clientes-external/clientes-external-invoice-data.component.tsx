@@ -8,6 +8,7 @@ import { Line } from "src/components/line/line.component";
 import ClientStateSelect from "../clientes-estado.component";
 import { LoadingContext } from "src/providers/loading.provider";
 import { toast } from "react-toastify";
+import { ToPascalCase } from "src/infrastructure/helpers";
 export interface ClienteExternalInvoiceDataPartProps {
     current?: ClienteInvoiceData,
     clientesService: ClientesService,
@@ -43,15 +44,15 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
     
           await setCurrent({
             ...current,
-            nome: data.razao_social,
+            nome: ToPascalCase(data.razao_social) ?? current.nome,
             email: data.email ?? current.email,
             telefone: data.ddd_telefone_1 ?? current.telefone,
             celular: data.celular ?? current.celular,
-            cidade: data.municipio ?? current.cidade,
-            bairro: data.bairro ?? current.bairro,
-            endereco: data.logradouro ? `${data.descricao_tipo_de_logradouro} ${data.logradouro}` : current.endereco,
+            cidade: ToPascalCase(data.municipio) ?? current.cidade,
+            bairro: ToPascalCase(data.bairro) ?? current.bairro,
+            endereco: data.logradouro ? `${ToPascalCase(data.descricao_tipo_de_logradouro)} ${ToPascalCase(data.logradouro)}` : current.endereco,
             numero: data.numero ?? current.numero,
-            complemento: data.complemento ?? current.complemento,
+            complemento: ToPascalCase(data.complemento) ?? current.complemento,
             estado: data.uf ?? current.estado,
             cep: data.cep ?? current.cep
           });

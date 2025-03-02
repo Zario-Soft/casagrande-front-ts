@@ -2,12 +2,14 @@ import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Checkbox,
 import { NormalButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import { ClienteDTO } from "./clientes.contracts"
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { toast } from "react-toastify";
 import ClientesService from "./clientes.service";
 import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCustom } from "src/components/masks";
 import { fillState, preencheCEP } from "./clientes-common";
 import ClientStateSelect from "./clientes-estado.component";
+import { LoadingContext } from "src/providers/loading.provider";
+import { GetInfoFromCNPJ } from "./clientes-common";
 
 export interface UpsertModalClientProps {
     cliente?: ClienteDTO,
@@ -20,6 +22,7 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
 
     const [current, setCurrent] = useState(props.cliente ?? {} as ClienteDTO);
     const [isLoadingCEP, setIsLoadingCEP] = useState(false);
+    const { setIsLoading } = useContext(LoadingContext);
 
     const onSave = async () => {
         try {
@@ -52,6 +55,42 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
 
         return true;
     }
+
+    const fillInfoFromCNPJ = async () => {
+
+        if (!current || !current.cpfcnpj || current.cpfcnpj.trim().length !== 18) return;
+    
+        await setIsLoading(true);
+    
+        try {
+          const data = await GetInfoFromCNPJ(current.cpfcnpj);
+    
+          if (!data){
+            toast.error("CNPJ inválido");
+            return;
+          }
+    
+          toast.success("Informações coletadas do CNPJ com sucesso!");
+    
+          await setCurrent({
+            ...current,
+            nome: data.razao_social,
+            email: data.email ?? current.email,
+            telefone: data.ddd_telefone_1 ?? current.telefone,
+            celular: data.celular ?? current.celular,
+            cidade: data.municipio ?? current.cidade,
+            bairro: data.bairro ?? current.bairro,
+            endereco: data.logradouro ? `${data.descricao_tipo_de_logradouro} ${data.logradouro}` : current.endereco,
+            numero: data.numero ?? current.numero,
+            complemento: data.complemento ?? current.complemento,
+            estado: data.uf ?? current.estado,
+            cep: data.cep ?? current.cep,
+            responsavel: data.qsa.length > 0 ? data.qsa[0].nome_socio : current.responsavel
+          });
+        } finally {
+          await setIsLoading(false);
+        }
+      }
 
     return <>
         <Dialog
@@ -130,6 +169,7 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                                     name="cpfcnpj"
                                     id="cpfcnpj-input"
                                     inputComponent={CNPJMaskCustom}
+                                    onBlur={fillInfoFromCNPJ}
                                 />}
                             </FormControl>
                         </div>

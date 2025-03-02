@@ -51,3 +51,33 @@ export const preencheCEP = async (e: any, current: any, setCurrent: any): Promis
                 })
         })
 }
+
+export interface CNPJInfo {
+    razao_social: string;
+    email: string;
+    ddd_telefone_1: string;
+    celular: string;
+    municipio: string;
+    bairro: string;
+    numero: string;
+    complemento: string;
+    uf: string;
+    cep: string;
+    descricao_tipo_de_logradouro: string;
+    logradouro: string;
+    qsa: {
+        nome_socio: string;
+    }[];
+}
+
+export const GetInfoFromCNPJ = async (cnpj: string): Promise<CNPJInfo | undefined> => {
+    const url = `https://brasilapi.com.br/api/cnpj/v1/${cnpj.replace(/[^0-9]/g, '')}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.name && data.name.includes("BadRequestError"))
+        return undefined;
+
+    return data;
+}

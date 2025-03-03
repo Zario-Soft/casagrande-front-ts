@@ -33,3 +33,10 @@ export const IsAuthorized = (route: string) => {
 
     return !!decodedToken.is_admin || allowedRoutes.find(r => r === route) !== undefined;
 }
+
+export const ToPascalCase = (str: string | undefined) => {
+    if (!str) return str;
+
+    return str.replace(/(\w)(\w*)/g,
+        function(_,g1,g2){return g1.toUpperCase() + g2.toLowerCase();});
+}

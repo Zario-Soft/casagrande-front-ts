@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useContext } from "react"
 import { ClienteInvoiceData } from "../clientes.contracts";
 import { TextField, FormControlLabel, Checkbox, FormControl, InputLabel, Input, CircularProgress } from "@mui/material";
 import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCustom } from "src/components/masks";
-import { fillState, preencheCEP } from "../clientes-common";
+import { fillState, preencheCEP, GetInfoFromCNPJ } from "../clientes-common";
 import ClientesService from "../clientes.service";
 import { Line } from "src/components/line/line.component";
 import ClientStateSelect from "../clientes-estado.component";
-
+import { LoadingContext } from "src/providers/loading.provider";
+import { toast } from "react-toastify";
+import { ToPascalCase } from "src/infrastructure/helpers";
 export interface ClienteExternalInvoiceDataPartProps {
     current?: ClienteInvoiceData,
     clientesService: ClientesService,
@@ -18,11 +20,50 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
         pessoafisica: 1
     } as ClienteInvoiceData);
     const [isLoadingCEP, setIsLoadingCEP] = useState(false);
+    const { setIsLoading } = useContext(LoadingContext);
 
     useEffect(() => {
         if (props.onChange)
             props.onChange(current);
     }, [current, props])
+
+    const fillInfoFromCNPJ = async () => {
+
+        if (!current || !current.cpfcnpj || current.cpfcnpj.trim().length !== 18) return;
+    
+        await setIsLoading(true);
+    
+        try {
+          const data = await GetInfoFromCNPJ(current.cpfcnpj);
+          if (!data){
+            toast.error("CNPJ inválido");
+            return;
+          }
+
+          toast.success("Informações coletadas do CNPJ com sucesso!");
+    
+          await setCurrent({
+            ...current,
+            nome: ToPascalCase(data.razao_social) ?? current.nome,
+            email: data.email ?? current.email,
+            telefone: data.ddd_telefone_1 ?? current.telefone,
+            celular: data.celular ?? current.celular,
+            cidade: ToPascalCase(data.municipio) ?? current.cidade,
+            bairro: ToPascalCase(data.bairro) ?? current.bairro,
+            endereco: data.logradouro ? `${ToPascalCase(data.descricao_tipo_de_logradouro)} ${ToPascalCase(data.logradouro)}` : current.endereco,
+            numero: data.numero ?? current.numero,
+            complemento: ToPascalCase(data.complemento) ?? current.complemento,
+            estado: data.uf ?? current.estado,
+            cep: data.cep ?? current.cep
+          });
+        } finally {
+          await setIsLoading(false);
+        }
+      }
+
+      const disableTextFieldByCNPJ = () => {
+        return current?.cpfcnpj?.trim().length === 18 && current?.pessoafisica === 0;
+      }
 
     return <div className='flex-container' style={{
         flexDirection: 'column',
@@ -30,30 +71,8 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
     }}>
         <Line />
         <h3>Dados para a nota fiscal</h3>
-        <TextField
-            InputLabelProps={{ shrink: true }}
-            className='txt-box txt-box-medium'
-            id="nome"
-            label="Nome"
-            variant="outlined"
-            value={current.nome}
-            onChange={(e) => setCurrent({ ...current, nome: e.target.value })}
-            error={!current.nome}
-            helperText={!current.nome ? 'Campo obrigatório' : ''}
-        />
-
+        {current.pessoafisica === 0 && <h5>⚠️ Se o CNPJ for informado, a maioria das informações será preenchida automaticamente com dados da Receita Federal e não poderão ser alteradas.</h5>}
         <div className='inner-flex-container'>
-            <TextField
-                InputLabelProps={{ shrink: true }}
-                className='txt-box txt-box-medium'
-                id="email-cliente"
-                label="E-mail"
-                type={'email'}
-                variant="outlined"
-                value={current.email}
-                onChange={(e) => setCurrent({ ...current, email: e.target.value })}
-            />
-
             <FormControlLabel
                 control={
                     <Checkbox
@@ -72,7 +91,7 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
                         htmlFor="formatted-text-mask-input"
                         shrink
                     >
-                        CPF/CNPJ
+                        {current.pessoafisica === 1 ? 'CPF' : 'CNPJ'}
                     </InputLabel>
                     {current.pessoafisica === 1 && <Input
                         value={current.cpfcnpj?.trim()}
@@ -87,9 +106,37 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
                         name="cpfcnpj"
                         id="cpfcnpj-input"
                         inputComponent={CNPJMaskCustom}
+                        onBlur={fillInfoFromCNPJ}
                     />}
                 </FormControl>
             </div>
+        </div>
+        <TextField
+            InputLabelProps={{ shrink: true }}
+            className='txt-box txt-box-medium'
+            id="nome"
+            label="Nome"
+            variant="outlined"
+            value={current.nome}
+            onChange={(e) => setCurrent({ ...current, nome: e.target.value })}
+            error={!current.nome}
+            helperText={!current.nome ? 'Campo obrigatório' : ''}
+            disabled={disableTextFieldByCNPJ()}
+        />
+
+        <div className='inner-flex-container'>
+            <TextField
+                InputLabelProps={{ shrink: true }}
+                className='txt-box txt-box-medium'
+                id="email-cliente"
+                label="E-mail"
+                type={'email'}
+                variant="outlined"
+                value={current.email}
+                onChange={(e) => setCurrent({ ...current, email: e.target.value })}
+            />
+
+
         </div>
         <div className='inner-flex-container'>
             <FormControl>
@@ -107,6 +154,7 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
                             await setCurrent({ ...current, estado: estado })
                         }
                     }}
+                    disabled={disableTextFieldByCNPJ()}
                 />
             </FormControl>
 
@@ -146,6 +194,7 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
 
                         await setIsLoadingCEP(false);
                     }}
+                    disabled={disableTextFieldByCNPJ()}
                 />
             </FormControl>
             {isLoadingCEP && <CircularProgress
@@ -170,6 +219,7 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
                 value={current.endereco}
                 onChange={(e) => setCurrent({ ...current, endereco: e.target.value })}
                 InputLabelProps={{ shrink: true }}
+                disabled={disableTextFieldByCNPJ()}
             />
 
             <TextField
@@ -180,7 +230,9 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
                 value={current.numero}
                 onChange={(e) => setCurrent({ ...current, numero: e.target.value })}
 
-                InputLabelProps={{ shrink: true }} />
+                InputLabelProps={{ shrink: true }}
+                disabled={disableTextFieldByCNPJ()}
+            />
         </div>
         <div className='inner-flex-container'>
 
@@ -202,7 +254,10 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
                 value={current.bairro}
                 onChange={(e) => setCurrent({ ...current, bairro: e.target.value })}
 
-                InputLabelProps={{ shrink: true }} />
+                InputLabelProps={{ shrink: true }}
+                disabled={disableTextFieldByCNPJ()}
+            />
+
         </div>
 
         <div className='inner-flex-container'>
@@ -214,11 +269,14 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
                 value={current.cidade}
                 onChange={(e) => setCurrent({ ...current, cidade: e.target.value })}
 
-                InputLabelProps={{ shrink: true }} />
+                InputLabelProps={{ shrink: true }}
+                disabled={disableTextFieldByCNPJ()}
+            />
 
             <ClientStateSelect
                 current={current.estado}
                 onChange={async (e) => await setCurrent({ ...current, estado: e.target.value })}
+                disabled={disableTextFieldByCNPJ()}
             />
         </div>
         <div className='inner-flex-container'>

@@ -3,6 +3,7 @@ import { FormControl, InputLabel, Select, SelectChangeEvent } from "@mui/materia
 interface ClientStateSelectProps {
     onChange: (e: SelectChangeEvent<any>) => Promise<any>,
     current: string | undefined,
+    disabled?: boolean
 }
 
 export default function ClientStateSelect(props: ClientStateSelectProps){
@@ -22,6 +23,7 @@ export default function ClientStateSelect(props: ClientStateSelectProps){
             id: 'enderecoEstado-id',
             shrink: true
           }}
+          disabled={props.disabled}
         >
           <option aria-label="None" value="" />
           <option value={'AC'}>AC</option>

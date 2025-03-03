@@ -125,7 +125,7 @@ export default function CadastroUsuario() {
             </SideBar>
         </div>
         {confirmationDialogOpen && <ConfirmationDialog
-            title="Excluir cliente"
+            title="Excluir usuário"
             onConfirm={onConfirmExclusion}
             onClose={() => setConfirmationDialogOpen(false)}
         />}

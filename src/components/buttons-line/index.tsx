@@ -6,6 +6,7 @@ interface ButtonsLineProps {
     newEnabled?:boolean,
     editEnabled?:boolean,
     excludeEnabled?:boolean,
+    excludeHidden?:boolean,
     reportVisible?:boolean,
     onNewClick?: () => void,
     onEditClick?: () => void,
@@ -21,6 +22,6 @@ export default function ButtonsLine(props: ButtonsLineProps){
 
             {props.reportVisible && <ReportButton onClick={props.onReportClick}>Relatório</ReportButton>}
             
-            <WarningButton onClick={props.onExcludeClick} disabled={!!props.excludeEnabled}>Excluir</WarningButton>
+            {!props.excludeHidden && <WarningButton onClick={props.onExcludeClick} disabled={!!props.excludeEnabled}>Excluir</WarningButton>}
     </div>
 }

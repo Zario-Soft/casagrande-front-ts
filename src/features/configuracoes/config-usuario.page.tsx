@@ -11,7 +11,7 @@ import { ConfiguracaoService } from "./configuracoes.service";
 import UpsertModalUsuario from "./config-usuario-modal.page";
 import { getAllRoutes } from "src/redux-ts";
 import { useAppSelector } from "src/redux-ts/hooks";
-
+import { IsAdmin } from "src/infrastructure/helpers";
 
 export default function CadastroUsuario() {
     const configuracaoService = new ConfiguracaoService();
@@ -94,6 +94,8 @@ export default function CadastroUsuario() {
         if (!selected) return;
 
         await configuracaoService.delete(selected.id);
+        await toast.success('Usuário excluído com sucesso');
+        await refresh();
     }
 
 
@@ -117,8 +119,9 @@ export default function CadastroUsuario() {
                             onNewClick={onNewClick}
                             onEditClick={() => setUpsertDialogOpen(true)}
                             onExcludeClick={onExcludeClick}
-                            excludeEnabled={!!selected}
-                            editEnabled={!!selected}
+                            excludeEnabled={selected === undefined}
+                            excludeHidden={!IsAdmin()}
+                            editEnabled={selected === undefined}
                         />
                     </>}
                 </div>

@@ -23,15 +23,31 @@ export const parseJwt = (token: string) => {
 }
 
 export const IsAuthorized = (route: string) => {
-    const token = localStorage.getItem('token');
-    if (!token) return false;
-
-    const decodedToken = parseJwt(token);
+    const decodedToken = DecodedToken();
     if (!decodedToken) return false;
 
-    const allowedRoutes = [...(decodedToken.allowed_routes as string ?? '').split(','), '/'];
+    if (!!decodedToken.is_admin) return true;
 
-    return !!decodedToken.is_admin || allowedRoutes.find(r => r === route) !== undefined;
+    if (!decodedToken.allowed_routes) 
+        decodedToken.allowed_routes = '';
+
+    const allowedRoutes = [...decodedToken.allowed_routes.split(','), '/'];
+
+    return allowedRoutes.find(r => r === route) !== undefined;
+}
+
+export const IsAdmin = () => {
+    const decodedToken = DecodedToken();
+    if (!decodedToken) return false;
+
+    return !!decodedToken.is_admin;
+}
+
+const DecodedToken = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    return parseJwt(token);
 }
 
 export const ToPascalCase = (str: string | undefined) => {

@@ -8,7 +8,7 @@ import ConfiguracaoService from "./configuracoes.service";
 import md5 from "md5";
 import { useAppSelector } from "src/redux-ts/hooks";
 import { getAllRoutes } from "src/redux-ts";
-
+import { IsAdmin } from "src/infrastructure/helpers";
 export interface UpsertModalUsuarioProps {
     usuario?: UsuarioDTO,
     onClose: (message?: string) => void
@@ -147,7 +147,7 @@ export default function UpsertModalUsuario(props: UpsertModalUsuarioProps) {
                         />
                     </div>
 
-                    <div className='inner-flex-container'>
+                    {IsAdmin() && <div className='inner-flex-container'>
                         <FormControlLabel
                             control={
                                 <Checkbox
@@ -159,7 +159,7 @@ export default function UpsertModalUsuario(props: UpsertModalUsuarioProps) {
                             }
                             label="Administrador?"
                         />
-                    </div>
+                    </div>}
                     {!current.is_admin && <div className='inner-flex-container'>
                         <FormGroup aria-label="Permissões" style={{ marginTop: 10 }}>
                             <FormControlLabel control={<label></label>} label="Permissões de acesso" />

@@ -5,6 +5,7 @@ import ClientesService from "./clientes.service";
 import { toast } from "react-toastify";
 import UpsertModalClient from "./clientes-modal.page";
 import { LookupProps } from "../common/base-contracts";
+import { IsAuthorized } from "src/infrastructure/helpers";
 
 export interface ClientesLookupProps
     extends LookupProps<ClienteDTO> { }
@@ -76,8 +77,12 @@ export default function ClientesLookup(props: ClientesLookupProps) {
         id="cliente-search-modal"
         label="Cliente"
         onChange={onChange}
-        onAddClick={onAddClick}
-        onShowClick={onShowClick}
+        onAddClick={
+            IsAuthorized('/clientes') ? onAddClick : undefined
+        }
+        onShowClick={
+            IsAuthorized('/clientes') ? onShowClick : undefined
+        }
         options={data}
         getOptionLabel={(o: ClienteDTO) => o.nome ?? ''}
         onAfter={onAfter}

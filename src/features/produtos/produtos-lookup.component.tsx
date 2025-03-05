@@ -5,7 +5,7 @@ import { ProdutoDTO } from "./produtos.contracts";
 import ProdutosService from "./produtos.service";
 import UpsertModalProduct from "./produtos-modal.page";
 import { LookupProps } from "../common/base-contracts";
-
+import { IsAuthorized } from "src/infrastructure/helpers";
 export interface ProdutosLookupProps
     extends LookupProps<ProdutoDTO> { }
 
@@ -69,8 +69,12 @@ export default function ProdutosLookup(props: ProdutosLookupProps) {
             id="produto-search-modal"
             label="Produto"
             onChange={onChange}
-            onAddClick={onAddClick}
-            onShowClick={onShowClick}
+            onAddClick={
+                IsAuthorized('/produtos') ? onAddClick : undefined
+            }
+            onShowClick={
+                IsAuthorized('/produtos') ? onShowClick : undefined
+            }
             options={data}
             getOptionLabel={(o: ProdutoDTO) => o.descricao ?? ''}
             onAfter={onAfter}

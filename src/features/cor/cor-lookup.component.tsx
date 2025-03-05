@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { CorDTO } from "./cor.contracts";
 import UpsertModalCor from "./cor-modal.page";
 import { LookupProps } from "../common/base-contracts";
+import { IsAuthorized } from "src/infrastructure/helpers";
 
 export interface CorLookupProps
     extends LookupProps<CorDTO> { }
@@ -69,8 +70,12 @@ export default function CorLookup(props: CorLookupProps) {
             id="cliente-search-modal"
             label="Cor"
             onChange={onChange}
-            onAddClick={onAddClick}
-            onShowClick={onShowClick}
+            onAddClick={
+                IsAuthorized('/configuracoes') ? onAddClick : undefined
+            }
+            onShowClick={
+                IsAuthorized('/configuracoes') ? onShowClick : undefined
+            }
             options={data}
             getOptionLabel={(o: CorDTO) => o.nome ?? ''}
             onAfter={onAfter}

@@ -125,8 +125,15 @@ export function SideBar(props: React.HTMLAttributes<HTMLDivElement>,) {
     }
 
     const mountLinks = () => {
-        return allowed_routes.map(route => {
-            const link = links[route as keyof typeof links];
+        let allowedLinks: any = {};
+        Object.keys(links).forEach(key => {
+            if (allowed_routes.includes(key)) {
+                allowedLinks[key] = links[key as keyof typeof links];
+            }
+        });
+        
+        return Object.keys(allowedLinks).map(route => {
+            const link = allowedLinks[route as keyof typeof allowedLinks];
             return <SideBarItem key={route} icon={link.icon} open={open} path={route} text={link.text} divider />
         })
     }

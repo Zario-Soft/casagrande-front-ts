@@ -1,5 +1,5 @@
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, Button } from "@mui/material";
-import { NormalButton, WarningButton } from "src/components/buttons";
+import { NormalButton, ReportButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import { OrcamentoProdutoGrid } from "./orcamentos.contracts";
 import { toast } from "react-toastify";
@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import ImageUploader from "src/components/image-uploader/image-uploader.component";
 import './orcamento.css';
 import { ImageDownloader } from "src/components/image-downloader/image-downloader.component";
+import { TrelloService } from "src/components/trello/trello.service";
 
 
 export interface UpsertModalOrcamentoProdutosProps {
@@ -20,6 +21,7 @@ export interface UpsertModalOrcamentoProdutosProps {
 export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamentoProdutosProps) {
     const isNew = !props.current || !props.current?.id;
     const imgHandler = new ImageDownloader();
+    const trelloService = new TrelloService();
 
     const [current, setCurrent] = useState(props.current ??
         {
@@ -32,6 +34,25 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         // eslint-disable-next-line
     }, [props.current]);
 
+    const shouldShowTrelloButton = () => {
+        return !isNew && current.fotoinicial && current.observacaotecnica2;
+    }
+
+    const onSendToTrello = async () => {
+        const cardId = await trelloService.createCard({
+            name: current.observacaotecnica2.split('\n')[0],
+            desc: current.observacaotecnica2,
+            listId: '5d92322ff1e87c895ce737ee'
+        });
+
+        if (cardId && current.fotoinicialbase64) {
+            await trelloService.addAttachment(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
+
+            if (current.fotoinicial2base64) {
+                await trelloService.addAttachment(cardId, current.fotoinicial2base64, 'Foto Real');
+            }
+        }
+    }
     const loadInfo = async () => {
         if (!props.current) return;
 
@@ -286,6 +307,9 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 </div>
             </DialogContent>
             <DialogActions>
+                {shouldShowTrelloButton() && <ReportButton onClick={onSendToTrello}>
+                    {current.trellocardid ? 'Atualizar no Trello' : 'Enviar para o Trello'}
+                </ReportButton>}
                 <NormalButton onClick={onSave} color="primary">
                     Salvar
                 </NormalButton>

@@ -12,7 +12,7 @@ export function FuncHttpClient() {
         axios.interceptors.response.use(
             (response: any) => response,
             (errorObj: any) => {
-                if (errorObj && errorObj.response && errorObj.response.status === 401) {
+                if (errorObj && errorObj.response && errorObj.response.status === 401 && errorObj.request.responseURL.startsWith(API_URL)) {
                     dispatch(unauthenticate())
                     
                     localStorage.removeItem('token');

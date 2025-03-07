@@ -76,6 +76,7 @@ export interface OrcamentoProdutoDTO {
     fotoreal2base64: string | undefined,
     observacaotecnica1: string,
     observacaotecnica2: string,
+    trellocardid: string | undefined,
 }
 
 export interface OrcamentoProdutoGrid

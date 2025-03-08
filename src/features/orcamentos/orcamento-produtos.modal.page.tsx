@@ -24,6 +24,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
     const imgHandler = new ImageDownloader();
     const trelloService = new TrelloService();
     const orcamentosService = new OrcamentosService();
+    const slackService = new SlackService();
 
     const [isLoadingTrello, setIsLoadingTrello] = useState(false);
 
@@ -53,6 +54,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                     desc: current.observacaotecnica2
                 });
                 toast.success('Produto atualizado no Trello com sucesso!');
+                await slackService.sendMessageAsync(`Produto ${current.id} do orçamento ${current.orcamentoid} atualizado pelo usuário ${GetLoggerUser()}!`, 'C08H4DB0C01');
                 return;
             }
 
@@ -77,6 +79,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
                 setCurrent({ ...current, trellocardid: cardId });
                 toast.success('Produto sincronizado no Trello com sucesso!');
+                await slackService.sendMessageAsync(`Produto ${current.id} do orçamento ${current.orcamentoid} sincronizado com teste no trello pelo usuário ${GetLoggerUser()}!`, 'C08H4DB0C01');
             }
         }
         finally {

@@ -6,7 +6,7 @@ export class SlackService {
 
     async sendMessageAsync(message: string, channelId: string): Promise<void> {
         try {
-            const body = `text=${JSON.stringify(message)}&token=${SLACK_TOKEN}&channel=${channelId}`;
+            const body = `text=${message}&token=${SLACK_TOKEN}&channel=${channelId}`;
 
             await axios.post(
                 'chat.postMessage',

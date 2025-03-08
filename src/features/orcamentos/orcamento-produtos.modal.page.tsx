@@ -10,6 +10,7 @@ import ImageUploader from "src/components/image-uploader/image-uploader.componen
 import './orcamento.css';
 import { ImageDownloader } from "src/components/image-downloader/image-downloader.component";
 import { TrelloService } from "src/components/trello/trello.service";
+import { OrcamentosService } from "./orcamentos.service";
 
 
 export interface UpsertModalOrcamentoProdutosProps {
@@ -22,6 +23,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
     const isNew = !props.current || !props.current?.id;
     const imgHandler = new ImageDownloader();
     const trelloService = new TrelloService();
+    const orcamentosService = new OrcamentosService();
 
     const [current, setCurrent] = useState(props.current ??
         {
@@ -35,22 +37,41 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
     }, [props.current]);
 
     const shouldShowTrelloButton = () => {
-        return !isNew && current.fotoinicial && current.observacaotecnica2;
+        return !isNew && current.fotoinicialbase64 && current.observacaotecnica2;
     }
 
     const onSendToTrello = async () => {
-        const cardId = await trelloService.createCard({
+        if (current.trellocardid) {
+            await trelloService.updateCardAsync({
+                id: current.trellocardid,
+                name: current.observacaotecnica2.split('\n')[0],
+                desc: current.observacaotecnica2
+            });
+            toast.success('Produto atualizado no Trello com sucesso!');
+            return;
+        }
+
+        const cardId = await trelloService.createCardAsync({
             name: current.observacaotecnica2.split('\n')[0],
             desc: current.observacaotecnica2,
             listId: '5d92322ff1e87c895ce737ee'
         });
 
         if (cardId && current.fotoinicialbase64) {
-            await trelloService.addAttachment(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
+            await orcamentosService.addTrelloCardId({
+                id: current.orcamentoid,
+                produtoId: current.id,
+                trellocardid: cardId
+            });
+            
+            await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
 
             if (current.fotoinicial2base64) {
-                await trelloService.addAttachment(cardId, current.fotoinicial2base64, 'Foto Real');
+                await trelloService.addAttachmentAsync(cardId, current.fotoinicial2base64, 'Foto Real');
             }
+
+            setCurrent({ ...current, trellocardid: cardId });
+            toast.success('Produto sincronizado no Trello com sucesso!');
         }
     }
     const loadInfo = async () => {
@@ -67,7 +88,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
         req['fotoreal2base64'] = await imgHandler.downloadOnFront(current.fotoreal2);
 
-        await setCurrent(req);
+        setCurrent(req);
     }
 
     const onSave = async () => {

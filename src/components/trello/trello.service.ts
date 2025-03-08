@@ -5,14 +5,14 @@ export interface CardRequest {
     id?: string;
     name: string;
     desc: string;
-    listId: string;
+    listId?: string;
 
 }
 
 export class TrelloService {
     private readonly BASE_URL: string = 'https://api.trello.com/1';
 
-    async createCard(card: CardRequest): Promise<string> {
+    async createCardAsync(card: CardRequest): Promise<string> {
         const response = await axios.post(
             'cards',
             undefined,
@@ -33,7 +33,7 @@ export class TrelloService {
         return response.data.id;
     }
 
-    async updateCard(card: CardRequest): Promise<void> {
+    async updateCardAsync(card: CardRequest): Promise<void> {
         if (!card.id) return;
 
         await axios.put(
@@ -52,7 +52,7 @@ export class TrelloService {
         );
     }
 
-    async addAttachment(cardId: string, fileBase64: string, name: string, setCover: boolean = false): Promise<string> {
+    async addAttachmentAsync(cardId: string, fileBase64: string, name: string, setCover: boolean = false): Promise<string> {
         let data = new FormData();
         data.append('file', this.dataURIToBlob(fileBase64), name);
 

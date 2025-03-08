@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, Button } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, Button, CircularProgress } from "@mui/material";
 import { NormalButton, ReportButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import { OrcamentoProdutoGrid } from "./orcamentos.contracts";
@@ -25,6 +25,8 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
     const trelloService = new TrelloService();
     const orcamentosService = new OrcamentosService();
 
+    const [isLoadingTrello, setIsLoadingTrello] = useState(false);
+
     const [current, setCurrent] = useState(props.current ??
         {
             excluido: 0,
@@ -37,41 +39,48 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
     }, [props.current]);
 
     const shouldShowTrelloButton = () => {
-        return !isNew && current.fotoinicialbase64 && current.observacaotecnica2;
+        return !isLoadingTrello && !isNew && current.fotoinicialbase64 && current.observacaotecnica2;
     }
 
     const onSendToTrello = async () => {
-        if (current.trellocardid) {
-            await trelloService.updateCardAsync({
-                id: current.trellocardid,
-                name: current.observacaotecnica2.split('\n')[0],
-                desc: current.observacaotecnica2
-            });
-            toast.success('Produto atualizado no Trello com sucesso!');
-            return;
-        }
+        try {
+            setIsLoadingTrello(true);
 
-        const cardId = await trelloService.createCardAsync({
-            name: current.observacaotecnica2.split('\n')[0],
-            desc: current.observacaotecnica2,
-            listId: '5d92322ff1e87c895ce737ee'
-        });
-
-        if (cardId && current.fotoinicialbase64) {
-            await orcamentosService.addTrelloCardId({
-                id: current.orcamentoid,
-                produtoId: current.id,
-                trellocardid: cardId
-            });
-            
-            await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
-
-            if (current.fotoinicial2base64) {
-                await trelloService.addAttachmentAsync(cardId, current.fotoinicial2base64, 'Foto Real');
+            if (current.trellocardid) {
+                await trelloService.updateCardAsync({
+                    id: current.trellocardid,
+                    name: current.observacaotecnica2.split('\n')[0],
+                    desc: current.observacaotecnica2
+                });
+                toast.success('Produto atualizado no Trello com sucesso!');
+                return;
             }
 
-            setCurrent({ ...current, trellocardid: cardId });
-            toast.success('Produto sincronizado no Trello com sucesso!');
+            const cardId = await trelloService.createCardAsync({
+                name: current.observacaotecnica2.split('\n')[0],
+                desc: current.observacaotecnica2,
+                listId: '5d92322ff1e87c895ce737ee'
+            });
+
+            if (cardId && current.fotoinicialbase64) {
+                await orcamentosService.addTrelloCardId({
+                    id: current.orcamentoid,
+                    produtoId: current.id,
+                    trellocardid: cardId
+                });
+
+                await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
+
+                if (current.fotoinicial2base64) {
+                    await trelloService.addAttachmentAsync(cardId, current.fotoinicial2base64, 'Foto Real');
+                }
+
+                setCurrent({ ...current, trellocardid: cardId });
+                toast.success('Produto sincronizado no Trello com sucesso!');
+            }
+        }
+        finally {
+            setIsLoadingTrello(false);
         }
     }
     const loadInfo = async () => {
@@ -331,6 +340,18 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 {shouldShowTrelloButton() && <ReportButton onClick={onSendToTrello}>
                     {current.trellocardid ? 'Atualizar no Trello' : 'Enviar para o Trello'}
                 </ReportButton>}
+                {isLoadingTrello && <CircularProgress
+                    variant="indeterminate"
+                    disableShrink
+                    style={{
+                        color: '#1a90ff',
+                        animationDuration: '550ms',
+                        left: 0
+                    }}
+                    size={40}
+                    thickness={4}
+                    {...props}
+                />}
                 <NormalButton onClick={onSave} color="primary">
                     Salvar
                 </NormalButton>

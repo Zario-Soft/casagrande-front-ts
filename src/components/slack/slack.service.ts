@@ -2,24 +2,28 @@ import axios from "axios";
 import { SLACK_TOKEN } from "src/infrastructure/env"
 
 export class SlackService {
-    private readonly BASE_URL: string = 'https://api.slack.com/';
+    private readonly BASE_URL: string = 'https://slack.com/api';
 
     async sendMessageAsync(message: string, channelId: string): Promise<void> {
-        const response = await axios.post(
-            'chat.postMessage',
-            {
-                token: SLACK_TOKEN,
-                channel: channelId,
-                text: message
-            },
-            {
-                baseURL: this.BASE_URL,
-                timeout: 30000,
-                responseType: 'json',
-            }
-        );
+        try {
+            const body = `text=${JSON.stringify(message)}&token=${SLACK_TOKEN}&channel=${channelId}`;
 
-        return response.data.id;
+            await axios.post(
+                'chat.postMessage',
+                body,
+                {
+                    baseURL: this.BASE_URL,
+                    timeout: 30000,
+                    transformRequest(data, headers) {
+                        delete headers['Content-Type'];
+                        return data;
+                      }
+                }
+            );
+        }
+        catch (e: any) {
+            console.error(e);
+        }
     }
 
     

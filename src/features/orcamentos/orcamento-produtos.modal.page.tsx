@@ -11,7 +11,8 @@ import './orcamento.css';
 import { ImageDownloader } from "src/components/image-downloader/image-downloader.component";
 import { TrelloService } from "src/components/trello/trello.service";
 import { OrcamentosService } from "./orcamentos.service";
-
+import { SlackService } from "src/components/slack/slack.service";
+import { GetLoggerUser } from "src/infrastructure/helpers";
 
 export interface UpsertModalOrcamentoProdutosProps {
     current?: OrcamentoProdutoGrid,
@@ -53,8 +54,13 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                     name: current.observacaotecnica2.split('\n')[0],
                     desc: current.observacaotecnica2
                 });
+
+
+                //await updateImages(current.trellocardid);
+
+                await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* atualizado pelo usuário *${GetLoggerUser()}*`, 'C08H4DB0C01');
+
                 toast.success('Produto atualizado no Trello com sucesso!');
-                await slackService.sendMessageAsync(`Produto ${current.id} do orçamento ${current.orcamentoid} atualizado pelo usuário ${GetLoggerUser()}!`, 'C08H4DB0C01');
                 return;
             }
 
@@ -71,21 +77,29 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                     trellocardid: cardId
                 });
 
-                await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
-
-                if (current.fotoinicial2base64) {
-                    await trelloService.addAttachmentAsync(cardId, current.fotoinicial2base64, 'Foto Real');
-                }
+                await updateImages(cardId);
 
                 setCurrent({ ...current, trellocardid: cardId });
                 toast.success('Produto sincronizado no Trello com sucesso!');
-                await slackService.sendMessageAsync(`Produto ${current.id} do orçamento ${current.orcamentoid} sincronizado com teste no trello pelo usuário ${GetLoggerUser()}!`, 'C08H4DB0C01');
+                await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* sincronizado com teste no trello pelo usuário *${GetLoggerUser()}*.`, 'C08H4DB0C01');
             }
         }
         finally {
             setIsLoadingTrello(false);
         }
     }
+
+    const updateImages = async (cardId: string) => {
+        //se o card existe, apagar cover antiga e colocar a nova
+        if (cardId && current.fotoinicialbase64) {
+            await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
+
+            if (current.fotoinicial2base64) {
+                await trelloService.addAttachmentAsync(cardId, current.fotoinicial2base64, 'Foto Real');
+            }
+        }
+    }
+
     const loadInfo = async () => {
         if (!props.current) return;
 

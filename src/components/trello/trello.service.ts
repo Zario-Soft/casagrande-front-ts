@@ -78,6 +78,38 @@ export class TrelloService {
         return response.data.id;
     }
 
+    async updateAttachmentAsync(cardId: string, fileBase64: string, name: string, setCover: boolean = false): Promise<void> {
+        const attachments = await axios.get(
+            `cards/${cardId}/attachments`,
+            {
+                baseURL: this.BASE_URL,
+                timeout: 30000,
+                responseType: 'json',
+                params: {
+                    ...this.getDefaultParams()
+                },
+            },
+        );
+
+        if (attachments.data)
+            attachments.data.forEach(async (attachment: { id: string }) => {
+                await axios.delete(
+                    `cards/${cardId}/attachments/${attachment.id}`,
+                    {
+                        baseURL: this.BASE_URL,
+                        timeout: 30000,
+                        responseType: 'json',
+                        params: {
+                            ...this.getDefaultParams()
+                        },
+                    },
+                );
+            });
+
+
+        await this.addAttachmentAsync(cardId, fileBase64, name, setCover);
+    }
+
     private getDefaultParams() {
         return {
             'key': TRELLO_API_KEY,

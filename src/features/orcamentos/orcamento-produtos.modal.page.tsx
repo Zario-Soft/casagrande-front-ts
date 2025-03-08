@@ -56,7 +56,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 });
 
 
-                //await updateImages(current.trellocardid);
+                await updateImages(current.trellocardid, true);
 
                 await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* atualizado pelo usuário *${GetLoggerUser()}*`, 'C08H4DB0C01');
 
@@ -89,10 +89,15 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         }
     }
 
-    const updateImages = async (cardId: string) => {
-        //se o card existe, apagar cover antiga e colocar a nova
+    const updateImages = async (cardId: string, update: boolean = false) => {
         if (cardId && current.fotoinicialbase64) {
-            await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
+
+            if (update) {
+                trelloService.updateAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
+            }
+            else {
+                await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
+            }
 
             if (current.fotoinicial2base64) {
                 await trelloService.addAttachmentAsync(cardId, current.fotoinicial2base64, 'Foto Real');

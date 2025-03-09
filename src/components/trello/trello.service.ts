@@ -33,6 +33,23 @@ export class TrelloService {
         return response.data.id;
     }
 
+    async addCardChecklistAsync(cardId: string, checklistId: string): Promise<void> {
+        await axios.post(
+            `cards/${cardId}/checklist`,
+            undefined,
+            {
+                baseURL: this.BASE_URL,
+                timeout: 30000,
+                responseType: 'json',
+                params: {
+                    ...this.getDefaultParams(),
+                    'pos': 'top',
+                    'idChecklistSource': checklistId,
+                },
+            },
+        );
+    }
+
     async updateCardAsync(card: CardRequest): Promise<void> {
         if (!card.id) return;
 

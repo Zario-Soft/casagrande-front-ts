@@ -2,6 +2,7 @@ import { HttpClient } from '../../infrastructure/httpclient.component';
 
 export enum ConfigName {
     trello_teste_listaid = 'trello.teste.listaid',
+    trello_teste_checklistid = 'trello.teste.checklistid',
     slack_teste_groupoid = 'slack.teste.groupoid',
 }
 

@@ -69,6 +69,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             }
 
             const trello_config = await configurationService.get(ConfigName.trello_teste_listaid, configs);
+            const checklist_config = await configurationService.get(ConfigName.trello_teste_checklistid, configs);
 
             const cardId = await trelloService.createCardAsync({
                 name: current.observacaotecnica2.split('\n')[0],
@@ -84,6 +85,10 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 });
 
                 await updateImages(cardId);
+
+                if (checklist_config){
+                    await trelloService.addCardChecklistAsync(cardId, checklist_config.valor!);
+                }
 
                 setCurrent({ ...current, trellocardid: cardId });
                 toast.success('Produto sincronizado no Trello com sucesso!');

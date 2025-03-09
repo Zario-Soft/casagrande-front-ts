@@ -13,6 +13,7 @@ import { TrelloService } from "src/components/trello/trello.service";
 import { OrcamentosService } from "./orcamentos.service";
 import { SlackService } from "src/components/slack/slack.service";
 import { GetLoggerUser } from "src/infrastructure/helpers";
+import ConfigurationService, { ConfigName } from "../configuracoes/config.service";
 
 export interface UpsertModalOrcamentoProdutosProps {
     current?: OrcamentoProdutoGrid,
@@ -26,6 +27,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
     const trelloService = new TrelloService();
     const orcamentosService = new OrcamentosService();
     const slackService = new SlackService();
+    const configurationService = new ConfigurationService();
 
     const [isLoadingTrello, setIsLoadingTrello] = useState(false);
 
@@ -48,6 +50,9 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         try {
             setIsLoadingTrello(true);
 
+            const configs = await configurationService.getAll();
+            const slack_config = await configurationService.get(ConfigName.slack_teste_groupoid, configs);
+
             if (current.trellocardid) {
                 await trelloService.updateCardAsync({
                     id: current.trellocardid,
@@ -55,19 +60,20 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                     desc: current.observacaotecnica2
                 });
 
-
                 await updateImages(current.trellocardid, true);
 
-                await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* atualizado pelo usuário *${GetLoggerUser()}*`, 'C08H4DB0C01');
+                await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* atualizado pelo usuário *${GetLoggerUser()}*`, slack_config!.valor!);
 
                 toast.success('Produto atualizado no Trello com sucesso!');
                 return;
             }
 
+            const trello_config = await configurationService.get(ConfigName.trello_teste_listaid, configs);
+
             const cardId = await trelloService.createCardAsync({
                 name: current.observacaotecnica2.split('\n')[0],
                 desc: current.observacaotecnica2,
-                listId: '5d92322ff1e87c895ce737ee'
+                listId: trello_config!.valor!
             });
 
             if (cardId && current.fotoinicialbase64) {
@@ -81,7 +87,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
                 setCurrent({ ...current, trellocardid: cardId });
                 toast.success('Produto sincronizado no Trello com sucesso!');
-                await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* sincronizado com teste no trello pelo usuário *${GetLoggerUser()}*.`, 'C08H4DB0C01');
+                await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* sincronizado com teste no trello pelo usuário *${GetLoggerUser()}*.`, slack_config!.valor!);
             }
         }
         finally {

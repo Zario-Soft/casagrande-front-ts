@@ -4,7 +4,7 @@ import { PaperComponent } from "src/components/dialogs";
 import { UsuarioDTO } from "./configuracoes.contracts"
 import { useState } from "react";
 import { toast } from "react-toastify";
-import ConfiguracaoService from "./configuracoes.service";
+import UserService from "./config-usuario.service";
 import md5 from "md5";
 import { useAppSelector } from "src/redux-ts/hooks";
 import { getAllRoutes } from "src/redux-ts";
@@ -16,7 +16,7 @@ export interface UpsertModalUsuarioProps {
 
 export default function UpsertModalUsuario(props: UpsertModalUsuarioProps) {
     const isNew = !props.usuario || !props.usuario?.id;
-    const configuracaoService = new ConfiguracaoService();
+    const userService = new UserService();
     const all_routes_components = useAppSelector(getAllRoutes);
     const [current, setCurrent] = useState<UsuarioDTO>(props.usuario ?
         { ...props.usuario, allowed_routes: props.usuario.allowed_routes || [] }
@@ -35,12 +35,12 @@ export default function UpsertModalUsuario(props: UpsertModalUsuarioProps) {
 
             if (isNew) {
 
-                await configuracaoService.new({ ...current, password: md5(current.password) });
+                await userService.new({ ...current, password: md5(current.password) });
 
                 props.onClose("Registro criado com sucesso");
             }
             else {
-                await configuracaoService.edit({ ...current, password: current.password ? md5(current.password) : '' });
+                await userService.edit({ ...current, password: current.password ? md5(current.password) : '' });
 
                 props.onClose("Registro alterado com sucesso");
             }

@@ -1,7 +1,7 @@
 import { HttpClient } from '../../infrastructure/httpclient.component';
 import { UsuarioDTO, UsuarioRequest, UsuarioResponse } from './configuracoes.contracts';
 
-export class ConfiguracaoService {
+export class UserService {
     private readonly request: HttpClient;
     private readonly BASE_URL: string = 'usuarios';
 
@@ -46,4 +46,4 @@ export class ConfiguracaoService {
     }
 }
 
-export default ConfiguracaoService;
+export default UserService;

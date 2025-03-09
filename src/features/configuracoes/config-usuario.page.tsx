@@ -7,14 +7,14 @@ import ZGrid, { ZGridColDef } from "src/components/z-grid";
 import { useContext, useEffect, useState } from "react";
 import { LoadingContext } from "src/providers/loading.provider";
 import { UsuarioDTO } from "./configuracoes.contracts";
-import { ConfiguracaoService } from "./configuracoes.service";
+import { UserService } from "./config-usuario.service";
 import UpsertModalUsuario from "./config-usuario-modal.page";
 import { getAllRoutes } from "src/redux-ts";
 import { useAppSelector } from "src/redux-ts/hooks";
 import { IsAdmin } from "src/infrastructure/helpers";
 
 export default function CadastroUsuario() {
-    const configuracaoService = new ConfiguracaoService();
+    const userService = new UserService();
     const { setIsLoading } = useContext(LoadingContext);
     const [data, setData] = useState<UsuarioDTO[]>([]);
     const [selected, setSelected] = useState<UsuarioDTO>();
@@ -56,7 +56,7 @@ export default function CadastroUsuario() {
         try {
             await setIsLoading(true);
 
-            const data = await configuracaoService.getAll();
+            const data = await userService.getAll();
             await setData(data.map(d => ({ ...d, is_admin: d.isadmin, allowed_routes: d.allowed_routes.split(',') })));
 
         } catch {
@@ -93,7 +93,7 @@ export default function CadastroUsuario() {
     const onConfirmExclusion = async () => {
         if (!selected) return;
 
-        await configuracaoService.delete(selected.id);
+        await userService.delete(selected.id);
         await toast.success('Usuário excluído com sucesso');
         await refresh();
     }

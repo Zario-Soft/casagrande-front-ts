@@ -2,61 +2,6 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { AppDispatch, selectToken, unauthenticate } from '../redux-ts';
 import { useAppDispatch, useAppSelector } from '../redux-ts/hooks';
 import { API_URL } from './env';
-import { useEffect } from 'react';
-
-export function FuncHttpClient() {
-    const token: string = useAppSelector(selectToken);
-    const dispatch: AppDispatch = useAppDispatch();
-
-    useEffect(() => {
-        axios.interceptors.response.use(
-            (response: any) => response,
-            (errorObj: any) => {
-                if (errorObj && errorObj.response && errorObj.response.status === 401 && errorObj.request.responseURL.startsWith(API_URL)) {
-                    dispatch(unauthenticate())
-                    
-                    localStorage.removeItem('token');
-                    window.location.reload();
-                }
-
-                return errorObj
-            });
-    })
-    
-    function getDefaultOptions() {
-        return {
-            headers: {
-                Authorization: token ? `Bearer ${token}` : '',
-                'Content-Type': 'application/json',
-            },
-            baseURL: API_URL,
-            timeout: 30000
-        }
-    }
-    
-    const get = (url: string, options: AxiosRequestConfig<any> = {}): Promise<AxiosResponse<any, any>> => {
-        return axios.get(url, { ...getDefaultOptions(), ...options });
-    }
-
-    const post = (url: string, data: any, options: AxiosRequestConfig<any> = {}): Promise<AxiosResponse<any, any>> => {
-        return axios.post(url, data, { ...getDefaultOptions(), ...options });
-    }
-
-    const patch = (url: string, data: any, options: AxiosRequestConfig<any> = {}): Promise<AxiosResponse<any, any>> =>  {
-        return axios.patch(url, data, { ...getDefaultOptions(), ...options });
-    }
-
-    const put = (url: string, data: any, options: AxiosRequestConfig<any> = {}): Promise<AxiosResponse<any, any>> => {
-        return axios.put(url, data, { ...getDefaultOptions(), ...options });
-    }
-    
-    return {
-        get,
-        post,
-        patch,
-        put
-    }
-}
 
 export class HttpClient {
     private token: string = useAppSelector(selectToken);
@@ -66,7 +11,7 @@ export class HttpClient {
         axios.interceptors.response.use(
             (response: any) => response,
             (errorObj: any) => {
-                if (errorObj && errorObj.response && errorObj.response.status === 401) {
+                if (errorObj && errorObj.response && errorObj.response.status === 401 && errorObj.request.responseURL.startsWith(API_URL)) {
                     this.dispatch(unauthenticate())
                     
                     localStorage.removeItem('token');

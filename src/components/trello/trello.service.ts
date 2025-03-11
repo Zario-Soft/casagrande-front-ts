@@ -33,9 +33,10 @@ export class TrelloService {
         return response.data.id;
     }
 
-    async addCardChecklistAsync(cardId: string, checklistId: string): Promise<void> {
-        await axios.post(
-            `cards/${cardId}/checklist`,
+    async addCardChecklistAsync(cardId: string, checklistItems: string): Promise<void> {
+        //Create a checklist
+        const { data } = await axios.post(
+            `cards/${cardId}/checklists`,
             undefined,
             {
                 baseURL: this.BASE_URL,
@@ -44,10 +45,29 @@ export class TrelloService {
                 params: {
                     ...this.getDefaultParams(),
                     'pos': 'top',
-                    'idChecklistSource': checklistId,
+                    'name': 'Checklist de testes'
                 },
             },
         );
+
+        //Create items on the checklist
+        const checklistId = data.id;
+        const arr = checklistItems.split(',');
+        for (const index in arr) {
+            await axios.post(
+                `checklists/${checklistId}/checkItems`,
+                undefined,
+                {
+                    baseURL: this.BASE_URL,
+                    timeout: 30000,
+                    responseType: 'json',
+                    params: {
+                        ...this.getDefaultParams(),
+                        'name': arr[index].trim(),
+                        'pos': 'bottom'
+                    }
+                });
+        }
     }
 
     async updateCardAsync(card: CardRequest): Promise<void> {

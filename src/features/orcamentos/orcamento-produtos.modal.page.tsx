@@ -69,7 +69,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             }
 
             const trello_config = await configurationService.get(ConfigName.trello_teste_listaid, configs);
-            const checklist_config = await configurationService.get(ConfigName.trello_teste_checklistid, configs);
+            const checklist_config = await configurationService.get(ConfigName.trello_teste_checklistitems, configs);
 
             const cardId = await trelloService.createCardAsync({
                 name: current.observacaotecnica2.split('\n')[0],
@@ -104,14 +104,22 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         if (cardId && current.fotoinicialbase64) {
 
             if (update) {
-                trelloService.updateAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
+                trelloService.updateAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto do cliente', true);
             }
             else {
-                await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto Inicial', true);
+                await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto do cliente', true);
             }
 
             if (current.fotoinicial2base64) {
-                await trelloService.addAttachmentAsync(cardId, current.fotoinicial2base64, 'Foto Real');
+                await trelloService.addAttachmentAsync(cardId, current.fotoinicial2base64, 'Foto do cliente 2');
+            }
+
+            if (current.fotorealbase64) {
+                await trelloService.addAttachmentAsync(cardId, current.fotorealbase64, 'Foto da produção 1');
+            }
+
+            if (current.fotoreal2base64) {
+                await trelloService.addAttachmentAsync(cardId, current.fotoreal2base64, 'Foto da produção 2');
             }
         }
     }

@@ -1,5 +1,5 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, Button } from "@mui/material";
-import { NormalButton, WarningButton } from "src/components/buttons";
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, Button, CircularProgress } from "@mui/material";
+import { NormalButton, ReportButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import { OrcamentoProdutoGrid } from "./orcamentos.contracts";
 import { toast } from "react-toastify";
@@ -9,7 +9,11 @@ import { useEffect, useState } from "react";
 import ImageUploader from "src/components/image-uploader/image-uploader.component";
 import './orcamento.css';
 import { ImageDownloader } from "src/components/image-downloader/image-downloader.component";
-
+import { TrelloService } from "src/components/trello/trello.service";
+import { OrcamentosService } from "./orcamentos.service";
+import { SlackService } from "src/components/slack/slack.service";
+import { GetLoggerUser } from "src/infrastructure/helpers";
+import ConfigurationService, { ConfigName } from "../configuracoes/config.service";
 
 export interface UpsertModalOrcamentoProdutosProps {
     current?: OrcamentoProdutoGrid,
@@ -20,6 +24,12 @@ export interface UpsertModalOrcamentoProdutosProps {
 export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamentoProdutosProps) {
     const isNew = !props.current || !props.current?.id;
     const imgHandler = new ImageDownloader();
+    const trelloService = new TrelloService();
+    const orcamentosService = new OrcamentosService();
+    const slackService = new SlackService();
+    const configurationService = new ConfigurationService();
+
+    const [isLoadingTrello, setIsLoadingTrello] = useState(false);
 
     const [current, setCurrent] = useState(props.current ??
         {
@@ -31,6 +41,88 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         loadInfo();
         // eslint-disable-next-line
     }, [props.current]);
+
+    const shouldShowTrelloButton = () => {
+        return !isLoadingTrello && !isNew && current.fotoinicialbase64 && current.observacaotecnica2;
+    }
+
+    const onSendToTrello = async () => {
+        try {
+            setIsLoadingTrello(true);
+
+            const configs = await configurationService.getAll();
+            const slack_config = await configurationService.get(ConfigName.slack_teste_groupoid, configs);
+
+            if (current.trellocardid) {
+                await trelloService.updateCardAsync({
+                    id: current.trellocardid,
+                    name: current.observacaotecnica2.split('\n')[0],
+                    desc: current.observacaotecnica2
+                });
+
+                await updateImages(current.trellocardid, true);
+
+                await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* atualizado pelo usuário *${GetLoggerUser()}*`, slack_config!.valor!);
+
+                toast.success('Produto atualizado no Trello com sucesso!');
+                return;
+            }
+
+            const trello_config = await configurationService.get(ConfigName.trello_teste_listaid, configs);
+            const checklist_config = await configurationService.get(ConfigName.trello_teste_checklistitems, configs);
+
+            const cardId = await trelloService.createCardAsync({
+                name: current.observacaotecnica2.split('\n')[0],
+                desc: current.observacaotecnica2,
+                listId: trello_config!.valor!
+            });
+
+            if (cardId && current.fotoinicialbase64) {
+                await orcamentosService.addTrelloCardId({
+                    id: current.orcamentoid,
+                    produtoId: current.id,
+                    trellocardid: cardId
+                });
+
+                await updateImages(cardId);
+
+                if (checklist_config){
+                    await trelloService.addCardChecklistAsync(cardId, checklist_config.valor!);
+                }
+
+                setCurrent({ ...current, trellocardid: cardId });
+                toast.success('Produto sincronizado no Trello com sucesso!');
+                await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* sincronizado com teste no trello pelo usuário *${GetLoggerUser()}*.`, slack_config!.valor!);
+            }
+        }
+        finally {
+            setIsLoadingTrello(false);
+        }
+    }
+
+    const updateImages = async (cardId: string, update: boolean = false) => {
+        if (cardId && current.fotoinicialbase64) {
+
+            if (update) {
+                trelloService.updateAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto do cliente', true);
+            }
+            else {
+                await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto do cliente', true);
+            }
+
+            if (current.fotoinicial2base64) {
+                await trelloService.addAttachmentAsync(cardId, current.fotoinicial2base64, 'Foto do cliente 2');
+            }
+
+            if (current.fotorealbase64) {
+                await trelloService.addAttachmentAsync(cardId, current.fotorealbase64, 'Foto da produção 1');
+            }
+
+            if (current.fotoreal2base64) {
+                await trelloService.addAttachmentAsync(cardId, current.fotoreal2base64, 'Foto da produção 2');
+            }
+        }
+    }
 
     const loadInfo = async () => {
         if (!props.current) return;
@@ -46,7 +138,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
         req['fotoreal2base64'] = await imgHandler.downloadOnFront(current.fotoreal2);
 
-        await setCurrent(req);
+        setCurrent(req);
     }
 
     const onSave = async () => {
@@ -286,6 +378,21 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 </div>
             </DialogContent>
             <DialogActions>
+                {shouldShowTrelloButton() && <ReportButton onClick={onSendToTrello}>
+                    {current.trellocardid ? 'Atualizar no Trello' : 'Enviar para o Trello'}
+                </ReportButton>}
+                {isLoadingTrello && <CircularProgress
+                    variant="indeterminate"
+                    disableShrink
+                    style={{
+                        color: '#1a90ff',
+                        animationDuration: '550ms',
+                        left: 0
+                    }}
+                    size={40}
+                    thickness={4}
+                    {...props}
+                />}
                 <NormalButton onClick={onSave} color="primary">
                     Salvar
                 </NormalButton>

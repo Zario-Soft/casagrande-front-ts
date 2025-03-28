@@ -12,6 +12,13 @@ export const formatDateUnknown = (date: Date) => moment(date).format("yyyy-MM-DD
 const moneyFormater = Intl.NumberFormat("pt-br", { style: 'currency', currency: 'BRL' })
 export const formatMoney = (params: any) => moneyFormater.format(params);
 
+export const GetLoggerUser = () => {
+    const decodedToken = DecodedToken();
+    if (!decodedToken) return false;
+
+    return decodedToken.iss;
+}
+
 export const parseJwt = (token: string) => {
     if (!token) return;
 

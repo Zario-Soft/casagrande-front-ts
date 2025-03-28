@@ -23,7 +23,13 @@ const columns: ZGridColDef[] = [
     { field: 'produtodescricao', headerName: 'Produto', width: 290 },
     { field: 'quantidade', headerName: 'Quantidade', width: 150 },
     { field: 'cornome', headerName: 'Cor', width: 150 },
-    { field: 'generodescricao', headerName: 'Gênero', width: 150 }
+    { field: 'generodescricao', headerName: 'Gênero', width: 150 },
+    { 
+        field: 'trellocardid', 
+        headerName: 'Vinculado ao Trello?', 
+        width: 150, 
+        valueFormatter: (value: any) => value ? '✅ Sim' : '❌ Não' 
+    },
 ]
 
 export interface UpsertModalProps {

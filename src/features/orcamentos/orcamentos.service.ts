@@ -88,6 +88,14 @@ export class OrcamentosService {
         await this.request.patch(`${this.BASE_URL}/${request.id}`, { observacao: request.observacao });
     }
 
+    public async addTrelloCardId(request: { id: number, produtoId: number, trellocardid: string }): Promise<any> {
+        await this.request.patch(`${this.BASE_URL}/${request.id}/produto/${request.produtoId}`, { trello_card_id: request.trellocardid });
+    }
+
+    public async removeTrelloCardId(request: { id: number, produtoId: number }): Promise<any> {
+        await this.request.patch(`${this.BASE_URL}/${request.id}/produto/${request.produtoId}`, { trello_card_id: '' });
+    }
+
     public async addCode(request: { id: number, code: string }): Promise<any> {
         await this.request.patch(`${this.BASE_URL}-code/${request.id}`, { codigo: request.code });
     }

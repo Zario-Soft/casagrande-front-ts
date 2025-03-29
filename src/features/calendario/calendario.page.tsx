@@ -39,8 +39,6 @@ export default function Calendario() {
 
             const data = await calendarioService.getAll(amount ?? navigation.amount);
 
-            console.log(data);
-
             if (data) {
                 await setCurrent(data);
                 await setTitle(data.titulo);

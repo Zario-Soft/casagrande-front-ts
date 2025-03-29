@@ -21,6 +21,7 @@ export default function CalendarItem(props: CalendarioDateProps) {
                             fontSize: 12
                         }}>
                             {props.titulo}
+                            {props.itens && props.itens.length > 0 && ` (${props.itens.reduce((acc, item) => acc + item.quantidade, 0)} pares)`}
                             </TableCell>
                     </TableRow>
                 </TableHead>

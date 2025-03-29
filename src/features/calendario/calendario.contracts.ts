@@ -10,5 +10,6 @@ export interface CalendarioDate {
 
 export interface CalendarioDateItem {
     vendaid: number,
-    clientenome: string
+    clientenome: string,
+    quantidade: number    
 }

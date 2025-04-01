@@ -1,8 +1,7 @@
-import { HttpClient } from '../../infrastructure/httpclient.component';
+import { HttpClient } from '../../../infrastructure/httpclient.component';
 import { CorDTO } from './cor.contracts';
 
 export class CorService {
-    
     private readonly request: HttpClient;
     private readonly BASE_URL: string = 'cor';
 
@@ -21,6 +20,9 @@ export class CorService {
     }
     async edit(cor: CorDTO) {
         await this.request.put(`${this.BASE_URL}/${cor.id}`, cor);
+    }
+    public async delete(id: number) {
+        await this.request.delete(`${this.BASE_URL}/${id}`);
     }
 }
 

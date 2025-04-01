@@ -3,7 +3,7 @@ import { NormalButton, ReportButton, WarningButton } from "src/components/button
 import { PaperComponent } from "src/components/dialogs";
 import { OrcamentoProdutoGrid } from "./orcamentos.contracts";
 import { toast } from "react-toastify";
-import CorLookup from "../cor/cor-lookup.component";
+import CorLookup from "../configuracoes/cor/cor-lookup.component";
 import ProdutosLookup from "../produtos/produtos-lookup.component";
 import { useEffect, useState } from "react";
 import ImageUploader from "src/components/image-uploader/image-uploader.component";

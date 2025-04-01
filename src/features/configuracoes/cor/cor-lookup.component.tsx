@@ -4,7 +4,7 @@ import CorService from "./cor.service";
 import { toast } from "react-toastify";
 import { CorDTO } from "./cor.contracts";
 import UpsertModalCor from "./cor-modal.page";
-import { LookupProps } from "../common/base-contracts";
+import { LookupProps } from "../../common/base-contracts";
 import { IsAuthorized } from "src/infrastructure/helpers";
 
 export interface CorLookupProps

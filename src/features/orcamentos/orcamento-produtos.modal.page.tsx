@@ -23,6 +23,7 @@ export interface UpsertModalOrcamentoProdutosProps {
 
 export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamentoProdutosProps) {
     const isNew = !props.current || !props.current?.id;
+    const previous = props.current ?? {} as OrcamentoProdutoGrid;
     const imgHandler = new ImageDownloader();
     const trelloService = new TrelloService();
     const orcamentosService = new OrcamentosService();
@@ -61,8 +62,29 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 });
 
                 await updateImages(current.trellocardid, true);
+                let message = `Produto *${current.id}* do orçamento *${current.orcamentoid}* atualizado pelo usuário *${GetLoggerUser()}*:`;
 
-                await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* atualizado pelo usuário *${GetLoggerUser()}*`, slack_config!.valor!);
+                if (previous.observacaotecnica2 !== current.observacaotecnica2) {
+                    message += `\n- Mudança na observação técnica\n*ANTES:*\n${previous.observacaotecnica2}\n\n*DEPOIS:*\n${current.observacaotecnica2}`;
+                }
+
+                if (previous.fotoinicialbase64 !== current.fotoinicialbase64) {
+                    message += `\n- Mudança na foto do cliente 1`;
+                }
+
+                if (previous.fotoinicial2base64 !== current.fotoinicial2base64) {
+                    message += `\n- Mudança na foto do cliente 2`;
+                }
+
+                if (previous.fotorealbase64 !== current.fotorealbase64) {
+                    message += `\n- Mudança na foto de produção 1`;
+                }
+
+                if (previous.fotoreal2base64 !== current.fotoreal2base64) {
+                    message += `\n- Mudança na foto de produção 2`;
+                }
+
+                await slackService.sendMessageAsync(message, slack_config!.valor!);
 
                 toast.success('Produto atualizado no Trello com sucesso!');
                 return;

@@ -71,14 +71,15 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         try {
             const data = await orcamentosService.getAllOrcamentoProdutos(orcamento.id);
             if (data && data.length) {
-                const localOrcamentoProdutos = data.map(p => {
+                const localOrcamentoProdutos: OrcamentoProdutoGrid[] = data.map(p => {
                     return {
                         cornome: p.cornome,
                         generodescricao: p.generodescricao,
                         produtodescricao: p.produtodescricao,
                         produtovalor: p.produtovalor,
-                        ...p.orcamentoproduto
-                    }
+                        clientenome: current.clientenome,
+                        ...p.orcamentoproduto,
+                    } as OrcamentoProdutoGrid
                 });
 
                 await setAllOrcamentosProdutos(localOrcamentoProdutos.sort((a, b) => a.id > b.id ? 1 : -1));

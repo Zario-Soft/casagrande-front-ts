@@ -83,6 +83,7 @@ export interface OrcamentoProdutoGrid
     extends OrcamentoProdutoDTO {
     produtovalor: number,
     cornome: string,
+    clientenome: string,
     generodescricao: string,
     produtodescricao: string,
 }

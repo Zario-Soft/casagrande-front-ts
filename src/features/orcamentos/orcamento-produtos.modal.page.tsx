@@ -54,10 +54,12 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             const configs = await configurationService.getAll();
             const slack_config = await configurationService.get(ConfigName.slack_teste_groupoid, configs);
 
+            const cardName = `${current.clientenome} ${current.observacaotecnica1 ? current.observacaotecnica1.split('\n').join(' ') : ''}`;
+
             if (current.trellocardid) {
                 await trelloService.updateCardAsync({
                     id: current.trellocardid,
-                    name: current.observacaotecnica2.split('\n')[0],
+                    name: cardName,
                     desc: current.observacaotecnica2
                 });
 
@@ -94,7 +96,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             const checklist_config = await configurationService.get(ConfigName.trello_teste_checklistitems, configs);
 
             const cardId = await trelloService.createCardAsync({
-                name: current.observacaotecnica2.split('\n')[0],
+                name: cardName,
                 desc: current.observacaotecnica2,
                 listId: trello_config!.valor!
             });

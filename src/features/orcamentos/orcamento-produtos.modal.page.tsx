@@ -54,7 +54,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             const configs = await configurationService.getAll();
             const slack_config = await configurationService.get(ConfigName.slack_teste_groupoid, configs);
 
-            const cardName = `${current.clientenome} ${current.observacaotecnica1 ? current.observacaotecnica1.split('\n').join(' ') : ''}`;
+            const cardName = `${current.observacaotecnica2.split('\n')[0]}`;
 
             if (current.trellocardid) {
                 await trelloService.updateCardAsync({

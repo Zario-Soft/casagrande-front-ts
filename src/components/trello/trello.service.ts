@@ -84,6 +84,8 @@ export class TrelloService {
                     ...this.getDefaultParams(),
                     'name': card.name,
                     'desc': card.desc,
+                    'idList': card.listId,
+                    'pos': 'top',
                 },
             },
         );

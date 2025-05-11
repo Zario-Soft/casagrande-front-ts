@@ -53,6 +53,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
             const configs = await configurationService.getAll();
             const slack_config = await configurationService.get(ConfigName.slack_teste_groupoid, configs);
+            const trello_config = await configurationService.get(ConfigName.trello_teste_listaid, configs);
 
             const cardName = `${current.observacaotecnica2.split('\n')[0]}`;
 
@@ -60,7 +61,8 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 await trelloService.updateCardAsync({
                     id: current.trellocardid,
                     name: cardName,
-                    desc: current.observacaotecnica2
+                    desc: current.observacaotecnica2,
+                    listId: trello_config!.valor!
                 });
 
                 await updateImages(current.trellocardid, true);
@@ -91,8 +93,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 toast.success('Produto atualizado no Trello com sucesso!');
                 return;
             }
-
-            const trello_config = await configurationService.get(ConfigName.trello_teste_listaid, configs);
+            
             const checklist_config = await configurationService.get(ConfigName.trello_teste_checklistitems, configs);
 
             const cardId = await trelloService.createCardAsync({
@@ -116,7 +117,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
                 setCurrent({ ...current, trellocardid: cardId });
                 toast.success('Produto sincronizado no Trello com sucesso!');
-                await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* sincronizado com teste no trello pelo usuário *${GetLoggerUser()}*.`, slack_config!.valor!);
+                await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* sincronizado com teste no trello pelo usuário *${GetLoggerUser()}*:\n${current.observacaotecnica2}.`, slack_config!.valor!);
             }
         }
         finally {

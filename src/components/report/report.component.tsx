@@ -60,6 +60,7 @@ export default function Report(props: ReportProps) {
                         key={index}
                         title={item.title}
                         images={(item as ReportContentImageSummary).images}
+                        imageItems={(item as ReportContentImageSummary).imageItems}
                         breakPage={item.breakPage}
                         visible={item.visible ?? true}
                         description={item.description}

@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     },
 
     invoiceSummaryBodyImageContainer: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         marginTop: 6,
         borderStyle: 'solid',
         borderWidth: '3px',
@@ -113,35 +113,80 @@ export function SummaryReport(props: ReportContentSummaryProps) {
                     style={styles.invoiceClientLineContainer}>
                     {item.title && <Text style={styles.label}>{item.title}</Text>}
                     <Text style={{ fontSize: item.fontSize ?? 12 }}>{item.value}</Text>
-                </View > : <></>
+                </View> : <></>
             })}
         </View>
     </View>
 }
 
-interface ImageContent {
+// interface ImageContent {
+//     content: string,
+//     description?: string,
+//     index: number
+// }
+
+interface ImageContentNovo {
+    items: ImageContentNovoItem[],
+    description: string
+}
+
+interface ImageContentNovoItem {
     content: string,
     index: number
 }
 
 export function SummaryImageReport(props: ReportContentImageSummaryProps) {
-    const [imageContent, setImageContent] = useState<ImageContent[]>();
+    //const [imageContent, setImageContent] = useState<ImageContent[]>();
+    const [imageContentNovo, setImageContentNovo] = useState<ImageContentNovo[]>();
 
     useEffect(() => {
         const imgHandler = new ImageDownloader();
         const loadImage = async () => {
 
-            const validImages = props.images
-                .filter(image => image !== null && image !== undefined);
+            // const validImages = props.images
+            //     .filter(image => !!image);
 
-            let localImages: ImageContent[] = [];
+            // let localImages: ImageContent[] = [];
 
-            await validImages.forEach(async img => {
-                const result = await imgHandler.downloadOnFront(img!.guid)
-                if (result) {
-                    localImages = [...localImages, { content: result!, index: img!.index }];
-                    await setImageContent(localImages);
-                }
+            // await validImages.forEach(async img => {
+            //     const result = await imgHandler.downloadOnFront(img!.guid)
+            //     if (result) {
+            //         localImages = [
+            //             ...localImages,
+            //             {
+            //                 content: result!,
+            //                 index: img!.index,
+            //                 description: img!.description
+            //             }];
+            //         await setImageContent(localImages);
+            //     }
+            // });
+
+
+            const validImagesNovo = props.imageItems!;
+
+            let localImagesNovo: ImageContentNovo[] = [];
+
+            validImagesNovo.forEach(async (item) => {
+                let downloadedImages: ImageContentNovoItem[] = []
+                item.images.filter(image => !!image).forEach(async (image) => {
+                    const result = await imgHandler.downloadOnFront(image!.guid);
+                    if (result) {
+                        downloadedImages.push({
+                            content: result!,
+                            index: image!.index
+                        });
+                    }
+                });
+
+                localImagesNovo = [
+                    ...localImagesNovo,
+                    {
+                        items: downloadedImages,
+                        description: item.description
+                    }
+                ];
+                setImageContentNovo(localImagesNovo);
             });
         };
 
@@ -154,6 +199,29 @@ export function SummaryImageReport(props: ReportContentImageSummaryProps) {
             <Text style={styles.invoiceSummaryTitleLabel}>{props.title ?? 'Dados'}</Text>
         </View>
         <View style={styles.invoiceSummaryBodyImageContainer}>
+            {imageContentNovo && imageContentNovo.map((item, key) => {
+                return <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between'
+                }}>
+                    <View key={key} style={styles.invoiceClientContainer}>
+                        {item.items
+                            .sort((a, b) => a.index < b.index ? 1 : -1)
+                            .map((value, itemIndex) => {
+                                return <View key={itemIndex}>
+                                    <Image style={styles.picture} src={value.content} />
+                                </View>
+                            })}
+                    </View>
+                    <View style={styles.invoiceClientContainer}>
+                        <View style={styles.invoiceClientLineContainer}>
+                            <Text style={styles.label}>{item.description}</Text>
+                        </View>
+                    </View>
+                </View>
+            })}
+        </View>
+        {/* <View style={styles.invoiceSummaryBodyImageContainer}>
             {imageContent && <View style={styles.invoiceClientContainer}>
                 {imageContent.sort((a, b) => a.index < b.index ? 1 : -1).map(({ content: image }: ImageContent, key) => {
                     return <View key={key}>
@@ -166,6 +234,6 @@ export function SummaryImageReport(props: ReportContentImageSummaryProps) {
                     <Text style={styles.label}>{props.description}</Text>
                 </View >
             </View>
-        </View>
+        </View> */}
     </View>
 }

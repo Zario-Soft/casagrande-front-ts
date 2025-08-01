@@ -12,7 +12,7 @@ import UpsertModalOrcamentoProdutos from "./orcamento-produtos.modal.page";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import moment from "moment";
 import ReportInvoiceOrcamento from "./orcamento-invoice.report";
-import { ReportContent, ReportContentImageSummary, ReportContentImageSummaryItem, ReportContentSummary } from "src/components/report/report.interfaces";
+import { ImageItem, ReportContent, ReportContentImageSummary, ReportContentImageSummaryItem, ReportContentSummary } from "src/components/report/report.interfaces";
 import ClientesService from "../clientes/clientes.service";
 import OrcamentoCodeModal from "./orcamento-code.modal.page";
 import { nanoid } from "nanoid";
@@ -24,11 +24,11 @@ const columns: ZGridColDef[] = [
     { field: 'quantidade', headerName: 'Quantidade', width: 150 },
     { field: 'cornome', headerName: 'Cor', width: 150 },
     { field: 'generodescricao', headerName: 'Gênero', width: 150 },
-    { 
-        field: 'trellocardid', 
-        headerName: 'Vinculado ao Trello?', 
-        width: 150, 
-        valueFormatter: (value: any) => value ? '✅ Sim' : '❌ Não' 
+    {
+        field: 'trellocardid',
+        headerName: 'Vinculado ao Trello?',
+        width: 150,
+        valueFormatter: (value: any) => value ? '✅ Sim' : '❌ Não'
     },
 ]
 
@@ -307,7 +307,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                         ? [
                             {
                                 guid: item.fotoinicial ?? item.fotoinicialbase64,
-                                index: ((i + 1) * localOrcamentoProdutos.length) + i
+                                index: ((i + 1) * localOrcamentoProdutos.length) + i,
                             } as ReportContentImageSummaryItem,
                             {
                                 guid: item.fotoinicial2 ?? item.fotoinicial2base64,
@@ -325,7 +325,39 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                             } as ReportContentImageSummaryItem,
                         ]
                 })
-                .reduce((a, b) => a.concat(b))
+                .reduce((a, b) => a.concat(b)),
+            imageItems: localOrcamentoProdutos
+                .sort((a, b) => a.id > b.id ? 1 : -1)
+                .map((item, index) => {
+                    return (item.fotoinicial || item.fotoinicial2 || item.fotoinicialbase64 || item.fotoinicial2base64)
+                        ? {
+                            images: [
+                                {
+                                    guid: item.fotoinicial ?? item.fotoinicialbase64,
+                                    index: ((index + 1) * localOrcamentoProdutos.length) + index,
+                                } as ReportContentImageSummaryItem,
+                                {
+                                    guid: item.fotoinicial2 ?? item.fotoinicial2base64,
+                                    index: ((index + 2) * localOrcamentoProdutos.length) + index
+                                } as ReportContentImageSummaryItem,
+                            ],
+                            description: item.observacaotecnica1
+                        } as ImageItem
+                        : {
+                            images: [
+                                {
+                                    guid: item.fotoreal ?? item.fotorealbase64,
+                                    index: ((index + 1) * localOrcamentoProdutos.length) + index
+                                } as ReportContentImageSummaryItem,
+                                {
+                                    guid: item.fotoreal2 ?? item.fotoreal2base64,
+                                    index: ((index + 2) * localOrcamentoProdutos.length) + index
+                                } as ReportContentImageSummaryItem,
+                            ], 
+                            description: item.observacaotecnica1
+                        } as ImageItem
+                })
+                .reduce((prev, curr) => prev.concat(curr), [] as ImageItem[])
         }
 
         const datesSummary: ReportContentSummary = {

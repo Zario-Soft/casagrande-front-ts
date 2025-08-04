@@ -131,16 +131,18 @@ interface ImageContentNovo {
 }
 
 interface ImageContentNovoItem {
-    content: string,
+    content?: string,
+    guid: string,
     index: number
 }
 
 export function SummaryImageReport(props: ReportContentImageSummaryProps) {
     //const [imageContent, setImageContent] = useState<ImageContent[]>();
-    const [imageContentNovo, setImageContentNovo] = useState<ImageContentNovo[]>();
+    const [imageContentNovo, setImageContentNovo] = useState<ImageContentNovo[]>([]);
+    const imgHandler = new ImageDownloader();
 
     useEffect(() => {
-        const imgHandler = new ImageDownloader();
+        //const imgHandler = new ImageDownloader();
         const loadImage = async () => {
 
             // const validImages = props.images
@@ -162,37 +164,32 @@ export function SummaryImageReport(props: ReportContentImageSummaryProps) {
             //     }
             // });
 
-
-            const validImagesNovo = props.imageItems!;
-
-            let localImagesNovo: ImageContentNovo[] = [];
-
-            validImagesNovo.forEach(async (item) => {
-                let downloadedImages: ImageContentNovoItem[] = []
-                item.images.filter(image => !!image).forEach(async (image) => {
-                    const result = await imgHandler.downloadOnFront(image!.guid);
-                    if (result) {
-                        downloadedImages.push({
-                            content: result!,
-                            index: image!.index
-                        });
-                    }
+            let localImagesNovo: ImageContentNovo[] = props.imageItems!
+                .filter(item => item.images.filter(i => !!i).length > 0)
+                .map(item => {
+                    return {
+                        items: item.images
+                            .filter(i => !!i?.guid)
+                            .map(i => ({
+                                index: i!.index,
+                                guid: i!.guid
+                            })),
+                        description: item.description ?? ''
+                    } as ImageContentNovo;
                 });
 
-                localImagesNovo = [
-                    ...localImagesNovo,
-                    {
-                        items: downloadedImages,
-                        description: item.description
-                    }
-                ];
-                setImageContentNovo(localImagesNovo);
-            });
+            setImageContentNovo(localImagesNovo);
         };
 
         loadImage();
 
     }, [props])
+
+    const getContent = async (guid: string) => {
+        const result = await imgHandler.downloadOnFront(guid);
+
+        return result ?? '';
+    }
 
     return <View wrap break={props.breakPage ?? false}>
         <View style={styles.invoiceSummaryTitle}>
@@ -209,7 +206,7 @@ export function SummaryImageReport(props: ReportContentImageSummaryProps) {
                             .sort((a, b) => a.index < b.index ? 1 : -1)
                             .map((value, itemIndex) => {
                                 return <View key={itemIndex}>
-                                    <Image style={styles.picture} src={value.content} />
+                                    <Image style={styles.picture} src={getContent(value.guid)} />
                                 </View>
                             })}
                     </View>

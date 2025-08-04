@@ -125,13 +125,13 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
                     :
                     {
                         images: [{
-                            guid: item.orcamentoproduto.fotoreal,
-                            index: item.orcamentoproduto.id
-                        } as ReportContentImageSummaryItem,
-                        {
-                            guid: item.orcamentoproduto.fotoreal2,
-                            index: item.orcamentoproduto.id
-                        } as ReportContentImageSummaryItem
+                                guid: item.orcamentoproduto.fotoreal,
+                                index: item.orcamentoproduto.id
+                            } as ReportContentImageSummaryItem,
+                            {
+                                guid: item.orcamentoproduto.fotoreal2,
+                                index: item.orcamentoproduto.id
+                            } as ReportContentImageSummaryItem
                         ],
                         description: item.orcamentoproduto.observacaotecnica1
                     }

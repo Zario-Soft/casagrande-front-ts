@@ -113,6 +113,29 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
         const prodSummary: ReportContentImageSummary = {
             title: 'Dados para Produção',
             description: localOrcamento.observacao,
+            imageItems: orcamentoProdutos.map(item => {
+                return (!item.orcamentoproduto.fotoreal && !item.orcamentoproduto.fotoreal2)
+                    ? {
+                        images: [{
+                            guid: item.orcamentoproduto.fotoinicial,
+                            index: item.orcamentoproduto.id
+                        } as ReportContentImageSummaryItem],
+                        description: item.orcamentoproduto.observacaotecnica1,
+                    }
+                    :
+                    {
+                        images: [{
+                            guid: item.orcamentoproduto.fotoreal,
+                            index: item.orcamentoproduto.id
+                        } as ReportContentImageSummaryItem,
+                        {
+                            guid: item.orcamentoproduto.fotoreal2,
+                            index: item.orcamentoproduto.id
+                        } as ReportContentImageSummaryItem
+                        ],
+                        description: item.orcamentoproduto.observacaotecnica1
+                    }
+            }),
             images: orcamentoProdutos.map(item => {
                 return (!item.orcamentoproduto.fotoreal && !item.orcamentoproduto.fotoreal2)
                     ? [{

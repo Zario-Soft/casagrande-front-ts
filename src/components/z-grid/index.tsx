@@ -117,9 +117,9 @@ export default function ZGrid(props: ZGridProps) {
                 <IconButton color="primary" aria-label="Página anterior" component="span" onClick={async () => await onPageChange('-')}>
                     <NavigateBefore />
                 </IconButton>
-                <IconButton color="primary" aria-label="Próxima página" component="span" onClick={async () => await onPageChange('+')}>
+                {props.rows.length >= 15 && <IconButton color="primary" aria-label="Próxima página" component="span" onClick={async () => await onPageChange('+')}>
                     <NavigateNext />
-                </IconButton>
+                </IconButton>}
             </div>
         }
     </>

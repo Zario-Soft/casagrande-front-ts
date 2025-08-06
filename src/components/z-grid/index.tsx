@@ -110,7 +110,7 @@ export default function ZGrid(props: ZGridProps) {
             />
         </div>
         {
-            props.useCustomFooter && props.rows.length >= 15 && <div style={{
+            props.useCustomFooter && <div style={{
                 display: 'flex',
                 justifyContent: 'flex-end'
             }}>

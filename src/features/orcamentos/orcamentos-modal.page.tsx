@@ -47,7 +47,8 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         {
             valortotal: 0,
             excluido: 0,
-            status: 0
+            status: 0,
+            dataorcamento: moment().format("DD/MM/yyyy"),
         } as unknown as OrcamentoGrid);
     const [currentOrcamentoProduto, setCurrentOrcamentoProduto] = useState<OrcamentoProdutoGrid>();
     const [currentEditingOrcamentoProduto, setCurrentEditingOrcamentoProduto] = useState<OrcamentoProdutoGrid>();

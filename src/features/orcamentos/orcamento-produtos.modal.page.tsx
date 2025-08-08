@@ -93,7 +93,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 toast.success('Produto atualizado no Trello com sucesso!');
                 return;
             }
-            
+
             const checklist_config = await configurationService.get(ConfigName.trello_teste_checklistitems, configs);
 
             const cardId = await trelloService.createCardAsync({
@@ -111,7 +111,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
                 await updateImages(cardId);
 
-                if (checklist_config){
+                if (checklist_config) {
                     await trelloService.addCardChecklistAsync(cardId, checklist_config.valor!);
                 }
 
@@ -232,7 +232,9 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             PaperComponent={PaperComponent}
         >
             <DialogTitle id="draggable-dialog-title" style={{ cursor: 'move' }}>
-                {isNew ? 'Novo Produto ao Orçamento' : `Editando Produto '${props.current!.id}' do Orçamento`}
+                {isNew
+                    ? `Novo Produto ao Orçamento (cliente ${props.current!.clienteid})`
+                    : `Editando Produto '${props.current!.id}' do Orçamento (cliente ${props.current!.clienteid})`}
             </DialogTitle>
             <DialogContent>
                 <div className='flex-container' style={{

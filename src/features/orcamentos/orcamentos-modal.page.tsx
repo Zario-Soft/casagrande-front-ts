@@ -20,6 +20,7 @@ import { BASE_URL } from "src/infrastructure/env";
 
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 50, hide: true },
+    { field: 'clienteid', headerName: 'clienteid', width: 50, hide: true },
     { field: 'produtodescricao', headerName: 'Produto', width: 290 },
     { field: 'quantidade', headerName: 'Quantidade', width: 150 },
     { field: 'cornome', headerName: 'Cor', width: 150 },
@@ -259,6 +260,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             //Fixing formatting
             newOrcamentoProduto.genero ??= 0;
             newOrcamentoProduto.generodescricao = newOrcamentoProduto.genero ? 'Feminino' : 'Masculino';
+            newOrcamentoProduto.clienteid = current.clienteid;
 
             const newAllOrcamentoProdutos = [...localOrcamentoProdutos, newOrcamentoProduto];
 

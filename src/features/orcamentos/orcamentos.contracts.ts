@@ -34,7 +34,7 @@ export interface OrcamentoDTO {
     status: number,
     frete?: number,
     valortotal: number,
-    observacao: string,
+    observacao?: string,
     dataorcamento?: string,
     dataenvioteste?: string
 }
@@ -63,6 +63,7 @@ export interface OrcamentoProdutoDTO {
     orcamentoid: number,
     produtoid: number,
     corid: number,
+    clienteid: number,
     quantidade: number,
     excluido: number,
     genero: number,
@@ -83,7 +84,7 @@ export interface OrcamentoProdutoGrid
     extends OrcamentoProdutoDTO {
     produtovalor: number,
     cornome: string,
-    clientenome: string,
+    clientenome: string,    
     generodescricao: string,
     produtodescricao: string,
 }

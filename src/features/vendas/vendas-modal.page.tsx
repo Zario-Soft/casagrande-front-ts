@@ -153,7 +153,7 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
                     ]
             })
                 .reduce((a, b) => a.concat(b)),
-            breakPage: localOrcamento.observacao.length >= 500 || localOrcamento.observacao.split('\n').length > 20
+            breakPage: !!localOrcamento.observacao && (localOrcamento.observacao.length >= 500 || localOrcamento.observacao.split('\n').length > 20)
         }
 
         const paymentSummary: ReportContentSummary = {

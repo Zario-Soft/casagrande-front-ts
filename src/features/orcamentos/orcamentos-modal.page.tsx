@@ -81,6 +81,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                         produtovalor: p.produtovalor,
                         clientenome: current.clientenome,
                         ...p.orcamentoproduto,
+                        clienteid: current.clienteid
                     } as OrcamentoProdutoGrid
                 });
 

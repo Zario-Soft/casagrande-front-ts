@@ -461,7 +461,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                             value={current.observacao}
                             onChange={(e) => setCurrent({ ...current, observacao: e.target.value })}
                             multiline
-                            rows={8}
+                            rows={4}
                             fullWidth
                             InputLabelProps={{
                                 shrink: true,

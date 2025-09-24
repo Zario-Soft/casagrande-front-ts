@@ -120,7 +120,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* sincronizado com teste no trello pelo usuário *${GetLoggerUser()}*:\n${current.observacaotecnica2}.`, slack_config!.valor!);
             }
         }
-        catch{
+        catch {
             toast.error('Ocorreu um erro ao tentar enviar o produto para o Trello. Verifique a internet e tente novamente.');
         }
         finally {
@@ -135,19 +135,28 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 trelloService.updateAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto do cliente', true);
             }
             else {
-                await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto do cliente', true);
+                const id = await trelloService.addAttachmentAsync(cardId, current.fotoinicialbase64, 'Foto do cliente', true);
+
+                if (!id)
+                    toast.error('Não foi possível enviar a foto do cliente para o Trello.');
             }
 
             if (current.fotoinicial2base64) {
-                await trelloService.addAttachmentAsync(cardId, current.fotoinicial2base64, 'Foto do cliente 2');
+                const id = await trelloService.addAttachmentAsync(cardId, current.fotoinicial2base64, 'Foto do cliente 2');
+                if (!id)
+                    toast.error('Não foi possível enviar a foto do cliente 2 para o Trello.');
             }
 
             if (current.fotorealbase64) {
-                await trelloService.addAttachmentAsync(cardId, current.fotorealbase64, 'Foto da produção 1');
+                const id = await trelloService.addAttachmentAsync(cardId, current.fotorealbase64, 'Foto da produção 1');
+                if (!id)
+                    toast.error('Não foi possível enviar a foto  de produção para o Trello.');
             }
 
             if (current.fotoreal2base64) {
-                await trelloService.addAttachmentAsync(cardId, current.fotoreal2base64, 'Foto da produção 2');
+                const id = await trelloService.addAttachmentAsync(cardId, current.fotoreal2base64, 'Foto da produção 2');
+                if (!id)
+                    toast.error('Não foi possível enviar a foto de produção 2 para o Trello.');
             }
         }
     }

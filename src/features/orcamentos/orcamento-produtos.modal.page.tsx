@@ -120,6 +120,9 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* sincronizado com teste no trello pelo usuário *${GetLoggerUser()}*:\n${current.observacaotecnica2}.`, slack_config!.valor!);
             }
         }
+        catch{
+            toast.error('Ocorreu um erro ao tentar enviar o produto para o Trello. Verifique a internet e tente novamente.');
+        }
         finally {
             setIsLoadingTrello(false);
         }

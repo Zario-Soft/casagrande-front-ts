@@ -110,6 +110,8 @@ export const StatusOrcamento =
         'Amostra',
         'Envio de documento',
         'Aguardando aprovação de documento',
+        'Novo Pedido','Recompra', 'Recompra com Ressalva',
+        'Novo Pedido Feito', 'Recompra Feito', 'Recompra com Ressalva Feito'
     ]
 
 export interface OrcamentoLookupItem {

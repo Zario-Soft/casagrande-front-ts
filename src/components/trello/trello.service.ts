@@ -86,6 +86,7 @@ export class TrelloService {
                     'desc': card.desc,
                     'idList': card.listId,
                     'pos': 'top',
+                    'closed': false
                 },
             },
         );

@@ -222,7 +222,7 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
                         <TextField
                             className='txt-box txt-box-small'
                             id="percpagamentoinicial"
-                            label="Pagamento Inicial"
+                            label="Pagamento Inicial (R$)"
                             variant="outlined"
                             type="number"
                             value={current.percpagamentoinicial}

@@ -73,7 +73,7 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
         const validDate = current.id || isValidDataLimiteEntrega();
 
         const valid = (current.orcamentoid &&
-            current.percpagamentoinicial !== undefined && current.percpagamentoinicial >= 0 && current.percpagamentoinicial <= 100 &&
+            current.percpagamentoinicial !== undefined && current.percpagamentoinicial >= 0 &&
             current.meiopagamento !== undefined) && validDate;
 
         if (!valid) {
@@ -165,7 +165,7 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
                 { title: 'Valor do frete: ', value: `R$${(localOrcamento.frete ?? 0).toFixed(2)}` },
                 { title: 'Valor de desconto: ', value: `R$${(current.desconto ?? 0).toFixed(2)}` },
                 { title: 'Valor total da compra: ', value: `R$${valorTotalCompra.toFixed(2)}` },
-                { title: 'Valor pago até o momento: ', value: `R$${(((current.percpagamentoinicial ?? 0) / 100) * valorTotalCompra).toFixed(2)}` },
+                { title: 'Valor pago até o momento: ', value: `R$${(current.percpagamentoinicial ?? 0).toFixed(2)}` },
                 { title: 'Forma de pagamento: ', value: FormasPagamento[current.meiopagamento] },
                 { title: 'Previsão de envio: ', value: moment(current.datalimiteentrega).format('DD/MM/yyyy') },
             ],
@@ -222,15 +222,15 @@ export default function UpsertModalVendas(props: UpsertModalProductProps) {
                         <TextField
                             className='txt-box txt-box-small'
                             id="percpagamentoinicial"
-                            label="% Pagamento Inicial"
+                            label="Pagamento Inicial"
                             variant="outlined"
                             type="number"
                             value={current.percpagamentoinicial}
                             onChange={(e) => setCurrent({ ...current, percpagamentoinicial: parseFloat(e.target.value) })}
                             fullWidth
                             InputLabelProps={{ shrink: true }}
-                            error={!current.percpagamentoinicial || current.percpagamentoinicial < 0 || current.percpagamentoinicial > 100}
-                            helperText={!current.percpagamentoinicial ? 'Campo obrigatório' : (current.percpagamentoinicial >= 0 && current.percpagamentoinicial <= 100 ? '' : 'Porcentagem inválida')}
+                            error={!current.percpagamentoinicial || current.percpagamentoinicial <= 0}
+                            helperText={!current.percpagamentoinicial ? 'Campo obrigatório' : (current.percpagamentoinicial >= 0 ? '' : 'Valor inválido')}
                         />
 
                         <TextField

@@ -14,7 +14,7 @@ import UpsertModalVendas from "./vendas-modal.page";
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     { field: 'vendaclientenome', headerName: 'Cliente', width: 250 },
-    { field: 'percpagamentoinicial', headerName: '% Pagamento', width: 150 },
+    { field: 'percpagamentoinicial', headerName: 'Pagamento Inicial', width: 150 },
     { field: 'datalimiteentrega', headerName: 'Data limite da entrega', width: 210, valueFormatter: (params: string) => moment(params).format('DD/MM/yyyy') },
     { field: 'meiopagamentodescricao', headerName: 'Meio de Pagamento', width: 180 },
     { field: 'desconto', headerName: 'Desconto/Taxa de teste (R$)', width: 250, valueFormatter: (params: string) => parseFloat(params).toFixed(2) },

@@ -1,6 +1,6 @@
 import { formatDate } from 'src/infrastructure/helpers';
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { OrcamentoGetAllResponse, StatusOrcamento, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest, OrcamentoGrid, OrcamentoLookupItem } from './orcamentos.contracts';
+import { OrcamentoGetAllResponse, StatusOrcamentoOptions, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest, OrcamentoGrid, OrcamentoLookupItem } from './orcamentos.contracts';
 import { ClienteExternalResponse } from '../clientes/clientes.contracts';
 import { trySplitEndereco } from '../clientes/clientes-common';
 
@@ -48,6 +48,8 @@ export class OrcamentosService {
             const result = data
                 .sort((a: OrcamentoGetAllResponse, b: OrcamentoGetAllResponse) => (a.orcamento.id > b.orcamento.id) ? -1 : ((b.orcamento.id > a.orcamento.id) ? 1 : 0))
                 .map((o: OrcamentoGetAllResponse) => {
+                    const statusdescricao = StatusOrcamentoOptions.find(s => s.index === o.orcamento.status)!.status;
+
                     return {
                         id: o.orcamento.id,
                         clienteid: o.orcamento.clienteid,
@@ -56,7 +58,7 @@ export class OrcamentosService {
                         dataorcamento: formatDate(o.orcamento.dataorcamento),
                         dataenvioteste: o.orcamento.dataenvioteste,
                         observacao: o.orcamento.observacao,
-                        statusdescricao: StatusOrcamento[o.orcamento.status],
+                        statusdescricao: statusdescricao,
                         status: o.orcamento.status,
                         frete: o.orcamento.frete,
                         valortotal: o.orcamento.valortotal,

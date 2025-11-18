@@ -6,7 +6,7 @@ import { SideBar } from "src/components/sidebar";
 import ZGrid, { ZGridColDef } from "src/components/z-grid";
 import { LoadingContext } from "src/providers/loading.provider";
 import { OrcamentosService } from "./orcamentos.service";
-import { OrcamentoDTO, OrcamentoGrid, OrcamentoPaging, StatusOrcamento } from "./orcamentos.contracts";
+import { OrcamentoDTO, OrcamentoGrid, OrcamentoPaging, StatusOrcamentoOptions, StatusOrcamento } from "./orcamentos.contracts";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import UpsertModalClient from "./orcamentos-modal.page";
 import { Box, FormControl, Select } from "@mui/material";
@@ -43,7 +43,7 @@ function StatusInputValue(props: any) {
                         id: 'status-orcamento-id'
                     }}
                 >
-                    {StatusOrcamento.map((value: string, index: number) => <option value={value} key={index}>{value}</option>)}
+                    {StatusOrcamentoOptions.filter(o => o.visible).map((value: StatusOrcamento) => <option value={value.status} key={value.index}>{value.status}</option>)}
                 </Select>
             </FormControl>
         </Box>

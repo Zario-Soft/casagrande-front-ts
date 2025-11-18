@@ -4,7 +4,7 @@ import { PaperComponent } from "src/components/dialogs";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import OrcamentosService from "./orcamentos.service";
-import { OrcamentoDTO, OrcamentoUpsertRequest, OrcamentoProdutoGrid, StatusOrcamento, OrcamentoProdutoDTO, OrcamentoGrid } from "./orcamentos.contracts";
+import { OrcamentoDTO, OrcamentoUpsertRequest, OrcamentoProdutoGrid, StatusOrcamentoOptions, OrcamentoProdutoDTO, OrcamentoGrid } from "./orcamentos.contracts";
 import ClientesLookup from "../clientes/clientes-lookup.component";
 import { Remove, Add, Edit } from "@mui/icons-material";
 import ZGrid, { ZGridColDef } from "src/components/z-grid";
@@ -490,7 +490,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                                     id: 'status-orcamento-id'
                                 }}
                             >
-                                {StatusOrcamento.map((value, index) => <option value={index} key={index}>{value}</option>)}
+                                {StatusOrcamentoOptions.filter(o => o.visible).map((value) => <option value={value.index} key={value.index}>{value.status}</option>)}
                             </Select>
                         </FormControl>
 

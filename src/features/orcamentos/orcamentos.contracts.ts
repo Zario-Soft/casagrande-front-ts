@@ -14,16 +14,17 @@ export class OrcamentoPaging extends Paging {
         if (filter.column === 'id') {
             return `orcamentoid+identical=${filter.value}`;
         }
-        
+
         if (filter.column === 'statusdescricao') {
-            const value = StatusOrcamento.indexOf(filter.value);
-            return `status+identical=${value}`
+            const item = StatusOrcamentoOptions.find(o => o.status === filter.value)!;
+
+            return `status+identical=${item.index}`
         }
 
         if (filter.column === 'clienteresponsavel') {
             return `responsavel+contains=${filter.value}`
         }
-        
+
         return '';
     }
 }
@@ -84,7 +85,7 @@ export interface OrcamentoProdutoGrid
     extends OrcamentoProdutoDTO {
     produtovalor: number,
     cornome: string,
-    clientenome: string,    
+    clientenome: string,
     generodescricao: string,
     produtodescricao: string,
 }
@@ -95,27 +96,33 @@ export interface OrcamentoGetAllResponse {
     orcamento: OrcamentoDTO,
 }
 
-export const StatusOrcamento =
+export interface StatusOrcamento {
+    index: number,
+    status: string,
+    visible: boolean
+}
+
+export const StatusOrcamentoOptions: StatusOrcamento[] =
     [
-        'Pendente',
-        'Aprovado',
-        'Aprovado com ressalva',
-        'Reprovado',
-        'Teste Feito',
-        'Desenho Feito',
-        'Ajuste',
-        'Ajuste Feito',
-        'Ajuste Enviado',
-        'Aprovado com ressalva feito',
-        'Amostra',
-        'Envio de documento',
-        'Aguardando aprovação de documento', //12
-        'Novo Pedido',
-        'Recompra', 
-        'Recompra com Ressalva',
-        'Novo Pedido Feito', 
-        'Recompra Feito', 
-        'Recompra com Ressalva Feito'
+        { index: 0, status: 'Pendente', visible: true },
+        { index: 1, status: 'Aprovado', visible: true },
+        { index: 2, status: 'Aprovado com ressalva', visible: true },
+        { index: 3, status: 'Reprovado', visible: true },
+        { index: 4, status: 'Teste Feito', visible: true },
+        { index: 5, status: 'Desenho Feito', visible: true },
+        { index: 6, status: 'Ajuste', visible: true },
+        { index: 7, status: 'Ajuste Feito', visible: true },
+        { index: 8, status: 'Ajuste Enviado', visible: true },
+        { index: 9, status: 'Aprovado com ressalva feito', visible: true },
+        { index: 10, status: 'Amostra', visible: true },
+        { index: 11, status: 'Envio de documento', visible: true },
+        { index: 12, status: 'Aguardando aprovação de documento', visible: true },
+        { index: 13, status: 'Novo Pedido', visible: true },
+        { index: 14, status: 'Recompra', visible: true },
+        { index: 15, status: 'Recompra com Ressalva', visible: true },
+        { index: 16, status: 'Novo Pedido Feito', visible: true },
+        { index: 17, status: 'Recompra Feito', visible: true },
+        { index: 18, status: 'Recompra com Ressalva Feito', visible: true }
     ]
 
 export interface OrcamentoLookupItem {

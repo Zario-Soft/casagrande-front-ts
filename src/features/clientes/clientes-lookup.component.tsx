@@ -25,7 +25,7 @@ export default function ClientesLookup(props: ClientesLookupProps) {
 
     const getAll = async () => {
         try {
-            const data = await clientesService.getAll();
+            const data = await clientesService.getAllCombo();
             await setData(data);
 
             if (data && props.selectedId) {

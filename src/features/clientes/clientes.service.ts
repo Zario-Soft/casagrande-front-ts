@@ -37,6 +37,30 @@ export class ClientesService {
         return [];
     }
 
+    public async getAllCombo(filter?: Paging): Promise<ClienteDTO[]> {
+        const { data } = filter
+            ? await this.request.get(`${this.BASE_URL}-combo${filter.stringify()}`)
+            : await this.request.get(`${this.BASE_URL}-combo`);
+
+        if (data) {
+            let localCurrent = data as ClienteResponse[];
+
+            const result = localCurrent
+                .slice()
+                .sort((a: ClienteResponse, b: ClienteResponse) => a.id > b.id ? -1 : 1)
+                .map((c) => {
+                    return ({
+                        id: c.id,
+                        nome: c.nome,
+                    } as ClienteDTO);
+                });
+
+            return result;
+        }
+
+        return [];
+    }
+
     public async getStateByDDD(ddd: string): Promise<AxiosResponse<string>> {
         return await this.request.get(`util/getstatebyddd/${ddd}`);
     }

@@ -79,11 +79,22 @@ export class OrcamentosService {
     }
 
     public async new(request: OrcamentoUpsertRequest): Promise<any> {
-        await this.request.post(`${this.BASE_URL}`, request);
+        await this.request.post(`${this.BASE_URL}`,
+            request, {
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity,
+            maxRedirects: 0
+        });
     }
 
     public async edit(request: OrcamentoUpsertRequest): Promise<any> {
-        await this.request.put(`${this.BASE_URL}/${request.orcamento.id}`, request);
+        await this.request.put(
+            `${this.BASE_URL}/${request.orcamento.id}`,
+            request, {
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity,
+            maxRedirects: 0
+        });
     }
 
     public async editObservacao(request: { id: number, observacao: string }): Promise<any> {

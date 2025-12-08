@@ -93,12 +93,12 @@ export class TrelloService {
     }
 
     async addAttachmentAsync(cardId: string, fileBase64: string, name: string, setCover: boolean = false): Promise<string> {
-        let data = new FormData();
-        data.append('file', this.dataURIToBlob(fileBase64), name);
+        let formData = new FormData();
+        formData.append('file', this.dataURIToBlob(fileBase64), name);
 
-        const response = await axios.post(
+        const { data } = await axios.post(
             `cards/${cardId}/attachments`,
-            data,
+            formData,
             {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -106,7 +106,9 @@ export class TrelloService {
                 baseURL: this.BASE_URL,
                 timeout: 30000,
                 maxBodyLength: Infinity,
+                maxContentLength: Infinity,
                 responseType: 'json',
+                maxRedirects: 0,
                 params: {
                     ...this.getDefaultParams(),
                     'setCover': setCover,
@@ -115,7 +117,7 @@ export class TrelloService {
             },
         );
 
-        return response.data.id;
+        return data.id;
     }
 
     async updateAttachmentAsync(cardId: string, fileBase64: string, name: string, setCover: boolean = false): Promise<void> {

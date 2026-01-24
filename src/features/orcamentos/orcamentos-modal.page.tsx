@@ -413,6 +413,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             fullWidth
             aria-labelledby="draggable-dialog-title"
             PaperComponent={PaperComponent}
+            onClose={onCancelClose}
         >
             <DialogTitle id="draggable-dialog-title" style={{ cursor: 'move' }}>
                 {isNew ? 'Novo Orçamento' : `Editando Orçamento '${current!.id}'`}

@@ -2,6 +2,7 @@ import { Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import { ReportContentImageSummary, ReportContentSummary } from './report.interfaces';
 import { useState, useEffect } from 'react';
 import { ImageDownloader } from '../image-downloader/image-downloader.component';
+import { toast } from "react-toastify";
 
 const styles = StyleSheet.create({
 
@@ -186,9 +187,13 @@ export function SummaryImageReport(props: ReportContentImageSummaryProps) {
     }, [props])
 
     const getContent = async (guid: string) => {
-        const result = await imgHandler.downloadOnFront(guid);
-
-        return result ?? '';
+        try {
+            const result = await imgHandler.downloadOnFront(guid)
+            return result;
+        } catch(error) {
+            toast.error(`Erro ao baixar a imagems para o relatório.`);
+            return '';
+        }
     }
 
     return <View wrap break={props.breakPage ?? false}>

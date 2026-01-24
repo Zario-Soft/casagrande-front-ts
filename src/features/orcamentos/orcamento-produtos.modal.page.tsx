@@ -14,6 +14,7 @@ import { OrcamentosService } from "./orcamentos.service";
 import { SlackService } from "src/components/slack/slack.service";
 import { GetLoggerUser } from "src/infrastructure/helpers";
 import ConfigurationService, { ConfigName } from "../configuracoes/config.service";
+import { HelpService } from "../help/help.service";
 
 export interface UpsertModalOrcamentoProdutosProps {
     current?: OrcamentoProdutoGrid,
@@ -26,11 +27,13 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
     const previous = props.current ?? {} as OrcamentoProdutoGrid;
     const imgHandler = new ImageDownloader();
     const trelloService = new TrelloService();
+    const helpService = new HelpService();
     const orcamentosService = new OrcamentosService();
     const slackService = new SlackService();
     const configurationService = new ConfigurationService();
 
     const [isLoadingTrello, setIsLoadingTrello] = useState(false);
+    const [isTrelloSaved, setIsTrelloSaved] = useState<boolean | null>();
 
     const [current, setCurrent] = useState(props.current ??
         {
@@ -91,6 +94,8 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 await slackService.sendMessageAsync(message, slack_config!.valor!);
 
                 toast.success('Produto atualizado no Trello com sucesso!');
+                setIsTrelloSaved(true);
+                setCurrent({ ...current, trellosaved: true });
                 return;
             }
 
@@ -120,8 +125,10 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 await slackService.sendMessageAsync(`Produto *${current.id}* do orçamento *${current.orcamentoid}* sincronizado com teste no trello pelo usuário *${GetLoggerUser()}*:\n${current.observacaotecnica2}.`, slack_config!.valor!);
             }
         }
-        catch {
+        catch (error: any) {
             toast.error('Ocorreu um erro ao tentar enviar o produto para o Trello. Verifique a internet e tente novamente.');
+            await helpService.sendToAdmin(`Erro ao enviar produto para o Trello do orçamento ${current.orcamentoid}, produto ${current.id}.`);
+            await helpService.sendToAdmin(`${error}`);
         }
         finally {
             setIsLoadingTrello(false);
@@ -185,6 +192,11 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 return;
             }
 
+            if (!isTrelloSaved && shouldShowTrelloButton()) {
+                toast.error(`Você alterou imagens ou observações técnicas. Por favor, envie as alterações para o Trello antes de salvar.`);
+                return;
+            }
+
             props.onClose(current);
         } catch (error: any) {
             toast.error(error);
@@ -221,6 +233,11 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         localCurrent[`${id}base64` as never] = data as never;
 
         await setCurrent(localCurrent);
+
+        if (shouldShowTrelloButton()) {
+            setIsTrelloSaved(false);
+            setCurrent({ ...current, trellosaved: false });
+        }
     }
 
     const cleanImage = async (nome: string) => {
@@ -228,7 +245,12 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         localCurrent[nome as never] = null as never;
         localCurrent[`${nome}base64` as never] = undefined as never;
 
-        await setCurrent(localCurrent);
+        setCurrent(localCurrent);
+
+        if (shouldShowTrelloButton()) {
+            setIsTrelloSaved(false);
+            setCurrent({ ...current, trellosaved: false });
+        }
     }
 
     const getTextFromOrcamento = async () => {

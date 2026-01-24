@@ -105,7 +105,7 @@ export default function ClienteExternal() {
 
       toast.success("Informações coletadas do CNPJ com sucesso!");
 
-      await setCurrent({
+      setCurrent({
         ...current,
         nome: ToPascalCase(data.razao_social) ?? current.nome,
         email: data.email ?? current.email,

@@ -18,7 +18,7 @@ export class HttpClient {
                     window.location.reload();
                 }
 
-                return errorObj
+                return Promise.reject(errorObj);
             });
     }
 

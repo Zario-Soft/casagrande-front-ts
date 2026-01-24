@@ -112,6 +112,15 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         await setCodeModalVisible(true);
     }
 
+    const onCancelClose = async () => { 
+        if (allOrcamentosProdutos && allOrcamentosProdutos.length && allOrcamentosProdutos.some(s => s.trellosaved === true)) {
+            const confirm = window.confirm("Existem produtos vinculados ao Trello que já foram atualizados. Ao fechar esta janela, você poderá gerar uma inconsistência no sistema.\n\nDeseja continuar?");
+            if (!confirm) return;
+        }
+        
+        props.onClose();
+    }
+
     const onSave = async () => {
         try {
             if (!await isSavingValid()) return;
@@ -265,13 +274,13 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
 
             const newAllOrcamentoProdutos = [...localOrcamentoProdutos, newOrcamentoProduto];
 
-            await setAllOrcamentosProdutos(newAllOrcamentoProdutos.sort((a, b) => a.id > b.id ? 1 : -1));
+            setAllOrcamentosProdutos(newAllOrcamentoProdutos.sort((a, b) => a.id > b.id ? 1 : -1));
 
             let vlTotal = calculateTotalValue(current, newAllOrcamentoProdutos);
-            await setCurrent({ ...current, valortotal: vlTotal });
+            setCurrent({ ...current, valortotal: vlTotal });
         }
 
-        await setShowModalOrcamentoProduto(false);
+        setShowModalOrcamentoProduto(false);
     }
 
     const shouldShowInvoiceButton = () => {
@@ -567,7 +576,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                 <NormalButton onClick={onSave} color="primary">
                     Salvar
                 </NormalButton>
-                <WarningButton onClick={() => props.onClose()} color="secondary">
+                <WarningButton onClick={onCancelClose} color="secondary">
                     Cancelar
                 </WarningButton>
             </DialogActions>

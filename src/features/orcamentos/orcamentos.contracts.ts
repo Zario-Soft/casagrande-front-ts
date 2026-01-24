@@ -88,6 +88,7 @@ export interface OrcamentoProdutoGrid
     clientenome: string,
     generodescricao: string,
     produtodescricao: string,
+    trellosaved?: boolean
 }
 
 export interface OrcamentoGetAllResponse {

@@ -205,6 +205,15 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         }
     }
 
+    const onCancelClose = async () => {
+        if (isTrelloSaved && shouldShowTrelloButton()) {
+            toast.error(`Você enviou alterações para o Trello, mas não salvou as mudanças localmente. Por favor, salve antes de fechar.`);
+            return;
+        }
+
+        props.onClose();
+    }
+
     const formValidado = () => current.corid && current.produtoid && current.quantidade;
 
     const [dragFrom, setDragFrom] = useState<{ id: string }>({} as { id: string });
@@ -264,6 +273,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             fullWidth
             aria-labelledby="draggable-dialog-title"
             PaperComponent={PaperComponent}
+            onClose={onCancelClose}
         >
             <DialogTitle id="draggable-dialog-title" style={{ cursor: 'move' }}>
                 {isNew
@@ -457,7 +467,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 <NormalButton onClick={onSave} color="primary">
                     Salvar
                 </NormalButton>
-                <WarningButton onClick={() => props.onClose()} color="secondary">
+                <WarningButton onClick={onCancelClose} color="secondary">
                     Cancelar
                 </WarningButton>
             </DialogActions>

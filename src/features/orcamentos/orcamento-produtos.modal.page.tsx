@@ -439,7 +439,14 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                             variant="outlined"
                             value={current.observacaotecnica2}
                             InputLabelProps={{ shrink: true }}
-                            onChange={(e) => setCurrent({ ...current, observacaotecnica2: e.target.value })}
+                            onChange={(e) => {
+
+                                setCurrent({ ...current, observacaotecnica2: e.target.value });
+                                if (shouldShowTrelloButton()) {
+                                    setIsTrelloSaved(false);
+                                    setCurrent({ ...current, trellosaved: false });
+                                }
+                            }}
                             multiline
                             rows={10}
                             sx={{

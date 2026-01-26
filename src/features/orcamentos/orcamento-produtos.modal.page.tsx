@@ -206,7 +206,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
     }
 
     const onCancelClose = async () => {
-        if (isTrelloSaved  === true && shouldShowTrelloButton()) {
+        if (isTrelloSaved === true && shouldShowTrelloButton()) {
             toast.error(`Você enviou alterações para o Trello, mas não salvou as mudanças localmente. Por favor, salve antes de fechar.`);
             return;
         }
@@ -440,12 +440,10 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                             value={current.observacaotecnica2}
                             InputLabelProps={{ shrink: true }}
                             onChange={(e) => {
+                                const shouldChangeTrelloState = shouldShowTrelloButton();
+                                setCurrent({ ...current, observacaotecnica2: e.target.value, trellosaved: shouldChangeTrelloState ? false : current.trellosaved })
 
-                                setCurrent({ ...current, observacaotecnica2: e.target.value });
-                                if (shouldShowTrelloButton()) {
-                                    setIsTrelloSaved(false);
-                                    setCurrent({ ...current, trellosaved: false });
-                                }
+                                if (shouldChangeTrelloState) setIsTrelloSaved(false);
                             }}
                             multiline
                             rows={10}

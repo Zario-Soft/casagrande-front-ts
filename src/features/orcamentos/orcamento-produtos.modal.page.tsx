@@ -126,9 +126,8 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             }
         }
         catch (error: any) {
-            toast.error('Ocorreu um erro ao tentar enviar o produto para o Trello. Verifique a internet e tente novamente.');
-            await helpService.sendToAdmin(`Erro ao enviar produto para o Trello do orçamento ${current.orcamentoid}, produto ${current.id}.`);
-            await helpService.sendToAdmin(`${error}`);
+            toast.error('Ocorreu um erro ao tentar enviar o produto para o Trello. Tente novamente.');
+            await helpService.sendToAdmin(`Erro ao enviar produto para o Trello do orçamento ${current.orcamentoid}, produto ${current.id}.\n\n${error}`);
         }
         finally {
             setIsLoadingTrello(false);
@@ -243,7 +242,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
         await setCurrent(localCurrent);
 
-        if (shouldShowTrelloButton()) {
+        if (shouldShowTrelloButton() && id === 'fotoinicial') {
             setIsTrelloSaved(false);
             setCurrent({ ...current, trellosaved: false });
         }

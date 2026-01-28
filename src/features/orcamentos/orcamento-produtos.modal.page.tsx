@@ -255,7 +255,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
         setCurrent(localCurrent);
 
-        if (shouldShowTrelloButton()) {
+        if (shouldShowTrelloButton() && nome === 'fotoinicial') {
             setIsTrelloSaved(false);
             setCurrent({ ...current, trellosaved: false });
         }

@@ -173,13 +173,13 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         let req = { ...current };
 
 
-        req['fotoinicialbase64'] = await imgHandler.downloadOnFront(current.fotoinicial);
+        req['fotoinicialbase64'] =  current.fotoinicialbase64 ?? await imgHandler.downloadOnFront(current.fotoinicial);
 
-        req['fotoinicial2base64'] = await imgHandler.downloadOnFront(current.fotoinicial2);
+        req['fotoinicial2base64'] = current.fotoinicial2base64 ?? await imgHandler.downloadOnFront(current.fotoinicial2);
 
-        req['fotorealbase64'] = await imgHandler.downloadOnFront(current.fotoreal);
+        req['fotorealbase64'] = current.fotorealbase64 ?? await imgHandler.downloadOnFront(current.fotoreal);
 
-        req['fotoreal2base64'] = await imgHandler.downloadOnFront(current.fotoreal2);
+        req['fotoreal2base64'] = current.fotoreal2base64 ?? await imgHandler.downloadOnFront(current.fotoreal2);
 
         setCurrent(req);
     }

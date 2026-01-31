@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Checkbox, CircularProgress, FormControl, FormControlLabel, Input, InputLabel } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, Checkbox, FormControl, FormControlLabel, Input, InputLabel } from "@mui/material";
 import { NormalButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import { ClienteDTO } from "./clientes.contracts"
@@ -11,6 +11,7 @@ import ClientStateSelect from "./clientes-estado.component";
 import { LoadingContext } from "src/providers/loading.provider";
 import { GetInfoFromCNPJ } from "./clientes-common";
 import { ToPascalCase } from "src/infrastructure/helpers";  
+import CircularLoader from "src/components/circular-loader";
 export interface UpsertModalClientProps {
     cliente?: ClienteDTO,
     onClose: (message?: string) => void
@@ -32,12 +33,12 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
 
                 await clientesService.new(current);
 
-                await props.onClose("Registro criado com sucesso");
+                props.onClose("Registro criado com sucesso");
             }
             else {
                 await clientesService.edit(current);
 
-                await props.onClose("Registro alterado com sucesso");
+                props.onClose("Registro alterado com sucesso");
             }
 
         } catch (error: any) {
@@ -49,7 +50,7 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
 
     const isSavingValid = async (): Promise<boolean> => {
         if (!current.nome || current.nome === '') {
-            await toast.error('Preencha o nome do cliente');
+            toast.error('Preencha o nome do cliente');
             return false;
         }
 
@@ -60,7 +61,7 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
 
         if (!current || !current.cpfcnpj || current.cpfcnpj.trim().length !== 18) return;
     
-        await setIsLoading(true);
+        setIsLoading(true);
     
         try {
           const data = await GetInfoFromCNPJ(current.cpfcnpj);
@@ -72,23 +73,23 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
     
           toast.success("Informações coletadas do CNPJ com sucesso!");
     
-          await setCurrent({
-            ...current,
-            nome: ToPascalCase(data.razao_social) ?? current.nome,
-            email: data.email ?? current.email,
-            telefone: data.ddd_telefone_1 ?? current.telefone,
-            celular: data.celular ?? current.celular,
-            cidade: ToPascalCase(data.municipio) ?? current.cidade,
-            bairro: ToPascalCase(data.bairro) ?? current.bairro,
-            endereco: data.logradouro ? `${ToPascalCase(data.descricao_tipo_de_logradouro)} ${ToPascalCase(data.logradouro)}` : current.endereco,
-            numero: data.numero ?? current.numero,
-            complemento: ToPascalCase(data.complemento) ?? current.complemento,
-            estado: data.uf ?? current.estado,
-            cep: data.cep ?? current.cep,
-            responsavel: data.qsa.length > 0 ? ToPascalCase(data.qsa[0].nome_socio) ?? current.responsavel : current.responsavel
-          });
+          setCurrent({
+                ...current,
+                nome: ToPascalCase(data.razao_social) ?? current.nome,
+                email: data.email ?? current.email,
+                telefone: data.ddd_telefone_1 ?? current.telefone,
+                celular: data.celular ?? current.celular,
+                cidade: ToPascalCase(data.municipio) ?? current.cidade,
+                bairro: ToPascalCase(data.bairro) ?? current.bairro,
+                endereco: data.logradouro ? `${ToPascalCase(data.descricao_tipo_de_logradouro)} ${ToPascalCase(data.logradouro)}` : current.endereco,
+                numero: data.numero ?? current.numero,
+                complemento: ToPascalCase(data.complemento) ?? current.complemento,
+                estado: data.uf ?? current.estado,
+                cep: data.cep ?? current.cep,
+                responsavel: data.qsa.length > 0 ? ToPascalCase(data.qsa[0].nome_socio) ?? current.responsavel : current.responsavel
+            });
         } finally {
-          await setIsLoading(false);
+          setIsLoading(false);
         }
       }
 
@@ -237,26 +238,15 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
                                 id="cep-input"
                                 inputComponent={CEPMaskCustom}
                                 onBlur={async (e: any) => {
-                                    await setIsLoadingCEP(true);
+                                    setIsLoadingCEP(true);
 
                                     await preencheCEP(e, current, setCurrent);
 
-                                    await setIsLoadingCEP(false);
+                                    setIsLoadingCEP(false);
                                 }}
                             />
                         </FormControl>
-                        {isLoadingCEP && <CircularProgress
-                            variant="indeterminate"
-                            disableShrink
-                            style={{
-                                color: '#1a90ff',
-                                animationDuration: '550ms',
-                                left: 0
-                            }}
-                            size={40}
-                            thickness={4}
-                            {...props}
-                        />}
+                        {isLoadingCEP && <CircularLoader />}
                     </div>
 
                     <div className='inner-flex-container'>
@@ -316,7 +306,7 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
 
                         <ClientStateSelect
                             current={current.estado}
-                            onChange={async (e) => await setCurrent({ ...current, estado: e.target.value })}
+                            onChange={async (e) => setCurrent({ ...current, estado: e.target.value })}
                         />
                     </div>
                     <div className='inner-flex-container'>

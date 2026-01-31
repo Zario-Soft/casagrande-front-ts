@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react"
 import { ClienteInvoiceData } from "../clientes.contracts";
-import { TextField, FormControlLabel, Checkbox, FormControl, InputLabel, Input, CircularProgress } from "@mui/material";
+import { TextField, FormControlLabel, Checkbox, FormControl, InputLabel, Input } from "@mui/material";
 import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCustom } from "src/components/masks";
 import { fillState, preencheCEP, GetInfoFromCNPJ } from "../clientes-common";
 import ClientesService from "../clientes.service";
@@ -9,6 +9,7 @@ import ClientStateSelect from "../clientes-estado.component";
 import { LoadingContext } from "src/providers/loading.provider";
 import { toast } from "react-toastify";
 import { ToPascalCase } from "src/infrastructure/helpers";
+import CircularLoader from "src/components/circular-loader";
 export interface ClienteExternalInvoiceDataPartProps {
     current?: ClienteInvoiceData,
     clientesService: ClientesService,
@@ -197,17 +198,7 @@ export default function ClienteExternalInvoiceDataPart(props: ClienteExternalInv
                     disabled={disableTextFieldByCNPJ()}
                 />
             </FormControl>
-            {isLoadingCEP && <CircularProgress
-                variant="indeterminate"
-                disableShrink
-                style={{
-                    color: '#1a90ff',
-                    animationDuration: '550ms',
-                    left: 0
-                }}
-                size={40}
-                thickness={4}
-            />}
+            {isLoadingCEP && <CircularLoader />}
         </div>
 
         <div className='inner-flex-container'>

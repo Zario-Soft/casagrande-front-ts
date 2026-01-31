@@ -17,6 +17,8 @@ import ClientesService from "../clientes/clientes.service";
 import OrcamentoCodeModal from "./orcamento-code.modal.page";
 import { nanoid } from "nanoid";
 import { BASE_URL } from "src/infrastructure/env";
+import { HelpService } from "../help/help.service";
+import CircularLoader from "src/components/circular-loader";
 
 const columns: ZGridColDef[] = [
     { field: 'id', headerName: 'ID', width: 50, hide: true },
@@ -42,6 +44,8 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
     const isNew = !props.orcamento || !props.orcamento?.id;
     const orcamentosService = new OrcamentosService();
     const clienteService = new ClientesService();
+    const helpService = new HelpService();
+    const [isLoading, setIsLoading] = useState(false);
 
     const [current, setCurrent] = useState(
         props.orcamento ??
@@ -85,7 +89,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                     } as OrcamentoProdutoGrid
                 });
 
-                await setAllOrcamentosProdutos(localOrcamentoProdutos.sort((a, b) => a.id > b.id ? 1 : -1));
+                setAllOrcamentosProdutos(localOrcamentoProdutos.sort((a, b) => a.id > b.id ? 1 : -1));
 
                 await handleFrete({
                     target: {
@@ -107,17 +111,17 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             code: newCode
         });
 
-        await setCodeUrl(`${BASE_URL}/fill-data?code=${newCode}`);
+        setCodeUrl(`${BASE_URL}/fill-data?code=${newCode}`);
 
-        await setCodeModalVisible(true);
+        setCodeModalVisible(true);
     }
 
-    const onCancelClose = async () => { 
+    const onCancelClose = async () => {
         if (allOrcamentosProdutos && allOrcamentosProdutos.length && allOrcamentosProdutos.some(s => s.trellosaved === true)) {
             const confirm = window.confirm("Existem produtos vinculados ao Trello que já foram atualizados. Ao fechar esta janela, você poderá gerar uma inconsistência no sistema.\n\nDeseja continuar?");
             if (!confirm) return;
         }
-        
+
         props.onClose();
     }
 
@@ -142,7 +146,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                     dataenvioteste: current!.dataenvioteste,
                     observacao: current!.observacao
                 },
-                produtos: orcamentoProdutos.map(op => {
+                produtos: orcamentoProdutos.filter(f => f.saved !== true).map(op => {
                     const mapped: OrcamentoProdutoDTO = {
                         ...op
                     }
@@ -150,22 +154,26 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                 })
             }
 
+            setIsLoading(true);
+
             if (isNew) {
 
                 await orcamentosService.new(request);
 
-                await props.onClose("Registro criado com sucesso");
+                props.onClose("Registro criado com sucesso");
             }
             else {
                 await orcamentosService.edit(request);
 
-                await props.onClose("Registro alterado com sucesso");
+                props.onClose("Registro alterado com sucesso");
             }
 
         } catch (error: any) {
-            toast.error(error);
+            toast.error(`Não foi possível salvar o orçamento.`);
+            await helpService.sendToAdmin(`Erro ao salvar o orçamento '${current.id ?? 'NOVO'}'.\n\n${error}`);
         }
         finally {
+            setIsLoading(false);
         }
     }
 
@@ -187,7 +195,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         const localCurrent = { ...current, frete: parseFloat(localFrete) };
         let vlTotal = calculateTotalValue(localCurrent, orcProds);
 
-        await setCurrent({ ...localCurrent, valortotal: vlTotal });
+        setCurrent({ ...localCurrent, valortotal: vlTotal });
     }
 
     const calculateTotalValue = (obj?: OrcamentoDTO, orcProds?: OrcamentoProdutoGrid[]): number => {
@@ -223,12 +231,12 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                 localOrcamentoProdutos = [...localOrcamentoProdutos, newCurrent];
             }
 
-            await setAllOrcamentosProdutos(localOrcamentoProdutos.sort((a, b) => a.id > b.id ? 1 : -1));
+            setAllOrcamentosProdutos(localOrcamentoProdutos.sort((a, b) => a.id > b.id ? 1 : -1));
             let vlTotal = calculateTotalValue(current, localOrcamentoProdutos);
-            await setCurrent({ ...current, valortotal: vlTotal });
+            setCurrent({ ...current, valortotal: vlTotal });
 
             //Cleaning
-            await setCurrentOrcamentoProduto(undefined);
+            setCurrentOrcamentoProduto(undefined);
         } catch (e) {
             toast.error(`Não foi possivel excluir o produto. ${e}`);
         }
@@ -236,44 +244,60 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
 
     const addProduct = async () => {
         //clear client
-        await setCurrentOrcamentoProduto(undefined);
+        setCurrentOrcamentoProduto(undefined);
 
-        await setCurrentEditingOrcamentoProduto(undefined);
-        await setCurrentEditingOrcamentoProduto({} as OrcamentoProdutoGrid);
+        setCurrentEditingOrcamentoProduto(undefined);
+        setCurrentEditingOrcamentoProduto({} as OrcamentoProdutoGrid);
 
-        await setShowModalOrcamentoProduto(true);
+        setShowModalOrcamentoProduto(true);
     }
 
     const editProduct = async (e: any) => {
-        await setCurrentEditingOrcamentoProduto(undefined);
-        await setCurrentEditingOrcamentoProduto(e.row ?? currentOrcamentoProduto);
+        setCurrentEditingOrcamentoProduto(undefined);
+        setCurrentEditingOrcamentoProduto(e.row ?? currentOrcamentoProduto);
 
-        await setShowModalOrcamentoProduto(true);
+        setShowModalOrcamentoProduto(true);
     }
 
     async function handleCloseModalOrcamentoProduto(newOrcamentoProduto?: OrcamentoProdutoGrid) {
         let localOrcamentoProdutos = allOrcamentosProdutos ?? [];
 
         if (newOrcamentoProduto) {
-            if (newOrcamentoProduto.id !== undefined && newOrcamentoProduto.id !== 0) {
-
+            const isNewProduct = newOrcamentoProduto.id === undefined || newOrcamentoProduto.id === 0;
+            if (isNewProduct) {
+                newOrcamentoProduto.id = -(localOrcamentoProdutos.length + 1); //Temp id to show on grid
+                newOrcamentoProduto.excluido = 0;
+            }
+            else {
                 let orcamentoProduto = localOrcamentoProdutos.find(f => f.id === newOrcamentoProduto.id);
 
                 let index = localOrcamentoProdutos.indexOf(orcamentoProduto!);
                 if (index >= 0)
                     localOrcamentoProdutos.splice(index, 1);
             }
-            else {
-                newOrcamentoProduto.id = -(localOrcamentoProdutos.length + 1); //Temp id to show on grid
-                newOrcamentoProduto.excluido = 0;
-            }
+
             //Fixing formatting
             newOrcamentoProduto.genero ??= 0;
             newOrcamentoProduto.generodescricao = newOrcamentoProduto.genero ? 'Feminino' : 'Masculino';
             newOrcamentoProduto.clienteid = current.clienteid;
 
-            const newAllOrcamentoProdutos = [...localOrcamentoProdutos, newOrcamentoProduto];
+            if (!isNewProduct && !isNew && newOrcamentoProduto.id > 0) {
+                try {
+                    setIsLoading(true);
+                    await orcamentosService.editProduto(current.id, newOrcamentoProduto as OrcamentoProdutoDTO);
+                    toast.success(`Produto '${newOrcamentoProduto.id}' alterado com sucesso.`);
 
+                    newOrcamentoProduto.saved = true;
+                } catch (e) {
+                    toast.error(`Não foi possível alterar o produto. ${e}`);
+                    await helpService.sendToAdmin(`Erro ao alterar produto '${newOrcamentoProduto.id}' do orçamento '${current.id}'.\n\n${e}`);
+                }
+                finally {
+                    setIsLoading(false);
+                }
+            }
+
+            const newAllOrcamentoProdutos = [...localOrcamentoProdutos, newOrcamentoProduto];
             setAllOrcamentosProdutos(newAllOrcamentoProdutos.sort((a, b) => a.id > b.id ? 1 : -1));
 
             let vlTotal = calculateTotalValue(current, newAllOrcamentoProdutos);
@@ -288,8 +312,8 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
     }
 
     const showInvoiceButton = async () => {
-        await setInvoice(await mountInvoice());
-        await setInvoiceVisible(true);
+        setInvoice(await mountInvoice());
+        setInvoiceVisible(true);
     }
 
     const shouldShowLinkButton = () => {
@@ -366,7 +390,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                                     guid: item.fotoreal2 ?? item.fotoreal2base64,
                                     index: ((index + 2) * localOrcamentoProdutos.length) + index
                                 } as ReportContentImageSummaryItem,
-                            ], 
+                            ],
                             description: item.observacaotecnica1
                         } as ImageItem
                 })
@@ -429,7 +453,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                         }}
                         onChange={async (c) => {
                             const local: OrcamentoGrid = { ...current, clienteid: c?.id ?? 0, clientenome: c?.nome };
-                            await setCurrent(local);
+                            setCurrent(local);
                         }}
                         selectedId={current?.clienteid}
                     />
@@ -494,7 +518,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                                 label="Status"
                                 fullWidth
                                 value={current.status}
-                                onChange={async (e: any) => await setCurrent({ ...current, status: parseInt(e.target.value) })}
+                                onChange={(e: any) => setCurrent({ ...current, status: parseInt(e.target.value) })}
                                 inputProps={{
                                     name: 'status',
                                     id: 'status-orcamento-id'
@@ -561,25 +585,27 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                         rows={allOrcamentosProdutos?.filter(a => a.excluido === 0) ?? []}
                         columns={columns}
                         onRowDoubleClick={editProduct}
-                        onRowClick={async (e: any) => await setCurrentOrcamentoProduto(e.row)}
+                        onRowClick={async (e: any) => setCurrentOrcamentoProduto(e.row)}
                         height={250}
                     />
 
                 </div>
             </DialogContent>
             <DialogActions>
-                {shouldShowLinkButton() && <WarningButton onClick={generateRegisterLink}>
-                    Gerar link de cadastro
-                </WarningButton>}
-                {shouldShowInvoiceButton() && <ReportButton onClick={showInvoiceButton}>
-                    Comprovante
-                </ReportButton>}
-                <NormalButton onClick={onSave} color="primary">
-                    Salvar
-                </NormalButton>
-                <WarningButton onClick={onCancelClose} color="secondary">
-                    Cancelar
-                </WarningButton>
+                {isLoading ? <CircularLoader /> : <>
+                    {shouldShowLinkButton() && <WarningButton onClick={generateRegisterLink}>
+                        Gerar link de cadastro
+                    </WarningButton>}
+                    {shouldShowInvoiceButton() && <ReportButton onClick={showInvoiceButton}>
+                        Comprovante
+                    </ReportButton>}
+                    <NormalButton onClick={onSave} color="primary">
+                        Salvar
+                    </NormalButton>
+                    <WarningButton onClick={onCancelClose} color="secondary">
+                        Cancelar
+                    </WarningButton></>
+                }
             </DialogActions>
         </Dialog>
 
@@ -598,14 +624,14 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         {invoiceVisible && <ReportInvoiceOrcamento
             reportTitle={current.clientenome ? `${current.clientenome} - Orçamento ${current.id}` : 'Solicitação de teste'}
             formTitle={current.clientenome ? `Solicitação de teste - Orçamento ${current.id}` : 'Solicitação de teste'}
-            onClose={async () => await setInvoiceVisible(false)}
+            onClose={async () => setInvoiceVisible(false)}
             content={invoice}
         />}
 
         {codeModalVisible && <OrcamentoCodeModal
             id={current!.id}
             url={codeUrl}
-            onClose={async () => await setCodeModalVisible(false)}
+            onClose={() => setCodeModalVisible(false)}
         />}
     </>
 }

@@ -79,6 +79,7 @@ export interface OrcamentoProdutoDTO {
     observacaotecnica1: string,
     observacaotecnica2: string,
     trellocardid: string | undefined,
+    saved: boolean | undefined,
 }
 
 export interface OrcamentoProdutoGrid

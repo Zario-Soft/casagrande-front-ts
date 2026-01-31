@@ -1,4 +1,4 @@
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, Button, CircularProgress } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, Button } from "@mui/material";
 import { NormalButton, ReportButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
 import { OrcamentoProdutoGrid } from "./orcamentos.contracts";
@@ -15,6 +15,7 @@ import { SlackService } from "src/components/slack/slack.service";
 import { GetLoggerUser } from "src/infrastructure/helpers";
 import ConfigurationService, { ConfigName } from "../configuracoes/config.service";
 import { HelpService } from "../help/help.service";
+import CircularLoader from "src/components/circular-loader";
 
 export interface UpsertModalOrcamentoProdutosProps {
     current?: OrcamentoProdutoGrid,
@@ -191,7 +192,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 return;
             }
 
-            if (isTrelloSaved === false && shouldShowTrelloButton()) {
+            if (isTrelloSaved === false && shouldShowTrelloButton() && !!current.trellocardid) {
                 toast.error(`Você alterou imagens ou observações técnicas. Por favor, envie as alterações para o Trello antes de salvar.`);
                 return;
             }
@@ -205,7 +206,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
     }
 
     const onCancelClose = async () => {
-        if (isTrelloSaved === true && shouldShowTrelloButton()) {
+        if (isTrelloSaved === true && shouldShowTrelloButton() && !!current.trellocardid) {
             toast.error(`Você enviou alterações para o Trello, mas não salvou as mudanças localmente. Por favor, salve antes de fechar.`);
             return;
         }
@@ -215,9 +216,10 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
     const formValidado = () => current.corid && current.produtoid && current.quantidade;
 
-    const [dragFrom, setDragFrom] = useState<{ id: string }>({} as { id: string });
+    type Drag = { id: string };
+    const [dragFrom, setDragFrom] = useState<Drag>({} as Drag);
     const handleDrag = async (e: any) => {
-        await setDragFrom(e);
+        setDragFrom(e);
     }
 
     const handleDrop = async (to: any) => {
@@ -231,7 +233,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         localCurrent[keybase64ImageNameTo] = localCurrent[keybase64ImageNameFrom];
         localCurrent[keybase64ImageNameFrom] = undefined as never;
 
-        await setCurrent(localCurrent);
+        setCurrent(localCurrent);
     }
 
     const addImage = async (id: string, data: any) => {
@@ -240,9 +242,9 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
         localCurrent[id as never] = undefined as never;
         localCurrent[`${id}base64` as never] = data as never;
 
-        await setCurrent(localCurrent);
+        setCurrent(localCurrent);
 
-        if (shouldShowTrelloButton() && id === 'fotoinicial') {
+        if (shouldShowTrelloButton() && id === 'fotoinicial' && !!current.trellocardid) {
             setIsTrelloSaved(false);
             setCurrent({ ...current, trellosaved: false });
         }
@@ -255,14 +257,14 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
         setCurrent(localCurrent);
 
-        if (shouldShowTrelloButton() && nome === 'fotoinicial') {
+        if (shouldShowTrelloButton() && nome === 'fotoinicial' && !!current.trellocardid) {
             setIsTrelloSaved(false);
             setCurrent({ ...current, trellosaved: false });
         }
     }
 
     const getTextFromOrcamento = async () => {
-        await setCurrent({ ...current, observacaotecnica1: props.orcamentoobservacao ?? '' });
+        setCurrent({ ...current, observacaotecnica1: props.orcamentoobservacao ?? '' });
     }
 
     return <>
@@ -301,7 +303,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                                     produtodescricao: c?.descricao ?? '',
                                     produtovalor: parseFloat(c?.valorunitario ?? '0')
                                 };
-                                await setCurrent(local);
+                                setCurrent(local);
                             }}
 
                             selectedId={current?.produtoid}
@@ -321,7 +323,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                                     cornome: c?.nome ?? ''
                                 };
 
-                                await setCurrent(local);
+                                setCurrent(local);
                             }}
                             selectedId={current?.corid}
                         />
@@ -346,7 +348,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                                 native
                                 label="Sexo"
                                 value={current.genero}
-                                onChange={async (e) => await setCurrent({ ...current, genero: parseInt(e.target.value as unknown as string) })}
+                                onChange={async (e) => setCurrent({ ...current, genero: parseInt(e.target.value as unknown as string) })}
                                 inputProps={{
                                     name: 'sexo',
                                     id: 'sexo-orcamento-id'
@@ -456,18 +458,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
                 {shouldShowTrelloButton() && <ReportButton onClick={onSendToTrello}>
                     {current.trellocardid ? 'Atualizar no Trello' : 'Enviar para o Trello'}
                 </ReportButton>}
-                {isLoadingTrello && <CircularProgress
-                    variant="indeterminate"
-                    disableShrink
-                    style={{
-                        color: '#1a90ff',
-                        animationDuration: '550ms',
-                        left: 0
-                    }}
-                    size={40}
-                    thickness={4}
-                    {...props}
-                />}
+                {isLoadingTrello && <CircularLoader/>}
                 <NormalButton onClick={onSave} color="primary">
                     Salvar
                 </NormalButton>

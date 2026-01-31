@@ -1,6 +1,6 @@
 import { formatDate } from 'src/infrastructure/helpers';
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { OrcamentoGetAllResponse, StatusOrcamentoOptions, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest, OrcamentoGrid, OrcamentoLookupItem } from './orcamentos.contracts';
+import { OrcamentoGetAllResponse, StatusOrcamentoOptions, OrcamentoPaging, OrcamentoProdutoResponse, OrcamentoUpsertRequest, OrcamentoGrid, OrcamentoLookupItem, OrcamentoProdutoDTO } from './orcamentos.contracts';
 import { ClienteExternalResponse } from '../clientes/clientes.contracts';
 import { trySplitEndereco } from '../clientes/clientes-common';
 
@@ -91,6 +91,18 @@ export class OrcamentosService {
         await this.request.put(
             `${this.BASE_URL}/${request.orcamento.id}`,
             request, {
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity,
+            maxRedirects: 0
+        });
+    }
+
+    public async editProduto(orcamentoId: number, request: OrcamentoProdutoDTO): Promise<any> {
+        await this.request.put(
+            `${this.BASE_URL}/${orcamentoId}/produto`,
+            {
+                produto: request
+            }, {
             maxBodyLength: Infinity,
             maxContentLength: Infinity,
             maxRedirects: 0

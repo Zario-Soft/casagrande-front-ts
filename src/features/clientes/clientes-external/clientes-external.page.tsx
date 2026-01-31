@@ -4,7 +4,7 @@ import OrcamentosService from "../../orcamentos/orcamentos.service";
 import { useContext, useEffect, useState } from "react";
 import { ClienteExternalResponse } from "../clientes.contracts";
 import { LoadingContext } from "src/providers/loading.provider";
-import { TextField, FormControlLabel, Checkbox, FormControl, InputLabel, Input, CircularProgress } from "@mui/material";
+import { TextField, FormControlLabel, Checkbox, FormControl, InputLabel, Input } from "@mui/material";
 import { CPFMaskCustom, CNPJMaskCustom, TelMaskCustom, CelMaskCustom, CEPMaskCustom } from "src/components/masks";
 import { fillState, GetInfoFromCNPJ, preencheCEP } from "../clientes-common";
 import { NormalButton } from "src/components/buttons";
@@ -15,6 +15,7 @@ import ConfirmedPage from "./cliente-external-confirmed.page";
 import ClientStateSelect from "../clientes-estado.component";
 import { toast } from "react-toastify";
 import { ToPascalCase } from "src/infrastructure/helpers";
+import CircularLoader from "src/components/circular-loader";
 export default function ClienteExternal() {
   const [searchParams] = useSearchParams();
   const { setIsLoading } = useContext(LoadingContext);
@@ -289,17 +290,7 @@ export default function ClienteExternal() {
                 disabled={disableTextFieldByCNPJ()}
               />
             </FormControl>
-            {isLoadingCEP && <CircularProgress
-              variant="indeterminate"
-              disableShrink
-              style={{
-                color: '#1a90ff',
-                animationDuration: '550ms',
-                left: 0
-              }}
-              size={40}
-              thickness={4}
-            />}
+            {isLoadingCEP && <CircularLoader />}
           </div>
 
           <div className='inner-flex-container'>

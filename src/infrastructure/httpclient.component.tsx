@@ -16,6 +16,8 @@ export class HttpClient {
                     
                     localStorage.removeItem('token');
                     window.location.reload();
+
+                    return errorObj;
                 }
 
                 return Promise.reject(errorObj);

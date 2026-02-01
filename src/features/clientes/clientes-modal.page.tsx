@@ -12,6 +12,7 @@ import { LoadingContext } from "src/providers/loading.provider";
 import { GetInfoFromCNPJ } from "./clientes-common";
 import { ToPascalCase } from "src/infrastructure/helpers";  
 import CircularLoader from "src/components/circular-loader";
+import { useAddMutation, useEditMutation } from "./api";
 export interface UpsertModalClientProps {
     cliente?: ClienteDTO,
     onClose: (message?: string) => void
@@ -25,26 +26,27 @@ export default function UpsertModalClient(props: UpsertModalClientProps) {
     const [isLoadingCEP, setIsLoadingCEP] = useState(false);
     const { setIsLoading } = useContext(LoadingContext);
 
+    const [add] = useAddMutation();
+    const [edit] = useEditMutation();
+
     const onSave = async () => {
         try {
             if (!await isSavingValid()) return;
 
             if (isNew) {
 
-                await clientesService.new(current);
+                await add(current).unwrap();
 
-                props.onClose("Registro criado com sucesso");
+                props.onClose(`Cliente '${current.nome}' criado com sucesso`);
             }
             else {
-                await clientesService.edit(current);
+                await edit(current).unwrap();
 
-                props.onClose("Registro alterado com sucesso");
-            }
+                props.onClose(`Cliente '${current.nome}' alterado com sucesso`);
+            }            
 
         } catch (error: any) {
             toast.error(error);
-        }
-        finally {
         }
     }
 

@@ -38,45 +38,45 @@ export default function Clientes() {
 
     const getAll = async (filter: Paging) => {
         try {
-            await setIsLoading(true);
+            setIsLoading(true);
 
             const data = await clientesService.getAll(filter);
-            await setData(data);
+            setData(data);
 
         } catch {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
         }
         finally {
-            await setIsLoading(false);
+            setIsLoading(false);
         }
     }
 
     const refresh = async (paramFilter?: Paging) => {
         await getAll(paramFilter ?? filter);
-        await setSelected(undefined);
+        setSelected(undefined);
     }
 
     const onExcludeClick = async () => {
         if (!selected) return;
 
-        await setConfirmationDialogOpen(true);
+        setConfirmationDialogOpen(true);
     }
 
     const onNewClick = async () => {
-        await setSelected(undefined);
-        await setUpsertDialogOpen(true);
-        await setShouldClearGridSelection(!shouldClearGridSelection);
+        setSelected(undefined);
+        setUpsertDialogOpen(true);
+        setShouldClearGridSelection(!shouldClearGridSelection);
     }
 
     const onRowDoubleClick = async (e: any) => {
         const localCurrent = data.find(c => c.id === (e as ClienteDTO).id);
-        await setSelected(localCurrent);
-        await setUpsertDialogOpen(true);
+        setSelected(localCurrent);
+        setUpsertDialogOpen(true);
     }
 
     const onFilter = async (localFilter: Paging | undefined) => {
         const newFilter = localFilter ?? new Paging();
-        await setFilter(newFilter);
+        setFilter(newFilter);
 
         await refresh(newFilter);
     }
@@ -105,7 +105,7 @@ export default function Clientes() {
                             rows={data}
                             columns={columns}
                             onRowDoubleClick={async (e: any) => await onRowDoubleClick(e.row)}
-                            onRowClick={async (e: any) => await setSelected(e.row)}
+                            onRowClick={async (e: any) => setSelected(e.row)}
                             onPagination={onFilter}
                             onFilterModelChange={onFilter}
                             useCustomFooter
@@ -130,11 +130,11 @@ export default function Clientes() {
             cliente={selected}
             onClose={async (message: string | undefined) => {
                 if (message) {
-                    await toast.success(message);
+                    toast.success(message);
                     await refresh();
                 }
 
-                await setUpsertDialogOpen(false);
+                setUpsertDialogOpen(false);
             }}
         />}
     </>

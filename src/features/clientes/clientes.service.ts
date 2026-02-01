@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import { HttpClient } from '../../infrastructure/httpclient.component';
 import { Paging } from '../common/base-contracts';
 import { ClienteResponse, ClienteDTO, ClienteExternalResponse } from './clientes.contracts';
-import { trySplitEndereco } from './clientes-common';
+import { trySplitEndereco, concatEndereco } from './clientes-common';
 
 export class ClientesService {
     private readonly request: HttpClient;
@@ -66,12 +66,12 @@ export class ClientesService {
     }
 
     public async new(cliente: ClienteDTO): Promise<any> {
-        cliente.endereco = this.concatEndereco(cliente);
+        cliente.endereco = concatEndereco(cliente);
         await this.request.post(`${this.BASE_URL}`, cliente);
     }
 
     public async edit(cliente: ClienteDTO): Promise<any> {
-        cliente.endereco = this.concatEndereco(cliente);
+        cliente.endereco = concatEndereco(cliente);
         await this.request.put(`${this.BASE_URL}/${cliente.id}`, cliente);
     }
 
@@ -80,7 +80,7 @@ export class ClientesService {
             ...cliente,
             isvip: false,
             pessoafisica: cliente.pessoafisica === 1,
-            endereco: this.concatEndereco(cliente)
+            endereco: concatEndereco(cliente)
         }
 
         if (cliente.issamedataforinvoice === false) {
@@ -149,18 +149,7 @@ export class ClientesService {
         }
 
         return result;
-    }
-
-    private concatEndereco(cliente: { endereco?: string, bairro?: string, cidade?: string, numero?: string, complemento?: string, estado?: string }): string {
-        const endereco = [cliente.endereco,
-        cliente.bairro,
-        cliente.cidade,
-        cliente.numero,
-        cliente.complemento,
-        cliente.estado].join("|");
-
-        return endereco;
-    }
+    }    
 
     // public async getById(id: number): Promise<AxiosResponse<StudentsResponseItem>> {
     //     return await this.request.get(`${ this.BASE_URL } /${id}`);

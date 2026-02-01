@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import UpsertModalClient from "./clientes-modal.page";
 import { LookupProps } from "../common/base-contracts";
 import { IsAuthorized } from "src/infrastructure/helpers";
+import { useGetAllComboQuery } from "./api";
 
 export interface ClientesLookupProps
     extends LookupProps<ClienteDTO> { }
@@ -15,62 +16,50 @@ export default function ClientesLookup(props: ClientesLookupProps) {
 
     const [selected, setSelected] = useState<ClienteDTO>();
     const [modalSelected, setModalSelected] = useState<ClienteDTO>();
-    const [data, setData] = useState<ClienteDTO[]>([]);
+    //const [data, setData] = useState<ClienteDTO[]>([]);
 
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
+    const { data = [], refetch } = useGetAllComboQuery();
 
-    useEffect(() => { getAll() },
-        // eslint-disable-next-line
-        []);
-
-    const getAll = async () => {
-        try {
-            const data = await clientesService.getAllCombo();
-            await setData(data);
-
-            if (data && props.selectedId) {
-                const localSelected = data.find(f => f.id === props.selectedId);
-
-                if (localSelected) {
-                    await setSelected(localSelected);
-                    if (props.onChange)
-                        props.onChange(localSelected);
-                }
+    useEffect(() => {
+        if (data.length > 0 && props.selectedId) {
+            const localSelected = data.find(f => f.id === props.selectedId);
+            if (localSelected) {
+                setSelected(localSelected);
+                props.onChange?.(localSelected);
             }
-
-        } catch (e: any) {
-            toast.error('Não foi possivel carregar os dados. Verifique a internet.');
-            console.error(e);
         }
-    }
+    }, [data, props]);
 
     const onAfter = async (items?: ClienteDTO[]): Promise<ClienteDTO | undefined> => {
         const st = items?.find(f => f.id === selected?.id);
 
-        await setSelected(st);
+        setSelected(st);
 
         return st;
     }
 
     const onChange = async (s: ClienteDTO) => {
-        await setSelected(s);
+        setSelected(s);
         if (props.onChange)
             props.onChange(s);
     }
 
     const onAddClick = async (_?: ClienteDTO) => {
-        await setModalSelected(undefined);
-        await setUpsertDialogOpen(true);
+        setModalSelected(undefined);
+        setUpsertDialogOpen(true);
     }
 
     const onShowClick = async (client?: ClienteDTO) => {
         if (client && client.id) {
             client = await clientesService.getById(client.id);
         }
-        
-        await setModalSelected(client);
-        await setUpsertDialogOpen(true);
+
+        setModalSelected(client);
+        setUpsertDialogOpen(true);
     }
+
+    const isClientAuthorized = IsAuthorized('/clientes');
 
     return <><SearchCombobox<ClienteDTO>
         value={selected}
@@ -78,10 +67,10 @@ export default function ClientesLookup(props: ClientesLookupProps) {
         label="Cliente"
         onChange={onChange}
         onAddClick={
-            IsAuthorized('/clientes') ? onAddClick : undefined
+            isClientAuthorized ? onAddClick : undefined
         }
         onShowClick={
-            IsAuthorized('/clientes') ? onShowClick : undefined
+            isClientAuthorized ? onShowClick : undefined
         }
         options={data}
         getOptionLabel={(o: ClienteDTO) => o.nome ?? ''}
@@ -92,11 +81,10 @@ export default function ClientesLookup(props: ClientesLookupProps) {
             cliente={modalSelected}
             onClose={async (message: string | undefined) => {
                 if (message) {
-                    await toast.success(message);
-                    await getAll();
+                    toast.success(message);
+                    refetch();
                 }
-
-                await setUpsertDialogOpen(false);
+                setUpsertDialogOpen(false);
             }}
         />}
     </>

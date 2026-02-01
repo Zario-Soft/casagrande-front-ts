@@ -31,6 +31,17 @@ export const trySplitEndereco = (rawEndereco?: string): ClienteEndereco | undefi
     return undefined;
 }
 
+export const concatEndereco = (cliente: { endereco?: string, bairro?: string, cidade?: string, numero?: string, complemento?: string, estado?: string }): string => {
+    const endereco = [cliente.endereco,
+    cliente.bairro,
+    cliente.cidade,
+    cliente.numero,
+    cliente.complemento,
+    cliente.estado].join("|");
+
+    return endereco;
+}
+
 export const preencheCEP = async (e: any, current: any, setCurrent: any): Promise<ClienteEndereco | undefined> => {
     const cep = e.target.value.replace("-", "");
 

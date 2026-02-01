@@ -22,7 +22,7 @@ export const clientesApi = createApi({
     endpoints: (builder) => ({
         getAllCombo: builder.query<ClienteDTO[], void>({
             query: () => '/cliente-combo',
-            providesTags: ['Clientes'],
+            providesTags: ['Clientes'],            
         }),
         // If you handle the Save inside Redux too:
         add: builder.mutation<void, Partial<ClienteDTO>>({

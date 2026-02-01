@@ -21,7 +21,7 @@ export default function ClientesLookup(props: ClientesLookupProps) {
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
     const { data = [], refetch } = useGetAllComboQuery(undefined, {
         refetchOnReconnect: true,
-        pollingInterval: 3600_000, // 1 hour
+        pollingInterval: 1_200_000, // 20 minutes
     });
 
     useEffect(() => {

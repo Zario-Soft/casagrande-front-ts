@@ -193,8 +193,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             }
 
             if (isTrelloSaved === false && shouldShowTrelloButton() && !!current.trellocardid) {
-                toast.error(`Você alterou imagens ou observações técnicas. Por favor, envie as alterações para o Trello antes de salvar.`);
-                return;
+                toast.warn(`Você alterou imagens ou observações técnicas. Considere enviar as alterações para o Trello.`);
             }
 
             props.onClose(current);
@@ -207,8 +206,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
     const onCancelClose = async () => {
         if (isTrelloSaved === true && shouldShowTrelloButton() && !!current.trellocardid) {
-            toast.error(`Você enviou alterações para o Trello, mas não salvou as mudanças localmente. Por favor, salve antes de fechar.`);
-            return;
+            toast.warn(`Você alterou imagens ou observações técnicas. Considere enviar as alterações para o Trello.`);
         }
 
         props.onClose();

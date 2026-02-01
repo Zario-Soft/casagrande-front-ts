@@ -117,11 +117,6 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
     }
 
     const onCancelClose = async () => {
-        if (allOrcamentosProdutos && allOrcamentosProdutos.length && allOrcamentosProdutos.some(s => s.trellosaved === true)) {
-            const confirm = window.confirm("Existem produtos vinculados ao Trello que já foram atualizados. Ao fechar esta janela, você poderá gerar uma inconsistência no sistema.\n\nDeseja continuar?");
-            if (!confirm) return;
-        }
-
         props.onClose();
     }
 

@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import UpsertModalClient from "./clientes-modal.page";
 import { LookupProps } from "../common/base-contracts";
 import { IsAuthorized } from "src/infrastructure/helpers";
-import { useGetAllComboQuery } from "./api";
 
 export interface ClientesLookupProps
     extends LookupProps<ClienteDTO> { }
@@ -16,53 +15,62 @@ export default function ClientesLookup(props: ClientesLookupProps) {
 
     const [selected, setSelected] = useState<ClienteDTO>();
     const [modalSelected, setModalSelected] = useState<ClienteDTO>();
-    //const [data, setData] = useState<ClienteDTO[]>([]);
+    const [data, setData] = useState<ClienteDTO[]>([]);
 
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
-    const { data = [], refetch } = useGetAllComboQuery(undefined, {
-        refetchOnReconnect: true,
-        pollingInterval: 1_200_000, // 20 minutes
-    });
 
-    useEffect(() => {
-        if (data.length > 0 && props.selectedId) {
-            const localSelected = data.find(f => f.id === props.selectedId);
-            if (localSelected) {
-                setSelected(localSelected);
-                props.onChange?.(localSelected);
+    useEffect(() => { getAll() },
+        // eslint-disable-next-line
+        []);
+
+    const getAll = async () => {
+        try {
+            const data = await clientesService.getAllCombo();
+            await setData(data);
+
+            if (data && props.selectedId) {
+                const localSelected = data.find(f => f.id === props.selectedId);
+
+                if (localSelected) {
+                    await setSelected(localSelected);
+                    if (props.onChange)
+                        props.onChange(localSelected);
+                }
             }
+
+        } catch (e: any) {
+            toast.error('Não foi possivel carregar os dados. Verifique a internet.');
+            console.error(e);
         }
-    }, [data, props]);
+    }
 
     const onAfter = async (items?: ClienteDTO[]): Promise<ClienteDTO | undefined> => {
         const st = items?.find(f => f.id === selected?.id);
 
-        setSelected(st);
+        await setSelected(st);
 
         return st;
     }
 
     const onChange = async (s: ClienteDTO) => {
-        setSelected(s);
+        await setSelected(s);
         if (props.onChange)
             props.onChange(s);
     }
 
     const onAddClick = async (_?: ClienteDTO) => {
-        setModalSelected(undefined);
-        setUpsertDialogOpen(true);
+        await setModalSelected(undefined);
+        await setUpsertDialogOpen(true);
     }
 
     const onShowClick = async (client?: ClienteDTO) => {
         if (client && client.id) {
             client = await clientesService.getById(client.id);
         }
-
-        setModalSelected(client);
-        setUpsertDialogOpen(true);
+        
+        await setModalSelected(client);
+        await setUpsertDialogOpen(true);
     }
-
-    const isClientAuthorized = IsAuthorized('/clientes');
 
     return <><SearchCombobox<ClienteDTO>
         value={selected}
@@ -70,10 +78,10 @@ export default function ClientesLookup(props: ClientesLookupProps) {
         label="Cliente"
         onChange={onChange}
         onAddClick={
-            isClientAuthorized ? onAddClick : undefined
+            IsAuthorized('/clientes') ? onAddClick : undefined
         }
         onShowClick={
-            isClientAuthorized ? onShowClick : undefined
+            IsAuthorized('/clientes') ? onShowClick : undefined
         }
         options={data}
         getOptionLabel={(o: ClienteDTO) => o.nome ?? ''}
@@ -84,10 +92,11 @@ export default function ClientesLookup(props: ClientesLookupProps) {
             cliente={modalSelected}
             onClose={async (message: string | undefined) => {
                 if (message) {
-                    toast.success(message);
-                    refetch();
+                    await toast.success(message);
+                    await getAll();
                 }
-                setUpsertDialogOpen(false);
+
+                await setUpsertDialogOpen(false);
             }}
         />}
     </>

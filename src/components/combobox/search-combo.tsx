@@ -27,7 +27,7 @@ export default function SearchCombobox<T extends { id: number }>(props: MuiCombo
             onAfter(options)
                 .then(async result => {
                     if (result)
-                        await setValue(result);
+                        setValue(result);
                 });
         }
         // eslint-disable-next-line
@@ -36,9 +36,9 @@ export default function SearchCombobox<T extends { id: number }>(props: MuiCombo
     const [inputValue, setInputValue] = useState("");
 
     const onChange = async (_: any, value: any) => {
-        await setValue(value);
+        setValue(value);
 
-        await props.onChange(value);
+        props.onChange(value);
     }
 
     return <div style={{

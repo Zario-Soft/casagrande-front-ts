@@ -19,22 +19,18 @@ export default function ClientesLookup(props: ClientesLookupProps) {
 
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
 
-    useEffect(() => { getAll() },
-        // eslint-disable-next-line
-        []);
-
+    
     const getAll = async () => {
         try {
             const data = await clientesService.getAllCombo();
-            await setData(data);
+            setData(data);
 
             if (data && props.selectedId) {
                 const localSelected = data.find(f => f.id === props.selectedId);
 
                 if (localSelected) {
-                    await setSelected(localSelected);
-                    if (props.onChange)
-                        props.onChange(localSelected);
+                    setSelected(localSelected);
+                    props.onChange?.(localSelected);
                 }
             }
 
@@ -44,23 +40,28 @@ export default function ClientesLookup(props: ClientesLookupProps) {
         }
     }
 
+    useEffect(() => { getAll() },
+        // eslint-disable-next-line
+        []);
+
+
     const onAfter = async (items?: ClienteDTO[]): Promise<ClienteDTO | undefined> => {
         const st = items?.find(f => f.id === selected?.id);
 
-        await setSelected(st);
+        setSelected(st);
 
         return st;
     }
 
     const onChange = async (s: ClienteDTO) => {
-        await setSelected(s);
+        setSelected(s);
         if (props.onChange)
             props.onChange(s);
     }
 
     const onAddClick = async (_?: ClienteDTO) => {
-        await setModalSelected(undefined);
-        await setUpsertDialogOpen(true);
+        setModalSelected(undefined);
+        setUpsertDialogOpen(true);
     }
 
     const onShowClick = async (client?: ClienteDTO) => {
@@ -68,8 +69,8 @@ export default function ClientesLookup(props: ClientesLookupProps) {
             client = await clientesService.getById(client.id);
         }
         
-        await setModalSelected(client);
-        await setUpsertDialogOpen(true);
+        setModalSelected(client);
+        setUpsertDialogOpen(true);
     }
 
     return <><SearchCombobox<ClienteDTO>
@@ -92,11 +93,11 @@ export default function ClientesLookup(props: ClientesLookupProps) {
             cliente={modalSelected}
             onClose={async (message: string | undefined) => {
                 if (message) {
-                    await toast.success(message);
+                    toast.success(message);
                     await getAll();
                 }
 
-                await setUpsertDialogOpen(false);
+                setUpsertDialogOpen(false);
             }}
         />}
     </>

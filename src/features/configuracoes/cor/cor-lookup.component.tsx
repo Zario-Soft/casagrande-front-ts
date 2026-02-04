@@ -1,5 +1,5 @@
 import SearchCombobox from "src/components/combobox/search-combo";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import CorService from "./cor.service";
 import { toast } from "react-toastify";
 import { CorDTO } from "./cor.contracts";
@@ -26,13 +26,13 @@ export default function CorLookup(props: CorLookupProps) {
     const getAll = async () => {
         try {
             const data = await corService.getAll();
-            await setData(data);
+            setData(data);
 
             if (data && props.selectedId) {
                 const localSelected = data.find(f => f.id === props.selectedId);
 
                 if (localSelected)
-                    await setSelected(localSelected);
+                    setSelected(localSelected);
             }
 
         } catch {
@@ -40,29 +40,31 @@ export default function CorLookup(props: CorLookupProps) {
         }
     }
 
-    const onAfter = async (items?: CorDTO[]): Promise<CorDTO | undefined> => {
+    const onAfter = useCallback(async (items?: CorDTO[]): Promise<CorDTO | undefined> => {
         const st = items?.find(f => f.id === selected?.id);
 
-        await setSelected(st);
+        setSelected(st);
 
         return st;
-    }
+    }, [selected?.id]);
 
-    const onChange = async (s: CorDTO) => {
-        await setSelected(s);
+    const onChange = useCallback(async (s: CorDTO) => {
+        setSelected(s);
         if (props.onChange)
             props.onChange(s);
-    }
+    }, [props]);
 
-    const onAddClick = async (_?: CorDTO) => {
-        await setModalSelected(undefined);
-        await setUpsertDialogOpen(true);
-    }
+    const onAddClick = useCallback(async (_?: CorDTO) => {
+        setModalSelected(undefined);
+        setUpsertDialogOpen(true);
+    }, []);
 
-    const onShowClick = async (s?: CorDTO) => {
-        await setModalSelected(s);
-        await setUpsertDialogOpen(true);
-    }
+    const onShowClick = useCallback(async (s?: CorDTO) => {
+        setModalSelected(s);
+        setUpsertDialogOpen(true);
+    }, []);
+
+    const isAuthorized = useMemo(() => IsAuthorized('/configuracoes'), []);
 
     return <>
         <SearchCombobox<CorDTO>
@@ -71,10 +73,10 @@ export default function CorLookup(props: CorLookupProps) {
             label="Cor"
             onChange={onChange}
             onAddClick={
-                IsAuthorized('/configuracoes') ? onAddClick : undefined
+                isAuthorized ? onAddClick : undefined
             }
             onShowClick={
-                IsAuthorized('/configuracoes') ? onShowClick : undefined
+                isAuthorized ? onShowClick : undefined
             }
             options={data}
             getOptionLabel={(o: CorDTO) => o.nome ?? ''}
@@ -86,11 +88,11 @@ export default function CorLookup(props: CorLookupProps) {
             cor={modalSelected}
             onClose={async (message: string | undefined) => {
                 if (message) {
-                    await toast.success(message);
+                    toast.success(message);
                     await getAll();
                 }
 
-                await setUpsertDialogOpen(false);
+                setUpsertDialogOpen(false);
             }}
         />}
     </>

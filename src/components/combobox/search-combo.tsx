@@ -25,13 +25,12 @@ export default function SearchCombobox<T extends { id: number }>(props: MuiCombo
     useMemo(() => {
         if (onAfter && options) {
             onAfter(options)
-                .then(async result => {
+                .then(result => {
                     if (result)
                         setValue(result);
                 });
         }
-        // eslint-disable-next-line
-    }, [options]);
+    }, [onAfter, options]);
 
     const [inputValue, setInputValue] = useState("");
 

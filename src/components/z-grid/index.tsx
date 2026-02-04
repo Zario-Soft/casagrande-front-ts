@@ -12,6 +12,7 @@ interface ZGridProps {
     height?: number;
     columns: ZGridColDef[],
     rows: GridRowsProp,
+    style?: React.CSSProperties | undefined,
     shouldClearSelection?: boolean,
     useCustomFooter?: boolean,
     onRowDoubleClick?: (e: any) => void,
@@ -45,15 +46,15 @@ export default function ZGrid(props: ZGridProps) {
                     })
 
                 result = newPaging;
-                await setFilter(newPaging);
+                setFilter(newPaging);
             }
             else {
                 result = undefined;
-                await setFilter(undefined);
+                setFilter(undefined);
             }
 
             if (props.onFilterModelChange)
-                await props.onFilterModelChange(result);
+                props.onFilterModelChange(result);
         }
     }
 
@@ -61,13 +62,12 @@ export default function ZGrid(props: ZGridProps) {
         '+': (page: number) => page + 1,
         '-': (page: number) => page > 0 ? page - 1 : 0,
     }
-    const onPageChange = async (op: string) => {
+    const onPageChange = async (op: '+' | '-') => {
         const localPage = operations[op](filter?.page ?? 0);
         const newPaging = new Paging(localPage, filter?.filter);
-        await setFilter(newPaging);
+        setFilter(newPaging);
 
-        if (props.onPagination)
-            props.onPagination(newPaging);
+        props.onPagination?.(newPaging);
     }
 
     return <>
@@ -78,6 +78,7 @@ export default function ZGrid(props: ZGridProps) {
                 columns={columns}
                 hideFooterSelectedRowCount
                 style={{
+                    ...props.style,
                     maxHeight: '700px',
                     minHeight: '300px'
                 }}
@@ -114,10 +115,10 @@ export default function ZGrid(props: ZGridProps) {
                 display: 'flex',
                 justifyContent: 'flex-end'
             }}>
-                <IconButton color="primary" aria-label="Página anterior" component="span" onClick={async () => await onPageChange('-')}>
+                <IconButton color="primary" aria-label="Página anterior" component="span" onClick={() => onPageChange('-')}>
                     <NavigateBefore />
                 </IconButton>
-                {props.rows.length >= 15 && <IconButton color="primary" aria-label="Próxima página" component="span" onClick={async () => await onPageChange('+')}>
+                {props.rows.length >= 15 && <IconButton color="primary" aria-label="Próxima página" component="span" onClick={() => onPageChange('+')}>
                     <NavigateNext />
                 </IconButton>}
             </div>

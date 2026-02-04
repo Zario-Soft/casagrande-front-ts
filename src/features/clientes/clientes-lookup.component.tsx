@@ -1,6 +1,6 @@
 import SearchCombobox from "src/components/combobox/search-combo";
 import { ClienteDTO } from "./clientes.contracts";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ClientesService from "./clientes.service";
 import { toast } from "react-toastify";
 import UpsertModalClient from "./clientes-modal.page";
@@ -17,10 +17,13 @@ export default function ClientesLookup(props: ClientesLookupProps) {
     const [modalSelected, setModalSelected] = useState<ClienteDTO>();
     const [data, setData] = useState<ClienteDTO[]>([]);
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
 
     
     const getAll = async () => {
+        setIsLoading(true);
         try {
             const data = await clientesService.getAllCombo();
             setData(data);
@@ -38,6 +41,9 @@ export default function ClientesLookup(props: ClientesLookupProps) {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
             console.error(e);
         }
+        finally {
+            setIsLoading(false);
+        }
     }
 
     useEffect(() => { getAll() },
@@ -45,33 +51,33 @@ export default function ClientesLookup(props: ClientesLookupProps) {
         []);
 
 
-    const onAfter = async (items?: ClienteDTO[]): Promise<ClienteDTO | undefined> => {
+    const onAfter = useCallback(async (items?: ClienteDTO[]): Promise<ClienteDTO | undefined> => {
         const st = items?.find(f => f.id === selected?.id);
-
         setSelected(st);
-
         return st;
-    }
+    }, [selected?.id]);
 
-    const onChange = async (s: ClienteDTO) => {
-        setSelected(s);
-        if (props.onChange)
-            props.onChange(s);
-    }
+    const onChange = useCallback((value: ClienteDTO) => {
+        setSelected(value);
+        props.onChange?.(value);
+    }, [props]);
 
-    const onAddClick = async (_?: ClienteDTO) => {
+    const onAddClick = useCallback((_?: ClienteDTO) => {
         setModalSelected(undefined);
         setUpsertDialogOpen(true);
-    }
+    }, []);
 
-    const onShowClick = async (client?: ClienteDTO) => {
+    const onShowClick = useCallback(async (client?: ClienteDTO) => {
         if (client && client.id) {
             client = await clientesService.getById(client.id);
         }
         
         setModalSelected(client);
         setUpsertDialogOpen(true);
-    }
+        // eslint-disable-next-line
+    }, []);
+
+    const canAccessClientes = useMemo(() => IsAuthorized('/clientes'), []);
 
     return <><SearchCombobox<ClienteDTO>
         value={selected}
@@ -79,15 +85,20 @@ export default function ClientesLookup(props: ClientesLookupProps) {
         label="Cliente"
         onChange={onChange}
         onAddClick={
-            IsAuthorized('/clientes') ? onAddClick : undefined
+            canAccessClientes ? onAddClick : undefined
         }
         onShowClick={
-            IsAuthorized('/clientes') ? onShowClick : undefined
+            canAccessClientes ? onShowClick : undefined
         }
         options={data}
         getOptionLabel={(o: ClienteDTO) => o.nome ?? ''}
         onAfter={onAfter}
         sx={props.sx}
+        style={{ 
+          opacity: isLoading ? 0.4 : 1,
+          transition: 'opacity 0.2s ease-in-out',
+          pointerEvents: isLoading ? 'none' : 'auto' 
+        }}
     />
         {upsertDialogOpen && <UpsertModalClient
             cliente={modalSelected}

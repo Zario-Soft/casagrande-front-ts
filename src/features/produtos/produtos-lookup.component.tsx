@@ -1,5 +1,5 @@
 import SearchCombobox from "src/components/combobox/search-combo";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { ProdutoDTO } from "./produtos.contracts";
 import ProdutosService from "./produtos.service";
@@ -15,6 +15,7 @@ export default function ProdutosLookup(props: ProdutosLookupProps) {
     const [selected, setSelected] = useState<ProdutoDTO>();
     const [modalSelected, setModalSelected] = useState<ProdutoDTO>();
     const [data, setData] = useState<ProdutoDTO[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
 
@@ -23,45 +24,51 @@ export default function ProdutosLookup(props: ProdutosLookupProps) {
         []);
 
     const getAll = async () => {
+        setIsLoading(true);
         try {
             const data = await service.getAll();
-            await setData(data);
+            setData(data);
 
             if (data && props.selectedId) {
                 const localSelected = data.find(f => f.id === props.selectedId);
 
                 if (localSelected)
-                    await setSelected(localSelected);
+                    setSelected(localSelected);
             }
 
         } catch {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
         }
+        finally {
+            setIsLoading(false);
+        }
     }
 
-    const onAfter = async (items?: ProdutoDTO[]): Promise<ProdutoDTO | undefined> => {
+    const onAfter = useCallback(async (items?: ProdutoDTO[]): Promise<ProdutoDTO | undefined> => {
         const st = items?.find(f => f.id === selected?.id);
 
-        await setSelected(st);
+        setSelected(st);
 
         return st;
-    }
+    }, [selected?.id]);
 
-    const onChange = async (s: ProdutoDTO) => {
-        await setSelected(s);
+    const onChange = useCallback(async (s: ProdutoDTO) => {
+        setSelected(s);
         if (props.onChange)
             props.onChange(s);
-    }
+    }, [props]);
 
-    const onAddClick = async (_?: ProdutoDTO) => {
-        await setModalSelected(undefined);
-        await setUpsertDialogOpen(true);
-    }
+    const onAddClick = useCallback(async (_?: ProdutoDTO) => {
+        setModalSelected(undefined);
+        setUpsertDialogOpen(true);
+    }, []);
 
-    const onShowClick = async (s?: ProdutoDTO) => {
-        await setModalSelected(s);
-        await setUpsertDialogOpen(true);
-    }
+    const onShowClick = useCallback(async (s?: ProdutoDTO) => {
+        setModalSelected(s);
+        setUpsertDialogOpen(true);
+    }, []);
+
+    const isAuthorized = useMemo(() => IsAuthorized('/produtos'), []);
 
     return <>
         <SearchCombobox<ProdutoDTO>
@@ -70,26 +77,31 @@ export default function ProdutosLookup(props: ProdutosLookupProps) {
             label="Produto"
             onChange={onChange}
             onAddClick={
-                IsAuthorized('/produtos') ? onAddClick : undefined
+                isAuthorized ? onAddClick : undefined
             }
             onShowClick={
-                IsAuthorized('/produtos') ? onShowClick : undefined
+                isAuthorized ? onShowClick : undefined
             }
             options={data}
             getOptionLabel={(o: ProdutoDTO) => o.descricao ?? ''}
             onAfter={onAfter}
             sx={props.sx}
-            style={props.style}
+            style={{
+                ...props.style,
+                opacity: isLoading ? 0.4 : 1,
+                transition: 'opacity 0.2s ease-in-out',
+                pointerEvents: isLoading ? 'none' : 'auto'
+            }}
         />
         {upsertDialogOpen && <UpsertModalProduct
             produto={modalSelected}
             onClose={async (message: string | undefined) => {
                 if (message) {
-                    await toast.success(message);
+                    toast.success(message);
                     await getAll();
                 }
 
-                await setUpsertDialogOpen(false);
+                setUpsertDialogOpen(false);
             }}
         />}
     </>

@@ -1,5 +1,5 @@
 import SearchCombobox from "src/components/combobox/search-combo";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { LookupProps } from "../common/base-contracts";
 import UpsertModalOrcamento from "./orcamentos-modal.page";
@@ -16,6 +16,8 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
     const [modalSelected, setModalSelected] = useState<OrcamentoGrid>();
     const [data, setData] = useState<OrcamentoLookupItem[]>([]);
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
 
     useEffect(() => { getAll() },
@@ -23,15 +25,16 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
         []);
 
     const getAll = async () => {
+        setIsLoading(true);
         try {
             const data = await orcamentosService.getAllAprovados();
-            await setData(data);
+            setData(data);
 
             if (data && props.selectedId) {
                 const localSelected = data.find(f => f.id === props.selectedId);
 
                 if (localSelected) {
-                    await setSelected(localSelected);
+                    setSelected(localSelected);
                 }
             }
 
@@ -39,33 +42,39 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
             console.error(e);
         }
+        finally {
+            setIsLoading(false);
+        }
     }
 
-    const onAfter = async (items?: OrcamentoLookupItem[]): Promise<OrcamentoLookupItem | undefined> => {
+    const onAfter = useCallback(async (items?: OrcamentoLookupItem[]): Promise<OrcamentoLookupItem | undefined> => {
         const st = items?.find(f => f.id === selected?.id);
 
-        await setSelected(st);
+        setSelected(st);
 
         return st;
-    }
+    }, [selected?.id]);
 
-    const onChange = async (s: OrcamentoLookupItem) => {
-        await setSelected(s);
+    const onChange = useCallback(async (s: OrcamentoLookupItem) => {
+        setSelected(s);
         if (props.onChange)
             props.onChange(s);
-    }
+    }, [props]);
 
-    const onAddClick = async (_?: OrcamentoLookupItem) => {
-        await setModalSelected(undefined);
-        await setUpsertDialogOpen(true);
-    }
+    const onAddClick = useCallback(async (_?: OrcamentoLookupItem) => {
+        setModalSelected(undefined);
+        setUpsertDialogOpen(true);
+    }, []);
 
-    const onShowClick = async (s?: OrcamentoLookupItem) => {
+    const onShowClick = useCallback(async (s?: OrcamentoLookupItem) => {
         const localOrcamento = await orcamentosService.getById(s!.id)
 
-        await setModalSelected(localOrcamento);
-        await setUpsertDialogOpen(true);
-    }
+        setModalSelected(localOrcamento);
+        setUpsertDialogOpen(true);
+        // eslint-disable-next-line
+    }, []);
+
+    const isAuthorized = useMemo(() => IsAuthorized('/orcamentos'), []);
 
     return <>
         <SearchCombobox<OrcamentoLookupItem>
@@ -74,26 +83,31 @@ export default function OrcamentoLookup(props: OrcamentoLookupProps) {
             label="Orçamento"
             onChange={onChange}
             onAddClick={
-                IsAuthorized('/orcamentos') ? onAddClick : undefined
+                isAuthorized ? onAddClick : undefined
             }
             onShowClick={
-                IsAuthorized('/orcamentos') ? onShowClick : undefined
+                isAuthorized ? onShowClick : undefined
             }
             options={data}
             getOptionLabel={(o: OrcamentoLookupItem) => o.clientenome ?? ''}
             onAfter={onAfter}
             sx={props.sx}
-            style={props.style}
+            style={{
+                ...props.style,
+                opacity: isLoading ? 0.4 : 1,
+                transition: 'opacity 0.2s ease-in-out',
+                pointerEvents: isLoading ? 'none' : 'auto'
+            }}
         />
         {upsertDialogOpen && <UpsertModalOrcamento
             orcamento={modalSelected}
             onClose={async (message: string | undefined) => {
                 if (message) {
-                    await toast.success(message);
+                    toast.success(message);
                     await getAll();
                 }
 
-                await setUpsertDialogOpen(false);
+                setUpsertDialogOpen(false);
             }}
         />}
     </>

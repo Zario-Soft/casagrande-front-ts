@@ -35,20 +35,20 @@ export default function Calendario() {
 
     async function search(amount?: number) {
         try {
-            await setIsLoading(true);
+            setIsLoading(true);
 
             const data = await calendarioService.getAll(amount ?? navigation.amount);
 
             if (data) {
-                await setCurrent(data);
-                await setTitle(data.titulo);
+                setCurrent(data);
+                setTitle(data.titulo);
             }
 
         } catch (e) {
             toast.error(`Não foi possivel carregar a lista de pedidos.`);
         }
 
-        await setIsLoading(false);
+        setIsLoading(false);
     }
 
     async function next() {
@@ -62,7 +62,7 @@ export default function Calendario() {
     }
 
     const refreshNavigation = async (newAmountValue: number) => {
-        await setNavigation({ ...navigation, amount: newAmountValue });
+        setNavigation({ ...navigation, amount: newAmountValue });
         searchParams.set("amount", newAmountValue.toString())
 
         await search(newAmountValue);
@@ -70,18 +70,18 @@ export default function Calendario() {
 
 
     async function onCalendarDoubleClick(e: any) {
-        await setIsLoading(true);
+        setIsLoading(true);
 
         const vendaId = parseInt(e.target.innerHTML.split(' ')[0]);
 
         const data = await vendasService.getById(vendaId);
 
         if (data) {
-            await setCurrentVenda(data);
-            await setShowModalVenda(true);
+            setCurrentVenda(data);
+            setShowModalVenda(true);
         }
 
-        await setIsLoading(false);
+        setIsLoading(false);
     }
 
     return <>
@@ -132,11 +132,11 @@ export default function Calendario() {
             current={currentVenda}
             onClose={async (message: string | undefined) => {
                 if (message) {
-                    await toast.success(message);
+                    toast.success(message);
                     await search();
                 }
 
-                await setShowModalVenda(false);
+                setShowModalVenda(false);
             }}
         />}
     </>

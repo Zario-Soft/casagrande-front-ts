@@ -1,7 +1,7 @@
 import { Dialog, DialogTitle, DialogContent, TextField, DialogActions, FormControl, InputLabel, Select, IconButton } from "@mui/material";
 import { NormalButton, ReportButton, WarningButton } from "src/components/buttons";
 import { PaperComponent } from "src/components/dialogs";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import OrcamentosService from "./orcamentos.service";
 import { OrcamentoDTO, OrcamentoUpsertRequest, OrcamentoProdutoGrid, StatusOrcamentoOptions, OrcamentoProdutoDTO, OrcamentoGrid } from "./orcamentos.contracts";
@@ -116,10 +116,6 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         setCodeModalVisible(true);
     }
 
-    const onCancelClose = async () => {
-        props.onClose();
-    }
-
     const onSave = async () => {
         try {
             if (!await isSavingValid()) return;
@@ -172,7 +168,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         }
     }
 
-    const isSavingValid = async (): Promise<boolean> => {
+    const isSavingValid = useCallback(async (): Promise<boolean> => {
         if (!(allOrcamentosProdutos ?? []).filter(f => f.excluido === 0).length) {
             toast.error(`É necessário informar ao menos um produto.`);
             return false;
@@ -182,7 +178,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             return false;
 
         return true;
-    }
+    }, [allOrcamentosProdutos, current]);
 
     const handleFrete = async (e: any, orcProds?: OrcamentoProdutoGrid[]) => {
         const localFrete = isNaN(e.target.value) ? 0 : e.target.value;
@@ -193,7 +189,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         setCurrent({ ...localCurrent, valortotal: vlTotal });
     }
 
-    const calculateTotalValue = (obj?: OrcamentoDTO, orcProds?: OrcamentoProdutoGrid[]): number => {
+    const calculateTotalValue = useCallback((obj?: OrcamentoDTO, orcProds?: OrcamentoProdutoGrid[]): number => {
         let vlTotal = obj?.frete ?? current?.frete ?? 0;
         orcProds ??= allOrcamentosProdutos;
 
@@ -208,7 +204,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             return 0;
 
         return vlTotal + (isNaN(somaProdutos) ? 0 : somaProdutos);
-    }
+    }, [allOrcamentosProdutos, current]);
 
     const onConfirmExclusion = async () => {
         //open dialog and remove item from grid
@@ -237,7 +233,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         }
     }
 
-    const addProduct = async () => {
+    const addProduct = useCallback(async () => {
         //clear client
         setCurrentOrcamentoProduto(undefined);
 
@@ -245,14 +241,14 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         setCurrentEditingOrcamentoProduto({} as OrcamentoProdutoGrid);
 
         setShowModalOrcamentoProduto(true);
-    }
+    }, []);
 
-    const editProduct = async (e: any) => {
+    const editProduct = useCallback(async (e: any) => {
         setCurrentEditingOrcamentoProduto(undefined);
         setCurrentEditingOrcamentoProduto(e.row ?? currentOrcamentoProduto);
 
         setShowModalOrcamentoProduto(true);
-    }
+    }, [currentOrcamentoProduto]);
 
     async function handleCloseModalOrcamentoProduto(newOrcamentoProduto?: OrcamentoProdutoGrid) {
         let localOrcamentoProdutos = allOrcamentosProdutos ?? [];
@@ -432,7 +428,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             fullWidth
             aria-labelledby="draggable-dialog-title"
             PaperComponent={PaperComponent}
-            onClose={onCancelClose}
+            onClose={() => props.onClose()}
         >
             <DialogTitle id="draggable-dialog-title" style={{ cursor: 'move' }}>
                 {isNew ? 'Novo Orçamento' : `Editando Orçamento '${current!.id}'`}
@@ -597,7 +593,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                     <NormalButton onClick={onSave} color="primary">
                         Salvar
                     </NormalButton>
-                    <WarningButton onClick={onCancelClose} color="secondary">
+                    <WarningButton onClick={() => props.onClose()} color="secondary">
                         Cancelar
                     </WarningButton></>
                 }

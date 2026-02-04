@@ -36,7 +36,7 @@ export default function ClienteExternal() {
     if (!code) return;
 
     try {
-      await setIsLoading(true);
+      setIsLoading(true);
 
       const result = await orcamentoService.getByCode(code!);
 
@@ -45,9 +45,9 @@ export default function ClienteExternal() {
         return;
       }
 
-      await setCurrent(result);
+      setCurrent(result);
     } finally {
-      await setIsLoading(false);
+      setIsLoading(false);
     }
   }
 
@@ -57,20 +57,18 @@ export default function ClienteExternal() {
   }, [])
 
   const onConfirm = async () => {
-    await setIsLoading(true);
-    await setShowConfirmation(false);
+    setIsLoading(true);
+    setShowConfirmation(false);
 
     await clientesService.editExternal(current!);
     // await orcamentoService.editObservacao({ id: current!.orcamentoid, observacao: ''});
 
-    await setIsConfirmed(true);
-    await setIsLoading(false);
+    setIsConfirmed(true);
+    setIsLoading(false);
   }
 
   const checkShowConfirmation = async () => {
     // validate
-
-    console.log(current)
 
     const isValid = current?.nome && current.bairro && current?.responsavel &&
       current.celular && current.cep && current.cidade &&
@@ -87,14 +85,14 @@ export default function ClienteExternal() {
       return;
     }
 
-    await setShowConfirmation(true);
+    setShowConfirmation(true);
   }
 
   const fillInfoFromCNPJ = async () => {
 
     if (!current || !current.cpfcnpj || current.cpfcnpj.trim().length !== 18) return;
 
-    await setIsLoading(true);
+    setIsLoading(true);
 
     try {
       const data = await GetInfoFromCNPJ(current.cpfcnpj);
@@ -122,7 +120,7 @@ export default function ClienteExternal() {
         responsavel: data.qsa.length > 0 ? ToPascalCase(data.qsa[0].nome_socio) ?? current.responsavel : current.responsavel
       });
     } finally {
-      await setIsLoading(false);
+      setIsLoading(false);
     }
   }
 
@@ -242,7 +240,7 @@ export default function ClienteExternal() {
                   const estado = await fillState(e, clientesService);
 
                   if (estado) {
-                    await setCurrent({ ...current, estado: estado })
+                    setCurrent({ ...current, estado: estado })
                   }
                 }}
                 disabled={disableTextFieldByCNPJ()}
@@ -261,7 +259,7 @@ export default function ClienteExternal() {
                   const estado = await fillState(e, clientesService);
 
                   if (estado) {
-                    await setCurrent({ ...current, estado: estado })
+                    setCurrent({ ...current, estado: estado })
                   }
                 }}
                 error={!current.celular}
@@ -280,11 +278,11 @@ export default function ClienteExternal() {
                 id="cep-input"
                 inputComponent={CEPMaskCustom}
                 onBlur={async (e: any) => {
-                  await setIsLoadingCEP(true);
+                  setIsLoadingCEP(true);
 
                   await preencheCEP(e, current, setCurrent);
 
-                  await setIsLoadingCEP(false);
+                  setIsLoadingCEP(false);
                 }}
                 error={!current.cep}
                 disabled={disableTextFieldByCNPJ()}
@@ -363,7 +361,7 @@ export default function ClienteExternal() {
 
             <ClientStateSelect
               current={current.estado}
-              onChange={async (e) => await setCurrent({ ...current, estado: e.target.value })}
+              onChange={async (e) => setCurrent({ ...current, estado: e.target.value })}
               disabled={disableTextFieldByCNPJ()}
             />
           </div>

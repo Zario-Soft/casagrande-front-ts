@@ -1,55 +1,38 @@
 import SearchCombobox from "src/components/combobox/search-combo";
 import { ClienteDTO } from "./clientes.contracts";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import ClientesService from "./clientes.service";
 import { toast } from "react-toastify";
 import UpsertModalClient from "./clientes-modal.page";
 import { LookupProps } from "../common/base-contracts";
 import { IsAuthorized } from "src/infrastructure/helpers";
+import { useGetAllComboQuery, useLazyGetByIdQuery } from "./api";
 
 export interface ClientesLookupProps
     extends LookupProps<ClienteDTO> { }
 
 export default function ClientesLookup(props: ClientesLookupProps) {
-    const clientesService = new ClientesService();
-
     const [selected, setSelected] = useState<ClienteDTO>();
     const [modalSelected, setModalSelected] = useState<ClienteDTO>();
-    const [data, setData] = useState<ClienteDTO[]>([]);
-
-    const [isLoading, setIsLoading] = useState(false);
 
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
+    const { data = [], refetch, isLoading } = useGetAllComboQuery(undefined, {
+        refetchOnReconnect: true,
+        pollingInterval: 600_000, // 10 minutos
+    });
 
-    
-    const getAll = async () => {
-        setIsLoading(true);
-        try {
-            const data = await clientesService.getAllCombo();
-            setData(data);
+    const [getById] = useLazyGetByIdQuery();
 
-            if (data && props.selectedId) {
-                const localSelected = data.find(f => f.id === props.selectedId);
 
-                if (localSelected) {
-                    setSelected(localSelected);
-                    props.onChange?.(localSelected);
-                }
+
+    useEffect(() => {
+        if (data.length > 0 && props.selectedId) {
+            const localSelected = data.find(f => f.id === props.selectedId);
+            if (localSelected) {
+                setSelected(localSelected);
+                props.onChange?.(localSelected);
             }
-
-        } catch (e: any) {
-            toast.error('Não foi possivel carregar os dados. Verifique a internet.');
-            console.error(e);
         }
-        finally {
-            setIsLoading(false);
-        }
-    }
-
-    useEffect(() => { getAll() },
-        // eslint-disable-next-line
-        []);
-
+    }, [data, props]);
 
     const onAfter = useCallback(async (items?: ClienteDTO[]): Promise<ClienteDTO | undefined> => {
         const st = items?.find(f => f.id === selected?.id);
@@ -62,16 +45,16 @@ export default function ClientesLookup(props: ClientesLookupProps) {
         props.onChange?.(value);
     }, [props]);
 
-    const onAddClick = useCallback((_?: ClienteDTO) => {
+   const onAddClick = useCallback((_?: ClienteDTO) => {
         setModalSelected(undefined);
         setUpsertDialogOpen(true);
     }, []);
 
     const onShowClick = useCallback(async (client?: ClienteDTO) => {
         if (client && client.id) {
-            client = await clientesService.getById(client.id);
+            client = await getById(client.id).unwrap();
         }
-        
+
         setModalSelected(client);
         setUpsertDialogOpen(true);
         // eslint-disable-next-line
@@ -105,9 +88,8 @@ export default function ClientesLookup(props: ClientesLookupProps) {
             onClose={async (message: string | undefined) => {
                 if (message) {
                     toast.success(message);
-                    await getAll();
+                    refetch();
                 }
-
                 setUpsertDialogOpen(false);
             }}
         />}

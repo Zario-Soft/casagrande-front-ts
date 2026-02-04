@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { ClienteDTO } from "./clientes.contracts";
+import { ClienteDTO, ClienteResponse } from "./clientes.contracts";
 import { API_URL } from '../../infrastructure/env';
 import { selectToken } from 'src/redux-ts/slices/auth.slice';
-import { concatEndereco } from './clientes-common';
+import { concatEndereco, MapResponse } from './clientes-common';
 import { RootState } from 'src/redux-ts/store';
 
 export const clientesApi = createApi({
@@ -22,14 +22,20 @@ export const clientesApi = createApi({
     endpoints: (builder) => ({
         getAllCombo: builder.query<ClienteDTO[], void>({
             query: () => '/cliente-combo',
-            providesTags: ['Clientes'],            
+            providesTags: ['Clientes'],
+        }),
+        getById: builder.query<ClienteDTO, number>({
+            query: (id) => `/cliente/${id}`,
+            transformResponse: (response: ClienteResponse) => {
+                return MapResponse(response);
+            }
         }),
         // If you handle the Save inside Redux too:
         add: builder.mutation<void, Partial<ClienteDTO>>({
             query: (body) => ({
                 url: '/cliente',
                 method: 'POST',
-                body: {...body, endereco: concatEndereco(body) },
+                body: { ...body, endereco: concatEndereco(body) },
             }),
             invalidatesTags: ['Clientes'],
         }),
@@ -37,11 +43,14 @@ export const clientesApi = createApi({
             query: (body) => ({
                 url: '/cliente/' + body.id,
                 method: 'PUT',
-                body: {...body, endereco: concatEndereco(body) },
+                body: { ...body, endereco: concatEndereco(body) },
             }),
             invalidatesTags: ['Clientes'],
         }),
     }),
 });
 
-export const { useGetAllComboQuery, useEditMutation, useAddMutation } = clientesApi;
+export const {
+    useGetAllComboQuery,
+    useLazyGetByIdQuery,
+    useEditMutation, useAddMutation } = clientesApi;

@@ -1,4 +1,4 @@
-import { ClienteEndereco } from "./clientes.contracts";
+import { ClienteDTO, ClienteEndereco, ClienteResponse } from "./clientes.contracts";
 import ClientesService from "./clientes.service";
 
 export const fillState = async (e: any, clientesService: ClientesService): Promise<string | undefined> => {
@@ -29,6 +29,22 @@ export const trySplitEndereco = (rawEndereco?: string): ClienteEndereco | undefi
     }
 
     return undefined;
+}
+
+export const MapResponse = (c: ClienteResponse): ClienteDTO => {
+
+    let endereco = trySplitEndereco(c.endereco);
+
+    let result: ClienteDTO = {
+        ...c,
+        isvip: c.isvip === 1,
+        isparceiro: c.isparceiro === 1,
+        pessoafisica: c.pessoafisica === 1,
+        percparceiro: c.percparceiro,
+        ...endereco
+    }
+
+    return result;
 }
 
 export const concatEndereco = (cliente: { endereco?: string, bairro?: string, cidade?: string, numero?: string, complemento?: string, estado?: string }): string => {

@@ -93,7 +93,8 @@ export class OrcamentosService {
             request, {
             maxBodyLength: Infinity,
             maxContentLength: Infinity,
-            maxRedirects: 0
+            maxRedirects: 0,
+            timeout: 60000
         });
     }
 
@@ -105,7 +106,8 @@ export class OrcamentosService {
             }, {
             maxBodyLength: Infinity,
             maxContentLength: Infinity,
-            maxRedirects: 0
+            maxRedirects: 0,
+            timeout: 60000
         });
     }
 

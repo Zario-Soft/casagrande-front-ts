@@ -615,7 +615,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
         {invoiceVisible && <ReportInvoiceOrcamento
             reportTitle={current.clientenome ? `${current.clientenome} - Orçamento ${current.id}` : 'Solicitação de teste'}
             formTitle={current.clientenome ? `Solicitação de teste - Orçamento ${current.id}` : 'Solicitação de teste'}
-            onClose={async () => setInvoiceVisible(false)}
+            onClose={async () => await setInvoiceVisible(false)}
             content={invoice}
         />}
 

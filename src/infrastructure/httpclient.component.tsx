@@ -51,7 +51,7 @@ export class HttpClient {
                 'Content-Type': 'application/json',
             },
             baseURL: API_URL,
-            timeout: 30000
+            timeout: 60_000
         }
     }
 }

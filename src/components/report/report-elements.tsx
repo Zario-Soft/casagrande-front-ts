@@ -185,6 +185,7 @@ export function SummaryImageReport(props: ReportContentImageSummaryProps) {
 
         loadImage();
 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [imageItemsKey])
 
     return <View wrap break={props.breakPage ?? false}>

@@ -5,8 +5,6 @@ import { ReportControlDialogProps } from "src/components/report/report.interface
 import Report from "src/components/report/report.component";
 
 export default function ReportInvoiceOrcamento(props: ReportControlDialogProps){
-    console.log(props);
-    
     return <>
     <Dialog
         open

@@ -138,34 +138,23 @@ interface ImageContentNovoItem {
 }
 
 export function SummaryImageReport(props: ReportContentImageSummaryProps) {
-    //const [imageContent, setImageContent] = useState<ImageContent[]>();
     const [imageContentNovo, setImageContentNovo] = useState<ImageContentNovo[]>([]);
-    const imgHandler = new ImageDownloader();
+    const imageItemsKey = JSON.stringify(props.imageItems);
 
     useEffect(() => {
-        //const imgHandler = new ImageDownloader();
+        const imgHandler = new ImageDownloader();
+
+        const getContent = async (guid: string) => {
+            try {
+                return await imgHandler.downloadOnFront(guid);
+            } catch (error) {
+                toast.error(`Erro ao baixar a imagems para o relatório.`);
+                return undefined;
+            }
+        }
+
         const loadImage = async () => {
-
-            // const validImages = props.images
-            //     .filter(image => !!image);
-
-            // let localImages: ImageContent[] = [];
-
-            // await validImages.forEach(async img => {
-            //     const result = await imgHandler.downloadOnFront(img!.guid)
-            //     if (result) {
-            //         localImages = [
-            //             ...localImages,
-            //             {
-            //                 content: result!,
-            //                 index: img!.index,
-            //                 description: img!.description
-            //             }];
-            //         await setImageContent(localImages);
-            //     }
-            // });
-
-            let localImagesNovo: ImageContentNovo[] = props.imageItems!
+            const structure: ImageContentNovo[] = props.imageItems!
                 .filter(item => item.images.filter(i => !!i).length > 0)
                 .map(item => {
                     return {
@@ -179,22 +168,25 @@ export function SummaryImageReport(props: ReportContentImageSummaryProps) {
                     } as ImageContentNovo;
                 });
 
-            setImageContentNovo(localImagesNovo);
+            const withContent: ImageContentNovo[] = await Promise.all(
+                structure.map(async item => ({
+                    ...item,
+                    items: await Promise.all(
+                        item.items.map(async i => ({
+                            ...i,
+                            content: await getContent(i.guid)
+                        }))
+                    )
+                }))
+            );
+
+            setImageContentNovo(withContent);
         };
 
         loadImage();
 
-    }, [props])
-
-    const getContent = async (guid: string) => {
-        try {
-            const result = await imgHandler.downloadOnFront(guid)
-            return result;
-        } catch(error) {
-            toast.error(`Erro ao baixar a imagems para o relatório.`);
-            return '';
-        }
-    }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [imageItemsKey])
 
     return <View wrap break={props.breakPage ?? false}>
         <View style={styles.invoiceSummaryTitle}>
@@ -209,9 +201,10 @@ export function SummaryImageReport(props: ReportContentImageSummaryProps) {
                     <View key={key} style={styles.invoiceClientContainer}>
                         {item.items
                             .sort((a, b) => a.index < b.index ? 1 : -1)
+                            .filter(value => !!value.content)
                             .map((value, itemIndex) => {
                                 return <View key={itemIndex}>
-                                    <Image style={styles.picture} src={getContent(value.guid)} />
+                                    <Image style={styles.picture} src={value.content} />
                                 </View>
                             })}
                     </View>

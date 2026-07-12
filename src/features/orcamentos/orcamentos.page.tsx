@@ -17,7 +17,7 @@ function StatusInputValue(props: any) {
     const [current, setCurrent] = useState(item.value);
 
     const handleFilterChange = async (newValue: any) => {
-        await setCurrent(newValue)
+        setCurrent(newValue)
 
         await applyValue({ ...item, value: newValue });
     };
@@ -119,48 +119,48 @@ export default function Orcamentos() {
 
     const getAll = async (filter: OrcamentoPaging) => {
         try {
-            await setIsLoading(true);
+            setIsLoading(true);
 
             const data = await orcamentosService.getAll<OrcamentoGrid>(filter);
-            await setData(data);
+            setData(data);
 
         } catch (e: any) {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
             console.error(e);
         }
         finally {
-            await setIsLoading(false);
+            setIsLoading(false);
         }
     }
 
     const refresh = async (paramFilter?: OrcamentoPaging) => {
         await getAll(paramFilter ?? filter);
-        await setSelected(undefined);
+        setSelected(undefined);
     }
 
     const onExcludeClick = async () => {
         if (!selected) return;
 
-        await setConfirmationDialogOpen(true);
+        setConfirmationDialogOpen(true);
     }
 
     const onNewClick = async () => {
-        await setSelected(undefined);
-        await setUpsertDialogOpen(true);
-        await setShouldClearGridSelection(!shouldClearGridSelection);
+        setSelected(undefined);
+        setUpsertDialogOpen(true);
+        setShouldClearGridSelection(!shouldClearGridSelection);
     }
 
     const onRowDoubleClick = async (e: any) => {
         console.log(e);
         const localCurrent = data.find(c => c.id === (e as OrcamentoDTO).id);
-        await setSelected(localCurrent);
-        await setUpsertDialogOpen(true);
+        setSelected(localCurrent);
+        setUpsertDialogOpen(true);
     }
 
     const onFilter = async (localFilter: OrcamentoPaging | undefined) => {
         const newFilter = new OrcamentoPaging(localFilter?.page ?? 0, localFilter?.filter);
 
-        await setFilter(newFilter);
+        setFilter(newFilter);
 
         await refresh(newFilter);
     }
@@ -189,7 +189,7 @@ export default function Orcamentos() {
                             rows={data}
                             columns={columns}
                             onRowDoubleClick={async (e: any) => await onRowDoubleClick(e.row)}
-                            onRowClick={async (e: any) => await setSelected(e.row)}
+                            onRowClick={async (e: any) => setSelected(e.row)}
                             onPagination={onFilter}
                             onFilterModelChange={onFilter}
                             useCustomFooter
@@ -218,7 +218,7 @@ export default function Orcamentos() {
                     toast.success(message);
                 }
 
-                await setUpsertDialogOpen(false);
+                setUpsertDialogOpen(false);
             }}
         />}
     </>

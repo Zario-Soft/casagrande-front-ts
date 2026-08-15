@@ -8,7 +8,7 @@ import { LoadingContext } from "src/providers/loading.provider";
 import ConfirmationDialog from "src/components/dialogs/confirmation.dialog";
 import moment from 'moment';
 import VendasService from "./vendas.service";
-import { VendaDTO } from "./vendas.contracts";
+import { VendaDTO, VendaPaging } from "./vendas.contracts";
 import UpsertModalVendas from "./vendas-modal.page";
 
 const columns: ZGridColDef[] = [
@@ -25,6 +25,7 @@ export default function Vendas() {
     const { setIsLoading } = useContext(LoadingContext);
     const [data, setData] = useState<VendaDTO[]>([]);
     const [selected, setSelected] = useState<VendaDTO>();
+    const [filter, setFilter] = useState(new VendaPaging());
 
     const [confirmationDialogOpen, setConfirmationDialogOpen] = useState(false);
     const [upsertDialogOpen, setUpsertDialogOpen] = useState(false);
@@ -35,42 +36,50 @@ export default function Vendas() {
         // eslint-disable-next-line
     }, []);
 
-    const getAll = async () => {
+    const getAll = async (filter: VendaPaging) => {
         try {
-            await setIsLoading(true);
+            setIsLoading(true);
 
-            const data = await vendasService.getAll();
-            await setData(data);
+            const data = await vendasService.getAll(filter);
+            setData(data);
 
         } catch {
             toast.error('Não foi possivel carregar os dados. Verifique a internet.');
         }
         finally {
-            await setIsLoading(false);
+            setIsLoading(false);
         }
     }
 
-    const refresh = async () => {
-        await getAll();
-        await setSelected(undefined);
+    const refresh = async (paramFilter?: VendaPaging) => {
+        await getAll(paramFilter ?? filter);
+        setSelected(undefined);
     }
 
     const onExcludeClick = async () => {
         if (!selected) return;
 
-        await setConfirmationDialogOpen(true);
+        setConfirmationDialogOpen(true);
     }
 
     const onNewClick = async () => {
-        await setSelected(undefined);
-        await setUpsertDialogOpen(true);
-        await setShouldClearGridSelection(!shouldClearGridSelection);
+        setSelected(undefined);
+        setUpsertDialogOpen(true);
+        setShouldClearGridSelection(!shouldClearGridSelection);
     }
 
     const onRowDoubleClick = async (e: any) => {
         const localCurrent = data.find(c => c.id === (e as VendaDTO).id);
-        await setSelected(localCurrent);
-        await setUpsertDialogOpen(true);
+        setSelected(localCurrent);
+        setUpsertDialogOpen(true);
+    }
+
+    const onFilter = async (localFilter: VendaPaging | undefined) => {
+        const newFilter = new VendaPaging(localFilter?.page ?? 0, localFilter?.filter);
+
+        setFilter(newFilter);
+
+        refresh(newFilter);
     }
 
     const onConfirmExclusion = async () => {
@@ -96,8 +105,11 @@ export default function Vendas() {
                             shouldClearSelection={shouldClearGridSelection}
                             rows={data}
                             columns={columns}
-                            onRowDoubleClick={async (e: any) => await onRowDoubleClick(e.row)}
-                            onRowClick={async (e: any) => await setSelected(e.row)}
+                            onRowDoubleClick={(e: any) => onRowDoubleClick(e.row)}
+                            onRowClick={(e: any) => setSelected(e.row)}
+                            onPagination={onFilter}
+                            onFilterModelChange={onFilter}
+                            useCustomFooter
                         />
                         <ButtonsLine
                             onNewClick={onNewClick}
@@ -119,11 +131,11 @@ export default function Vendas() {
             current={selected}
             onClose={async (message: string | undefined) => {
                 if (message) {
-                    await toast.success(message);
+                    toast.success(message);
                     await refresh();
                 }
 
-                await setUpsertDialogOpen(false);
+                setUpsertDialogOpen(false);
             }}
         />}
     </>

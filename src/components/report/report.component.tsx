@@ -1,8 +1,8 @@
 import { Image, Page, Document, StyleSheet, PDFViewer } from '@react-pdf/renderer';
 
 import logo from '../../assets/logo.png';
-import { ReportSubtitle, ReportTitle, SummaryImageReport, SummaryReport } from './report-elements';
-import { ReportContent, ReportContentBaseSummary, ReportContentImageSummary, ReportContentSummary } from './report.interfaces';
+import { ReportSubtitle, ReportTitle, SummaryImageReport, SummaryReport, SummaryTableReport } from './report-elements';
+import { ReportContent, ReportContentBaseSummary, ReportContentImageSummary, ReportContentSummary, ReportContentTableSummary } from './report.interfaces';
 
 const styles = StyleSheet.create({
     page: {
@@ -51,6 +51,17 @@ export default function Report(props: ReportProps) {
                             key={index}
                             title={item.title}
                             items={(item as ReportContentSummary).items}
+                            breakPage={item.breakPage}
+                            visible={item.visible ?? true}
+                        />
+                    }
+
+                    if ("columns" in item) {
+                        return <SummaryTableReport
+                            key={index}
+                            title={item.title}
+                            columns={(item as ReportContentTableSummary).columns}
+                            rows={(item as ReportContentTableSummary).rows}
                             breakPage={item.breakPage}
                             visible={item.visible ?? true}
                         />

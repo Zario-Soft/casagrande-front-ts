@@ -1,5 +1,5 @@
 import { Text, View, StyleSheet, Image } from '@react-pdf/renderer';
-import { ReportContentImageSummary, ReportContentSummary } from './report.interfaces';
+import { ReportContentImageSummary, ReportContentSummary, ReportContentTableSummary } from './report.interfaces';
 import { useState, useEffect } from 'react';
 import { ImageDownloader } from '../image-downloader/image-downloader.component';
 import { toast } from "react-toastify";
@@ -84,7 +84,43 @@ const styles = StyleSheet.create({
         height: 135,
         marginLeft: 5,
         marginTop: 5,
-    }
+    },
+
+    tableContainer: {
+        flexDirection: 'column',
+        marginTop: 6,
+        marginRight: 10,
+        marginLeft: 2,
+        borderStyle: 'solid',
+        borderWidth: '1px',
+        borderColor: '#282c34',
+    },
+    tableRow: {
+        flexDirection: 'row',
+    },
+    tableHeaderRow: {
+        flexDirection: 'row',
+        backgroundColor: '#282c34',
+    },
+    tableCell: {
+        flex: 1,
+        fontSize: 10,
+        padding: 4,
+        borderStyle: 'solid',
+        borderColor: '#282c34',
+        borderRightWidth: '1px',
+        borderTopWidth: '1px',
+    },
+    tableHeaderCell: {
+        flex: 1,
+        fontSize: 10,
+        fontStyle: 'bold',
+        color: '#ffffff',
+        padding: 4,
+        borderStyle: 'solid',
+        borderColor: '#282c34',
+        borderRightWidth: '1px',
+    },
 });
 
 export const ReportTitle = ({ title }: { title: string }) => (
@@ -118,6 +154,44 @@ export function SummaryReport(props: ReportContentSummaryProps) {
             })}
         </View>
     </View>
+}
+
+export type ReportContentTableSummaryProps = ReportContentTableSummary;
+
+export function SummaryTableReport(props: ReportContentTableSummaryProps) {
+    // title, columns: key/label/kind, rows: array of arrays (parallel to columns)
+    return <View wrap break={props.breakPage ?? false}>
+        <View style={styles.invoiceSummaryTitle}>
+            <Text style={styles.invoiceSummaryTitleLabel}>{props.title ?? 'Dados'}</Text>
+        </View>
+        <View style={styles.tableContainer}>
+            <View style={styles.tableHeaderRow} fixed>
+                {props.columns.map((column, key) => (
+                    <Text key={key} style={styles.tableHeaderCell}>{column.label}</Text>
+                ))}
+            </View>
+            {props.rows.map((row, rowIndex) => (
+                <View key={rowIndex} style={styles.tableRow} wrap={false}>
+                    {row.map((cell, cellIndex) => (
+                        <Text key={cellIndex} style={styles.tableCell}>{formatCell(cell, props.columns[cellIndex]?.kind)}</Text>
+                    ))}
+                </View>
+            ))}
+        </View>
+    </View>
+}
+
+function formatCell(value: string | number, kind?: string): string {
+    if (value === undefined || value === null) return '';
+
+    switch (kind) {
+        case 'currency':
+            return Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        case 'number':
+            return Number(value).toLocaleString('pt-BR');
+        default:
+            return String(value);
+    }
 }
 
 // interface ImageContent {

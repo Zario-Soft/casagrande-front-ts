@@ -37,6 +37,18 @@ export interface ReportContentSummaryItem {
     visible?: boolean,
 }
 
+export interface ReportContentTableSummary
+    extends ReportContentBaseSummary {
+    columns: ReportTableColumn[],
+    rows: (string | number)[][],
+}
+
+export interface ReportTableColumn {
+    key: string,
+    label: string,
+    kind?: 'text' | 'number' | 'currency' | 'date',
+}
+
 export interface ReportControlDialogProps {
     /** Texto que mostra dentro do formulário, abaixo do CNPJ  */
     formTitle?: string,

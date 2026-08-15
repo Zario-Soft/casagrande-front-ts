@@ -1,9 +1,10 @@
 import { HttpClient } from '../../infrastructure/httpclient.component';
-import { VendaDTO } from './vendas.contracts';
+import { VendaDTO, VendaPaging } from './vendas.contracts';
 
 export class VendasService {
     private readonly request: HttpClient;
     private readonly BASE_URL: string = 'venda';
+    private readonly BASE_URL_PAGED: string = 'vendas';
 
     constructor() {
         this.request = new HttpClient();
@@ -15,8 +16,10 @@ export class VendasService {
         return data;
     }
 
-    public async getAll(): Promise<VendaDTO[]> {
-        const { data } = await this.request.get(`${this.BASE_URL}`);
+    public async getAll(filter?: VendaPaging): Promise<VendaDTO[]> {
+        const { data } = filter
+            ? await this.request.get(`${this.BASE_URL_PAGED}${filter.stringify()}`)
+            : await this.request.get(this.BASE_URL);
 
         if (data) {
             const result = data

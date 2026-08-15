@@ -7,6 +7,22 @@ export class VendaPaging extends Paging {
     ) {
         super(page, filter);
     }
+
+    override mountColumnFilter(): string {
+        const filter = this.filter!;
+
+        if (filter.column === 'id') {
+            return `id+identical=${filter.value}`;
+        }
+
+        if (filter.column === 'meiopagamentodescricao') {
+            const index = FormasPagamento.findIndex(f => f === filter.value);
+
+            return `meiopagamento+identical=${index}`
+        }
+
+        return '';
+    }
 }
 
 export interface VendaDTO {
@@ -20,5 +36,5 @@ export interface VendaDTO {
 
 export const FormasPagamento = [
     'Dinheiro',
-    'Cartão Débito', 'Cartão Crédito', 'Cheque', 'Transferência', 'PIX'
+    'Cartão de débito', 'Cartão de crédito', 'Cheque', 'Transferência', 'PIX'
 ]

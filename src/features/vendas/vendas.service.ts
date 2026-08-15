@@ -4,6 +4,7 @@ import { VendaDTO, VendaPaging } from './vendas.contracts';
 export class VendasService {
     private readonly request: HttpClient;
     private readonly BASE_URL: string = 'venda';
+    private readonly BASE_URL_PAGED: string = 'vendas';
 
     constructor() {
         this.request = new HttpClient();
@@ -17,7 +18,7 @@ export class VendasService {
 
     public async getAll(filter?: VendaPaging): Promise<VendaDTO[]> {
         const { data } = filter
-            ? await this.request.get(`${this.BASE_URL}${filter.stringify()}`)
+            ? await this.request.get(`${this.BASE_URL_PAGED}${filter.stringify()}`)
             : await this.request.get(this.BASE_URL);
 
         if (data) {

@@ -1,22 +1,13 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { ClienteDTO, ClienteResponse } from "./clientes.contracts";
 import { API_URL } from '../../infrastructure/env';
-import { selectToken } from 'src/redux-ts/slices/auth.slice';
 import { concatEndereco, MapResponse } from './clientes-common';
-import { RootState } from 'src/redux-ts/store';
 
 export const clientesApi = createApi({
     reducerPath: 'clientesApi',
     baseQuery: fetchBaseQuery({
         baseUrl: API_URL,
-        prepareHeaders: (headers, { getState }) => {
-            const state = getState() as RootState;
-            const token = selectToken(state);
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            return headers;
-        }
+        credentials: 'include',
     }),
     tagTypes: ['Clientes'], // This is the "label" for our cache
     endpoints: (builder) => ({

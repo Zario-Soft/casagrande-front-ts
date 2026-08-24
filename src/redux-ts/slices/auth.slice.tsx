@@ -1,24 +1,28 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
-import { parseJwt } from "src/infrastructure/helpers";
+import { GetUserInfo, UserInfo } from "src/infrastructure/helpers";
 
 interface AuthState {
-    token: string
+    isAuthenticated: boolean,
+    userInfo: UserInfo | null,
 }
 
 const initialState: AuthState = {
-    token: localStorage.getItem('token')!
+    isAuthenticated: GetUserInfo() !== null,
+    userInfo: GetUserInfo(),
 }
 
 export const AuthSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        authenticate: (state, action: PayloadAction<string>) => {
-            state.token = action.payload
+        authenticate: (state, action: PayloadAction<UserInfo>) => {
+            state.isAuthenticated = true
+            state.userInfo = action.payload
         },
         unauthenticate: state => {
-            state.token = ''
+            state.isAuthenticated = false
+            state.userInfo = null
         }
     }
 })
@@ -52,15 +56,16 @@ const all_routes = [
     }
 ]
 
-export const selectToken = (state: RootState) => state.auth.token;
+export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated;
+export const selectUserInfo = (state: RootState) => state.auth.userInfo;
 export const getAllRoutes = (_: RootState) => all_routes;
 export const getAllowedRoutes = (state: RootState) => {
-    const token = parseJwt(state.auth.token);
-    if (!token) return [];
+    const userInfo = state.auth.userInfo;
+    if (!userInfo) return [];
 
-    const routes = token.is_admin 
-    ?  all_routes.map(r => r.route) 
-    : token.allowed_routes.split(',').filter((r: string) => r !== '' && r !== undefined);
+    const routes = userInfo.is_admin
+    ?  all_routes.map(r => r.route)
+    : (userInfo.allowed_routes || '').split(',').filter((r: string) => r !== '' && r !== undefined);
 
     return routes;
 }

@@ -53,7 +53,7 @@ export default function Login() {
         localStorage.setItem('lastmail', values.usuario)
 
       toast.success('Logado com sucesso!');
-      auth.onLogin(data.token, values.usuario);
+      auth.onLogin(data);
 
       await setIsLoading(false);
 

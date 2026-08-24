@@ -1,25 +1,24 @@
 import React, { ReactNode } from 'react'
 import { authenticate, unauthenticate } from '../redux-ts';
 import { useAppDispatch } from '../redux-ts/hooks';
-import { IsAuthorized } from 'src/infrastructure/helpers';
+import { IsAuthorized, UserInfo } from 'src/infrastructure/helpers';
+import LoginService from 'src/features/login/login.service';
 
 interface AuthProviderProps {
     children: ReactNode
 }
 
 interface providerValue {
-    getToken: () => string | null,
     isAuthenticated: () => boolean,
     isAuthorized: (route: string) => boolean,
-    onLogin: (token: string, fullname?: string) => void,
+    onLogin: (userInfo: UserInfo) => void,
     onLogout: () => void,
 }
 
 const defaultProviderValue: providerValue = {
-    getToken: () => '',
     isAuthenticated: () => false,
     isAuthorized: (_: string) => false,
-    onLogin: (_: string, _f?: string) => console.log(''),
+    onLogin: (_: UserInfo) => console.log(''),
     onLogout: () => console.log('')
 }
 
@@ -28,25 +27,25 @@ export const AuthContext = React.createContext<providerValue>(defaultProviderVal
 export const AuthProvider: React.FunctionComponent<AuthProviderProps> = ({ children }) => {
 
     const dispatch = useAppDispatch();
+    const loginService = new LoginService();
 
-    const onLogin = (token: string, fullname?: string) => {
-        dispatch(authenticate(token));
+    const onLogin = (userInfo: UserInfo) => {
+        dispatch(authenticate(userInfo));
 
-        localStorage.setItem('token', token);
-
-        if (fullname)
-            localStorage.setItem('fullname', fullname);
+        localStorage.setItem('userinfo', JSON.stringify(userInfo));
     }
-    const onLogout = () => {
-        dispatch(unauthenticate());
+    const onLogout = async () => {
+        try {
+            await loginService.doLogout();
+        } finally {
+            dispatch(unauthenticate());
 
-        localStorage.removeItem('token')
-        localStorage.removeItem('fullname');
+            localStorage.removeItem('userinfo');
+        }
     };
 
     const providerValues: providerValue = {
-        getToken: () => localStorage.getItem('token'),
-        isAuthenticated: () => localStorage.getItem('token') !== null,
+        isAuthenticated: () => localStorage.getItem('userinfo') !== null,
         isAuthorized: IsAuthorized,
         onLogin,
         onLogout

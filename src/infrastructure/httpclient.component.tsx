@@ -1,10 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { AppDispatch, selectToken, unauthenticate } from '../redux-ts';
-import { useAppDispatch, useAppSelector } from '../redux-ts/hooks';
+import { AppDispatch, unauthenticate } from '../redux-ts';
+import { useAppDispatch } from '../redux-ts/hooks';
 import { API_URL } from './env';
 
 export class HttpClient {
-    private token: string = useAppSelector(selectToken);
     private dispatch: AppDispatch = useAppDispatch();
 
     constructor() {
@@ -13,8 +12,8 @@ export class HttpClient {
             (errorObj: any) => {
                 if (errorObj && errorObj.response && errorObj.response.status === 401 && errorObj.request.responseURL.startsWith(API_URL)) {
                     this.dispatch(unauthenticate())
-                    
-                    localStorage.removeItem('token');
+
+                    localStorage.removeItem('userinfo');
                     window.location.reload();
 
                     return errorObj;
@@ -47,11 +46,11 @@ export class HttpClient {
     private getDefaultOptions(): any {
         return {
             headers: {
-                Authorization: this.token ? `Bearer ${this.token}` : '',
                 'Content-Type': 'application/json',
             },
             baseURL: API_URL,
-            timeout: 60_000
+            timeout: 60_000,
+            withCredentials: true
         }
     }
 }

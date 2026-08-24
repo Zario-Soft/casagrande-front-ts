@@ -17,6 +17,10 @@ export class LoginService {
     public async doLogin(data: DoLoginRequest): Promise<AxiosResponse<any, any>> {
         return this.request.post(`login`, data);
     }
+
+    public async doLogout(): Promise<AxiosResponse<any, any>> {
+        return this.request.post(`logout`);
+    }
 }
 
 

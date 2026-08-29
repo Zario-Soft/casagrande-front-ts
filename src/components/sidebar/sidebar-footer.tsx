@@ -1,6 +1,7 @@
 import { Stack, Avatar } from '@mui/material';
 import { ContextMenu } from '../context-menu';
 import { useState } from 'react';
+import { GetUserInfo } from 'src/infrastructure/helpers';
 
 const avatarSx = { cursor: 'pointer' }
 
@@ -12,7 +13,7 @@ export function SidebarFooter(props: SidebarFooterProps) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>();
     const [showContextMenu, setShowContextMenu] = useState(false);
 
-    const fullname = localStorage.getItem('fullname') ?? 'Usuário';
+    const fullname = GetUserInfo()?.fullname ?? 'Usuário';
 
     return <Stack direction="row" spacing={1}>
         <ContextMenu anchorEl={anchorEl!} open={showContextMenu} onClose={() => setShowContextMenu(false)} />

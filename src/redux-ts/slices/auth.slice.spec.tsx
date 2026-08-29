@@ -1,29 +1,35 @@
 import AuthReducer from "./auth.slice"
-import AuthActions from "./auth.slice"
 
-const tokenValue = 'some.token';
+const userInfo = {
+    login: 'user',
+    fullname: 'User',
+    is_admin: false,
+    allowed_routes: ''
+};
 
 test('Unauthenticating user', () => {
-    
+
     const result = AuthReducer({
-        token: tokenValue
+        isAuthenticated: true,
+        userInfo
     }, {
-        type: 'AuthActions.Unauthenticated'
+        type: 'auth/unauthenticate'
     })
 
-    expect(result.token).toBe('')
+    expect(result.isAuthenticated).toBe(false)
+    expect(result.userInfo).toBe(null)
 })
 
 test('Authenticating user', () => {
-    
+
     const result = AuthReducer({
-        token: ''
+        isAuthenticated: false,
+        userInfo: null
     }, {
-        type: 'AuthActions.Authenticated',
-        payload: {
-            token: tokenValue
-        }        
+        type: 'auth/authenticate',
+        payload: userInfo
     })
 
-    expect(result.token).toBe(tokenValue)
+    expect(result.isAuthenticated).toBe(true)
+    expect(result.userInfo).toEqual(userInfo)
 })

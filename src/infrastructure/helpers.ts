@@ -12,49 +12,43 @@ export const formatDateUnknown = (date: Date) => moment(date).format("yyyy-MM-DD
 const moneyFormater = Intl.NumberFormat("pt-br", { style: 'currency', currency: 'BRL' })
 export const formatMoney = (params: any) => moneyFormater.format(params);
 
-export const GetLoggerUser = () => {
-    const decodedToken = DecodedToken();
-    if (!decodedToken) return false;
-
-    return decodedToken.iss;
+export interface UserInfo {
+    login: string,
+    fullname: string,
+    is_admin: boolean,
+    allowed_routes: string,
 }
 
-export const parseJwt = (token: string) => {
-    if (!token) return;
+export const GetLoggerUser = () => {
+    const userInfo = GetUserInfo();
+    if (!userInfo) return false;
 
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-
-    return JSON.parse(jsonPayload);
+    return userInfo.login;
 }
 
 export const IsAuthorized = (route: string) => {
-    const decodedToken = DecodedToken();
-    if (!decodedToken) return false;
+    const userInfo = GetUserInfo();
+    if (!userInfo) return false;
 
-    if (!!decodedToken.is_admin) return true;
+    if (!!userInfo.is_admin) return true;
 
-    if (!decodedToken.allowed_routes) 
-        decodedToken.allowed_routes = '';
-
-    const allowedRoutes = [...decodedToken.allowed_routes.split(','), '/'];
+    const allowedRoutes = [...(userInfo.allowed_routes || '').split(','), '/'];
 
     return allowedRoutes.find(r => r === route) !== undefined;
 }
 
 export const IsAdmin = () => {
-    const decodedToken = DecodedToken();
-    if (!decodedToken) return false;
+    const userInfo = GetUserInfo();
+    if (!userInfo) return false;
 
-    return !!decodedToken.is_admin;
+    return !!userInfo.is_admin;
 }
 
-const DecodedToken = () => {
-    const token = localStorage.getItem('token');
-    if (!token) return null;
+export const GetUserInfo = (): UserInfo | null => {
+    const raw = localStorage.getItem('userinfo');
+    if (!raw) return null;
 
-    return parseJwt(token);
+    return JSON.parse(raw);
 }
 
 export const ToPascalCase = (str: string | undefined) => {

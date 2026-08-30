@@ -151,7 +151,6 @@ export default function Orcamentos() {
     }
 
     const onRowDoubleClick = async (e: any) => {
-        console.log(e);
         const localCurrent = data.find(c => c.id === (e as OrcamentoDTO).id);
         setSelected(localCurrent);
         setUpsertDialogOpen(true);

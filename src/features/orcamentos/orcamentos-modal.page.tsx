@@ -174,7 +174,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
             return false;
         }
 
-        if (!current.observacao || current.observacao === '' || !current.clienteid)
+        if (!current.clienteid)
             return false;
 
         return true;
@@ -490,9 +490,7 @@ export default function UpsertModalOrcamento(props: UpsertModalProps) {
                             fullWidth
                             InputLabelProps={{
                                 shrink: true,
-                            }}
-                            error={!current.observacao}
-                            helperText={!current.observacao ? 'Campo obrigatório' : ''} />
+                            }} />
                     </div>
                     <div className='inner-flex-container'
                         style={{

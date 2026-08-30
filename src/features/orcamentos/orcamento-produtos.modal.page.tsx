@@ -35,6 +35,7 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
 
     const [isLoadingTrello, setIsLoadingTrello] = useState(false);
     const [isTrelloSaved, setIsTrelloSaved] = useState<boolean | null>(null);
+    const [isLoadingImages, setIsLoadingImages] = useState(false);
 
     const [current, setCurrent] = useState(props.current ??
         {
@@ -171,18 +172,24 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
     const loadInfo = async () => {
         if (!props.current) return;
 
-        let req = { ...current };
+        try {
+            setIsLoadingImages(true);
 
+            let req = { ...current };
 
-        req['fotoinicialbase64'] =  current.fotoinicialbase64 ?? await imgHandler.downloadOnFront(current.fotoinicial);
+            req['fotoinicialbase64'] = current.fotoinicialbase64 ?? await imgHandler.downloadOnFront(current.fotoinicial);
 
-        req['fotoinicial2base64'] = current.fotoinicial2base64 ?? await imgHandler.downloadOnFront(current.fotoinicial2);
+            req['fotoinicial2base64'] = current.fotoinicial2base64 ?? await imgHandler.downloadOnFront(current.fotoinicial2);
 
-        req['fotorealbase64'] = current.fotorealbase64 ?? await imgHandler.downloadOnFront(current.fotoreal);
+            req['fotorealbase64'] = current.fotorealbase64 ?? await imgHandler.downloadOnFront(current.fotoreal);
 
-        req['fotoreal2base64'] = current.fotoreal2base64 ?? await imgHandler.downloadOnFront(current.fotoreal2);
+            req['fotoreal2base64'] = current.fotoreal2base64 ?? await imgHandler.downloadOnFront(current.fotoreal2);
 
-        setCurrent(req);
+            setCurrent(req);
+        }
+        finally {
+            setIsLoadingImages(false);
+        }
     }
 
     const onSave = async () => {
@@ -275,9 +282,11 @@ export default function UpsertModalOrcamentoProdutos(props: UpsertModalOrcamento
             onClose={onCancelClose}
         >
             <DialogTitle id="draggable-dialog-title" style={{ cursor: 'move' }}>
-                {isNew
-                    ? `Novo Produto ao Orçamento (cliente ${props.current!.clienteid})`
-                    : `Editando Produto '${props.current!.id}' do Orçamento (cliente ${props.current!.clienteid})`}
+                {isLoadingImages
+                    ? 'Carregando...'
+                    : isNew
+                        ? `Novo Produto ao Orçamento (cliente ${props.current!.clienteid})`
+                        : `Editando Produto '${props.current!.id}' do Orçamento (cliente ${props.current!.clienteid})`}
             </DialogTitle>
             <DialogContent>
                 <div className='flex-container' style={{

@@ -12,6 +12,8 @@ import { store } from './redux-ts';
 import { router } from './routes';
 import { ThemeProvider } from '@mui/material';
 import { generalTheme } from './theme';
+import './infrastructure/automation-guard';
+import { AutomationBlockedDialog } from './components/dialogs';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -23,6 +25,7 @@ root.render(
         <ThemeProvider theme={generalTheme}>
           <LoadingProvider>
             <RouterProvider router={router} />
+            <AutomationBlockedDialog />
             <ToastContainer
               pauseOnFocusLoss={false}
               hideProgressBar

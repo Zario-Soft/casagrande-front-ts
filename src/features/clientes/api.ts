@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { ClienteDTO, ClienteResponse } from "./clientes.contracts";
 import { API_URL } from '../../infrastructure/env';
+import { automationGuardFetch } from '../../infrastructure/automation-guard';
 import { concatEndereco, MapResponse } from './clientes-common';
 
 export const clientesApi = createApi({
@@ -8,6 +9,7 @@ export const clientesApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: API_URL,
         credentials: 'include',
+        fetchFn: automationGuardFetch,
     }),
     tagTypes: ['Clientes'], // This is the "label" for our cache
     endpoints: (builder) => ({
